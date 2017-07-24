@@ -2,7 +2,7 @@ package.path= '/opt/nginx/lualib/?.lua;/home/webroot/changpei/lua/inc/?.lua;';
 local func	= require "function";
 
 
-local str = func.curl("http://www.chemcatch.com");
+local str = func.curl("http://www.chemcatch.cn");
 ngx.say(str);
 
 local str = '{    "a": 123,    "c": "d",    "e": "f"}';
