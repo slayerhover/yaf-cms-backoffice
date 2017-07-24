@@ -1,0 +1,63 @@
+<form id="cityeditfm" method="post">
+<input type="hidden" name="id" value="<{$mymenu.id}>" />
+<table border="0" width="100%" cellspacing="1" cellpadding="5" bgcolor="#c4d3e1" style="text-align:left; line-height:18px;">
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">上级：</td>
+			<td width="80%">
+			<SELECT name='up' style="width:153px; height:25px;" size='1'>
+				<OPTION value="0">根目录 </OPTION>
+				<OPTION value="0" disabled="disabled"> ----------------- </OPTION>
+				<{section name=sec1 loop=$dataset}>
+				<OPTION  <{if $dataset[sec1].id eq $mymenu.up}>selected="selected"<{/if}> value="<{$dataset[sec1].id}>"><{$dataset[sec1].name}></OPTION>
+				<{/section}>
+			</SELECT>
+			</td>
+		</tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">标题：</td>
+			<td width="80%"><input name="title" type="text" style="width:400px;" class="textbox-text validatebox-text textbox-prompt easyui-validatebox" placeholder="请输入标题.."  required="true"  value="<{$mymenu.name}>" ></td>
+		</tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">级别：</td>
+			<td width="80%">
+			<label><input type="radio" name='level' value="1" <{if $mymenu.level eq 1}>checked='true'<{/if}> />省级</label>
+			<label><input type="radio" name='level' value="2" <{if $mymenu.level eq 2}>checked='true'<{/if}> />市级</label>
+			<label><input type="radio" name='level' value="3" <{if $mymenu.level eq 3}>checked='true'<{/if}> />县/区级</label>
+			<label><input type="radio" name='level' value="4" <{if $mymenu.level eq 4}>checked='true'<{/if}> />商圈</label>
+			</td>
+		</tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">排序：</td>
+			<td width="80%"><input name="sortorder" type="text" class="textbox-text validatebox-text textbox-prompt easyui-validatebox" placeholder="请输入排序.." value="<{$mymenu.sortorder}>" ></td>
+		</tr>
+				
+</table>
+</form>
+
+<script>
+$(function(){
+		$('#cityupdatesubmit').click(function(data){			
+				$('#cityeditfm').form('submit', {    
+					url:'/admin/cityupdate',    
+					success: function(data){    
+						var data = eval('(' + data + ')');
+						
+						
+						if(data.code=='200'){
+								$.messager.show({
+										title:'提示',
+										msg:data.msg,
+										timeout:3000,
+										showType:'slide'
+								});				
+								$('#cityeditfm').form('clear');
+								$("#citydlg").dialog('close');
+								$("#city").treegrid('reload');
+						}else{
+								$.messager.alert('提示',data.msg,'warning');
+						}
+					}    
+				});
+		})	
+});
+</script>

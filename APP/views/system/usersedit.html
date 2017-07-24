@@ -1,0 +1,68 @@
+<form id="userseditfm" method="post">
+<input type="hidden" name="id" value="<{$dataset.id}>" />
+<table border="0" width="100%" cellspacing="1" cellpadding="5" bgcolor="#c4d3e1" style="text-align:left; line-height:18px;">
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">用户名：</td>
+			<td width="80%"><input name="username" value="<{$dataset.username}>" type="text" style="width:400px;" class="textbox-text validatebox-text textbox-prompt easyui-validatebox" placeholder="请输入用户名.."  required="true"></td>
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">所属用户组：</td>
+			<td width="80%">
+			<SELECT name='roles_id' style="width:153px; height:25px;" size='1'>
+				<{section name=sec1 loop=$roles}>
+				<OPTION <{if $roles[sec1].id eq $dataset.roles_id}>selected="selected"<{/if}> value="<{$roles[sec1].id}>"><{$roles[sec1].rolename}></OPTION>
+				<{/section}>
+			</SELECT>
+			</td>
+		</tr>		
+		</tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">密码：</td>
+			<td width="80%"><input name="password" type="password" style="width:200px;"  class="textbox-text validatebox-text textbox-prompt easyui-validatebox" placeholder="如不修改请留空.."></td>
+		</tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">重复密码：</td>
+			<td width="80%"><input name="repassword" type="password" style="width:200px;"  class="textbox-text validatebox-text textbox-prompt easyui-validatebox" placeholder="如不修改请留空.."></td>
+		</tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">状态：</td>
+			<td width="80%"><input name="status" type="checkbox" class="textbox-prompt" value="1" <{if $dataset.status eq 1}>checked="checked"<{/if}> >激活</td>
+		</tr>
+						
+</table>
+</form>
+
+<script>
+$(function(){
+		$('#usersupdatesubmit').click(function(data){			
+				$('#userseditfm').form('submit', {    
+					url:'/system/usersupdate',    
+					success: function(data){    
+						var data = eval('(' + data + ')');
+						
+						
+						if(data.code=='200'){
+								$.messager.show({
+										title:'提示',
+										msg:data.msg,
+										timeout:3000,
+										showType:'slide'
+								});				
+								$('#userseditfm').form('clear');
+								$("#usersdlg").dialog('close');
+								$("#users").datagrid('reload');
+						}else{
+								var msginfo = '';								
+								if(data.data!=''){
+									var n=1;
+									$.each(data.data, function(k,v){
+										msginfo	+=	n+'.'+v+'<br>';
+										n++;
+									});									
+								}
+								$.messager.alert('提示',data.msg+'<br>'+msginfo,'warning');
+						}
+					}    
+				});
+		})	
+});
+</script>

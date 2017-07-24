@@ -1,0 +1,68 @@
+<div id="tb<{$uniqid}>" style="padding:5px">
+<form id="pageseditfm" method="post">
+<input type="hidden" name="id" value="<{$dataset.id}>" />
+<table border="0" width="100%" cellspacing="1" cellpadding="5" bgcolor="#c4d3e1" style="text-align:left; line-height:18px;">
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="10%">标题：</td>
+			<td width="90%"><input name="title" type="text" style="width:400px;" value="<{$dataset.title}>" class="textbox-text validatebox-text textbox-prompt easyui-validatebox" placeholder="请输入标题.."  required="true"></td>
+		</tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;">关键词：</td>
+			<td><input name="keywords" value="<{$dataset.keywords}>"  type="text" style="width:400px;"  class="textbox-text validatebox-text textbox-prompt easyui-validatebox" placeholder="请输入链接.."></td>
+		</tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;">状态：</td>
+			<td><input name="status" type="checkbox" class="textbox-prompt" value="1" <{if $dataset.status eq 1}>checked="checked"<{/if}> >激活</td>
+		</tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;">内容：</td>
+			<td>
+			<script id="pageseditEditor" name="content" type="text/plain">
+	        <{$dataset.content}>
+		    </script>
+			</td>
+		</tr>
+		<tr> 
+			<td colspan="2" bgcolor="#F4F4F4" style="border-top:#ddd 1px solid;text-align:right; padding-right:25px;">			
+			<div>
+			<a href="javascript:;" class="l-btn l-btn-small" onclick="pageseditsubmitForm()"><span class="l-btn-left l-btn-icon-left"><span class="l-btn-text">保存</span><span class="l-btn-icon icon-ok">&nbsp;</span></span></a>
+			<a href="javascript:;" class="l-btn l-btn-small" onclick="pageseditclearForm()"><span class="l-btn-left l-btn-icon-left"><span class="l-btn-text">关闭</span><span class="l-btn-icon icon-no">&nbsp;</span></span></a>
+			</div>
+			</td>			
+		</tr>
+</table>
+</form>
+</div>
+
+<script>
+/***关闭umeditor BOF***/
+if(typeof(pageseditum)!='undefined'){
+		 pageseditum.destroy();
+}
+/***关闭umeditor EOF***/
+var pageseditum = UM.getEditor('pageseditEditor');
+var pageseditclearForm=function(){
+	$('#pageseditfm').form('clear');
+	$('#rightTabs').tabs('close','编辑页面');
+}
+var pageseditsubmitForm=function(){
+	$('#pageseditfm').form('submit', {    
+			url:'/pages/pagesupdate',    
+			success: function(data){    
+				var data = eval('(' + data + ')');
+				
+				if(data.code=='200'){
+						$.messager.show({
+								title:'提示',
+								msg:data.msg,
+								timeout:3000,
+								showType:'slide'
+						});				
+						$("#pages").datagrid('reload');
+				}else{
+						$.messager.alert('提示',data.msg,'warning');
+				}
+			}
+	});
+}
+</script>

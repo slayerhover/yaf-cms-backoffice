@@ -1,0 +1,66 @@
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>公司产品_<{$coinfo.title}></title>
+<meta name="keywords" content="<{$coinfo.keywords}>">
+<meta name="description" content="<{$coinfo.description}>">
+
+<link href="/css/nav.css" rel="stylesheet">
+<link href="/css/style.css" rel="stylesheet" type="text/css">
+<link href="/css/bdsstyle.css" rel="stylesheet" type="text/css">
+<!-- 加载jQuery1.10.2版本-->
+<script type="text/javascript" src="/Js/jquery-1.10.2.min.js"></script>
+<script type="text/javascript" src="/Js/jquery.nav.js"></script>
+<script type="text/javascript" src="/Js/JQ_common.js"></script>
+<script type="text/javascript" src="/Js/jquery.jcarousellite.min.js"></script>
+<script type="text/javascript" src="/Js/lazyload.js"></script>
+<script type="text/javascript" src="/Js/plugins.min.js"></script>
+<script type="text/javascript" src="/Js/revolution.min.js"></script>
+<script type="text/javascript" src="/Js/jquery.flexslider.js"></script>
+</head>
+<body onLoad="showImg();">
+
+<{include file="index/header.html"}>
+<a name="pro"></a>
+<div id="main" class="bg incontenter">
+        <div class="main" style="width: 1055px;">
+            <div class="blank1">
+            </div>
+            <div class="blank2">			
+            </div>
+            <div class="inside_tit f01">
+                <{$products.title}></div>
+            <div class="blank">
+            </div>			
+            <div class="wz">
+                您的位置：<a href="<{url c=index a=index}>">首 页</a> > <a href="<{url c=index a=listproducts id=$products.categories_id}>#pro">产品中心</a> > <a href="<{url c=index a=listproducts id=$products.categories_id}>#pro"><{$products.classname}></a></div>							
+            <div class="blank4">			
+            </div>			
+            <div class="inside_sift">
+               <!-- <div class="tit f01">
+                    筛选</div>-->
+            </div>			
+            <div class="blank4">
+            </div>			
+            <div class="incontenter">
+                <!-- 标题开始 -->
+                <div class="inside-nav" style="line-height:50px; color:#FFFFFF; text-indent:20px;">
+				<{$products.keywords}>	
+				</div>
+				
+				<!-- 内容开始 -->
+				<div class="TabContent">
+						
+					<div class="pros-all-wrap">
+					<p><{$products.info}></p>
+					</div>
+					
+				</div>
+            </div>
+            <div class="blank4">
+            </div>
+        </div>
+</div>
+
+    
+<{include file="index/footer.html"}>
+
+</body></html>

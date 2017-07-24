@@ -1,0 +1,93 @@
+<div id="tb<{$uniqid}>" style="padding:5px">
+<form id="productsaddfm" method="post" enctype="multipart/form-data">
+<table border="0" width="100%" cellspacing="1" cellpadding="5" bgcolor="#c4d3e1" style="text-align:left; line-height:18px;">
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="10%">产品名称：</td>
+			<td colspan="5" width="90%"><input name="title" type="text" style="width:400px;" class="textbox-text validatebox-text textbox-prompt easyui-validatebox" placeholder="请输入产品名称."  required="true"></td>
+		</tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td class="main" >栏目:</td>
+			<td class="main" >			
+			<SELECT name='categories_id' size='1' required="true">
+			<OPTION value="0">选择栏目</OPTION>
+			<OPTION value="0" disabled="disabled"> -------- </OPTION>
+			<{section name=sec1 loop=$categories}>
+			<OPTION value="<{$categories[sec1].id}>"><{$categories[sec1].title}></OPTION>
+				<{section name=sec2 loop=$categories[sec1].children}>
+				<OPTION value="<{$categories[sec1].children[sec2].id}>">&nbsp;&nbsp;|--<{$categories[sec1].children[sec2].title}></OPTION>
+				<{/section}>
+			<{/section}>
+			</SELECT>
+			</td>
+			<td style="line-height:30px;">关键词：</td>
+			<td colspan="3"><input name="keywords" type="text" style="width:400px;"  class="textbox-text validatebox-text textbox-prompt easyui-validatebox" placeholder="请输入关键词"></td>
+		</tr>		
+		<tr bgcolor="#FFFFFF"> 
+			<td class="main">排序：</td>
+			<td class="main"><input type="text" name="sortorder" size="20"  class="textbox-text validatebox-text textbox-prompt easyui-validatebox"   value="500" /></td>						 			<td style="line-height:30px;">状态：</td>
+			<td><label><input name="status" type="checkbox" class="textbox-prompt" value="1" checked="checked" >激活</label></td>		
+			<td class="main">推荐：</td>
+			<td class="main"><label><input type="checkbox" name="recommend" class="textbox-prompt"  value="1" />设为推荐</label></td>						 
+		</tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td class="main">缩略图:</td>
+			<td class="main" colspan="5">
+			<a href="javascript:;" class="a-upload l-btn">
+			<input type="file" size="40" name="upfile" accept="image/*" value="">
+			</a>
+			<span style="color:#FF0000">(未上传缩略图则默认采用内容中的第一张图片做缩略图)</span></td>
+		</tr>
+		
+		
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;">内容：</td>
+			<td colspan="5">
+			<script id="productsaddEditor" name="content" type="text/plain"></script>
+			</td>
+		</tr>
+		<tr> 
+			<td colspan="6" bgcolor="#F4F4F4" style="border-top:#ddd 1px solid;text-align:right; padding-right:25px;">			
+			<div>
+			<a href="javascript:;" class="l-btn l-btn-small" onclick="productsaddsubmitForm()"><span class="l-btn-left l-btn-icon-left"><span class="l-btn-text">保存</span><span class="l-btn-icon icon-ok">&nbsp;</span></span></a>
+			<a href="javascript:;" class="l-btn l-btn-small" onclick="productsaddclearForm()"><span class="l-btn-left l-btn-icon-left"><span class="l-btn-text">关闭</span><span class="l-btn-icon icon-no">&nbsp;</span></span></a>
+			</div>
+			</td>			
+		</tr>
+</table>
+</form>
+</div>
+
+<script>
+/***关闭umeditor BOF***/
+if(typeof(productsaddum)!='undefined'){
+		 productsaddum.destroy();
+}
+/***关闭umeditor EOF***/
+var productsaddum = UM.getEditor('productsaddEditor');
+var productsaddclearForm=function(){
+	$('#productsaddfm').form('clear');
+	$('#rightTabs').tabs('close','添加产品');
+}
+var productsaddsubmitForm=function(){
+	$('#productsaddfm').form('submit', {    
+			url:'/products/productsincrease',    
+			success: function(data){    
+				var data = eval('(' + data + ')');
+				
+				if(data.code=='200'){
+						$.messager.show({
+								title:'提示',
+								msg:data.msg,
+								timeout:3000,
+								showType:'slide'
+						});				
+						$('#productsaddfm').form('clear');
+						if(typeof($("#products"))!='undefined') $("#products").datagrid('reload');
+						$('#rightTabs').tabs('close','添加产品');						
+				}else{
+						$.messager.alert('提示',data.msg,'warning');
+				}
+			}
+	});
+}
+</script>

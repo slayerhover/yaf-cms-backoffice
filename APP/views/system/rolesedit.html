@@ -1,0 +1,52 @@
+<form id="roleseditfm" method="post">
+<input type="hidden" name="id" value="<{$dataset.id}>" />
+<table border="0" width="100%" cellspacing="1" cellpadding="5" bgcolor="#c4d3e1" style="text-align:left; line-height:18px;">
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">权限组：</td>
+			<td width="80%"><input name="rolename" type="text" value="<{$dataset.rolename}>" style="width:400px;" class="textbox-text validatebox-text textbox-prompt easyui-validatebox" placeholder="请输入用户名.."  required="true"></td></tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">可用控制器：</td>
+			<td width="80%">			
+			<{section name=sec loop=$controllers}>
+			<label style="width:120px;float:left; cursor:pointer; height:35px; line-height:35px;"><input type="checkbox" name="controllers[]" <{if $controllers[sec].flag eq 1}>checked="checked"<{/if}>  value="<{$controllers[sec].name}>" /><{$controllers[sec].name}></label>
+			<{/section}>
+			</td>
+		</tr>	
+</table>
+</form>
+
+<script>
+$(function(){
+		$('#rolesupdatesubmit').click(function(data){			
+				$('#roleseditfm').form('submit', {    
+					url:'/system/rolesupdate',    
+					success: function(data){    
+						var data = eval('(' + data + ')');
+						
+						
+						if(data.code=='200'){
+								$.messager.show({
+										title:'提示',
+										msg:data.msg,
+										timeout:3000,
+										showType:'slide'
+								});				
+								$('#roleseditfm').form('clear');
+								$("#rolesdlg").dialog('close');
+								$("#roles").datagrid('reload');
+						}else{
+								var msginfo = '';								
+								if(data.data!=''){
+									var n=1;
+									$.each(data.data, function(k,v){
+										msginfo	+=	n+'.'+v+'<br>';
+										n++;
+									});									
+								}
+								$.messager.alert('提示',data.msg+'<br>'+msginfo,'warning');
+						}
+					}    
+				});
+		})	
+});
+</script>

@@ -1,0 +1,128 @@
+<script language="javascript">
+    var se = Array();
+$(function(){
+    var th = $(".top").height();
+    th = 111-th
+    var wh = $(window).height()-th;
+    var cw = $(window).width()-177;
+    $("#maininfo").panel({
+        title:'系统公告',
+        doSize:true,
+        height:128,
+        collapsible:true
+    });
+    whs = (wh-200);
+    $("#taskUserTabs").height(whs);
+});
+
+$(function(){
+    var $this = $(".renav");
+    var scrollTimer;
+    $this.hover(function(){
+        clearInterval(scrollTimer);
+    },function(){
+        scrollTimer = setInterval(function(){
+            scrollNews( $this );
+        }, 3800 );
+    }).trigger("mouseout");
+});
+function scrollNews(obj){
+    var $self = obj.find("ul:first");
+    var lineHeight = $self.find("li:first").height();
+    $self.animate({ "margin-top" : -lineHeight +"px" },600 , function(){
+        $self.css({"margin-top":"0px"}).find("li:first").appendTo($self);
+    });
+}
+function toShowNotice(id){
+    var has = $("#detailFormNotice").length;
+    if(!has){
+        $("<div/>").dialog({
+            title:'公告详情',
+            resizable:true,
+            width:720,
+            height:480,
+            href:'/EasyWork/index.php?s=/Notice/detail/id/'+id,
+            onOpen:function(){
+                cancel['NoticeDetail'] = $(this);
+            },
+            onClose:function(){
+                $(this).dialog('destroy');
+                cancel['NoticeDetail'] = null;
+            }
+        });
+    }
+}
+</script>
+<div class="con" id="TaskIndexCon">
+    <div id="maininfo" style="margin-bottom:5px; padding:3px;">
+    <table class="infobox table-border linebox" width="100%" border="0" cellspacing="0" cellpadding="0">
+        <tr style="height:25px;">
+            <td><span class="vol up-font-over"><div class="renav_tit">公告：</div>
+            <div class="renav">
+                <ul style="margin-top: 0px;">
+                <li><a href="javascript:toShowNotice('2')">新的审批文件已上报&nbsp;&nbsp;2017-05-13</a></li>
+                <li><a href="javascript:toShowNotice('1')">又有新的审批文件喽&nbsp;&nbsp;2017-05-14</a></li>
+            </ul>
+            </div></span>
+            </td>
+        </tr>
+        <tr style="height:23px; line-height:23px;"><td height="28" class="rebg"><label>项目统计</label></td></tr>
+        <tr style="height:35px; line-height:35px;"><td>
+                <span style="margin-right:25px;">新闻总数：<span class="up-font-over" style="font-weight:bold;"><{$systemMsg.artclenum}></span></span>
+                <span style="margin-right:25px;">待审文章：<span class="up-font-over" style="font-weight:bold;"><{$systemMsg.uartclenum}></span></span>
+				<span style="margin-right:25px;">评论总数：<span class="up-font-over" style="font-weight:bold;"><{$systemMsg.commentnum}></span></span>                
+                <span style="margin-right:25px;">待审评论：<span class="up-font-over" style="font-weight:bold;"><{$systemMsg.ucommentnum}></span></span>
+                <span style="margin-right:25px;">产品总数：<span class="up-font-over" style="font-weight:bold;">0</span></span>
+                <span style="margin-right:25px;">产品留言：<span class="up-font-over" style="font-weight:bold;">0</span></span>
+                <span style="margin-right:25px;">字符集：<span class="up-font-over" style="font-weight:bold;">utf-8</span></span>				
+				<span style="margin-right:25px;">管理员：<span class="up-font-over" style="font-weight:bold;"><{$systemMsg.administrator}></span></span>
+        </td></tr>        
+    </table>
+    </div>
+    <div id="taskUserTabs" class="easyui-tabs">
+    <div title="服务器信息" >
+			<table border="0" width="100%" cellspacing="1" cellpadding="5" bgcolor="#c4d3e1" style="text-align:left; line-height:18px;">							  
+							  <tr bgcolor="#FFFFFF"> 
+								<td style="line-height:30px;"  width="10%">服务端信息：</td><td width="50%"><{$systemMsg.SERVER_SOFTWARE}></td>
+								<td style="line-height:30px;"  width="15%">邮件模式：</td><td width="25%"><{$systemMsg.sys_mail}></td>
+							  </tr>
+							  <tr bgcolor="#FFFFFF"> 
+								<td style="line-height:30px;"  width="10%">PHP版本：</td><td width="50%"><{$systemMsg.sysversion}></td>
+								<td style="line-height:30px;"  width="10%">服务器IP：</td><td width="30%"><{$systemMsg.SERVER_ADDR}></td>
+							  </tr>
+							  <tr bgcolor="#FFFFFF"> 
+								<td style="line-height:30px;"  width="10%">MYSQL版本：</td><td width="50%"><{$systemMsg.mysqlVersion}></td>
+								<td style="line-height:30px;"  width="10%">服务器端口：</td><td width="30%"><{$systemMsg.SERVER_PORT}></td>
+							  </tr>
+								<tr bgcolor="#FFFFFF"> 
+								<td style="line-height:30px;"  width="10%">是否允许文件上传：</td><td width="50%"><{$systemMsg.file_uploads}><span help="1">(如果不允许可把php.ini里的file_uploads=Off改成On，重启服务器即可)</span></td>
+								<td style="line-height:30px;"  width="10%">上传文件存放的临时目录：</td><td width="30%"><{$systemMsg.upload_tmp_dir}></td>
+							  </tr>
+							  <tr bgcolor="#FFFFFF"> 
+								<td style="line-height:30px;"  width="10%">最大上传限制：</td><td width="40%"><{$systemMsg.max_upload}><span help="1">(需更大可修改php.ini里的upload_max_filesize值，重启服务器即可)</span></td>
+								<td style="line-height:30px;"  width="10%">服务器所在时间：</td><td width="40%"><{$systemMsg.systemtime}></td>
+							  </tr>
+							  <tr bgcolor="#FFFFFF"> 
+								<td style="line-height:30px;"  width="10%">最大执行时间：</td><td width="40%"><{$systemMsg.max_ex_time}><span help="1">(需更大可修改php.ini里的max_execution_time值，重启服务器即可)</span></td>
+								<td style="line-height:30px;"  width="10%">网站所在磁盘物理位置：</td><td width="40%"><{$systemMsg.DOCUMENT_ROOT}></td>
+							  </tr>
+							   <tr bgcolor="#FFFFFF"> 
+								<td style="line-height:30px;"  width="10%">空间限制内存：</td><td width="40%"><{$systemMsg.memory_user_limit}><span help="1">(需更大可修改php.ini里的memory_limit值，重启服务器即可)</span></td>
+								<td style="line-height:30px;"  width="10%">当前文件路径：</td><td width="40%"><{$systemMsg.SCRIPT_FILENAME}></td>  
+							  </tr>
+							  <tr bgcolor="#FFFFFF"> 
+								<td style="line-height:30px;"  width="10%">是否支持采集：</td><td width="40%"><{$systemMsg.allow_url_fopen}><span help="1">(若不支持可把php.ini里的allow_url_fopen=Off改成On，重启服务器即可)</span></td>
+								 <td style="line-height:30px;"  width="10%">Zend Optimizer版本：</td><td width="40%"><{$systemMsg.zendVersion}></td>
+							  
+							  </tr>
+							  <tr bgcolor="#FFFFFF"> 
+								<td style="line-height:30px;"  width="10%">是否支持GD2库：</td><td width="40%"><{$systemMsg.gdpic}><span help="1">(若不支持可把php.ini中;extension=php_gd2.dll前面的;去掉，重启服务器即可)</span></td>
+								<td style="line-height:30px;"  width="10%">当前登陆IP：</td><td width="40%"><{$systemMsg.onlineip}></td>
+							  </tr>
+							   <tr bgcolor="#FFFFFF"> 
+								<td style="line-height:30px;"  width="10%">是否允许Cookie：</td><td width="40%"><{$systemMsg.ifcookie}><span help="1">(若不允许可在Windows控制面板 ,"Internet选项" ,隐私设置中调整)</span></td>
+								<td style="line-height:30px;"  width="10%">当前域名：</td><td width="40%"><{$systemMsg.SERVER_NAME}></td>
+							  </tr>
+			</table>
+	</div></div>
+</div>

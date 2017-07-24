@@ -1,0 +1,92 @@
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title><{$pages.title}>_<{$coinfo.title}></title>
+<meta name="keywords" content="<{$pages.keywords}>">
+<meta name="description" content="<{$pages.content|strip_tags|cntruncate:"120":".."}>">
+
+<link href="/css/nav.css" rel="stylesheet">
+<link href="/css/style.css" rel="stylesheet" type="text/css">
+<link href="/css/bdsstyle.css" rel="stylesheet" type="text/css">
+<!-- 加载jQuery1.10.2版本-->
+<script type="text/javascript" src="/Js/jquery-1.10.2.min.js"></script>
+<script type="text/javascript" src="/Js/jquery.nav.js"></script>
+<script type="text/javascript" src="/Js/JQ_common.js"></script>
+<script type="text/javascript" src="/Js/jquery.jcarousellite.min.js"></script>
+<script type="text/javascript" src="/Js/lazyload.js"></script>
+<script type="text/javascript" src="/Js/plugins.min.js"></script>
+<script type="text/javascript" src="/Js/revolution.min.js"></script>
+<script type="text/javascript" src="/Js/jquery.flexslider.js"></script>
+</head>
+<body onLoad="showImg();">
+
+<{include file="index/header.html"}>
+
+<div id="main" class="bg incontenter">
+        <div class="main" style="width: 1055px;">
+            <div class="blank1">
+            </div>
+            <div class="blank2">			
+            </div>
+            <div class="inside_tit f01">
+                在线留言</div>
+            <div class="blank">
+            </div>			
+            <div class="wz">
+                您的位置：<a href="<{url c=index a=index}>">首 页</a> > <a href="<{url c=index a=viewpages id=$pages.id}>#pro">在线留言</a></div>
+			<a name="pro"></a>						
+            <div class="blank4">			
+            </div>			
+            <div class="inside_sift">
+               <!-- <div class="tit f01">
+                    筛选</div>-->
+            </div>			
+            <div class="blank4">
+            </div>			
+            <div class="incontenter">
+				<div class="TabContent">
+				
+				<div class="sidebar">
+				<ul><{counter start=-1 skip=1 print=false}>
+					<{section name=sec loop=$allnewsclass}>
+					<li><a href="<{url c=index a=viewpages id=$allnewsclass[sec].id}>#pro" date-id="<{counter}>" class="<{if $smarty.section.sec.first}>hover<{/if}>"><{$allnewsclass[sec].title}></a></li>
+					<{/section}>
+					<div style="top: 41px;" id="lanPos"></div>
+				</ul>
+				<script language="javascript">
+				var sds=$('.hover').attr('date-id')*40+$('.hover').attr('date-id')*1+'px';
+				$('#lanPos').css('top',sds);
+				$('.sidebar li a').hover(function(){
+					var sd=$(this).attr('date-id')*($(this).height()+1)+'px';
+					$('#lanPos').css('top',sd);
+					},function(){
+						$('#lanPos').css('top',sds);
+				});
+				</script>
+				</div>
+				<div class="newslist">
+					<h1 class="newstitle"><{$pages.title}></h1>
+
+					<div class="newscontent">
+						<{$pages.content}>
+					</div>				
+					
+					<div class="newskeywords">标签：
+						<{section name=sec loop=$keywords}>
+						<{if $keywords[sec] neq ''}>
+							<a title="<{$keywords[sec]}>" href="#"><{$keywords[sec]}></a>&nbsp;&nbsp;
+						<{/if}>
+						<{/section}>
+					</div>
+				<div style="clear:both; padding:10px;"></div>
+				</div>				
+				<div style="clear:both; padding:10px;"></div>
+				</div>
+            </div>
+            <div class="blank4">
+            </div>
+        </div>
+</div>
+
+    
+<{include file="index/footer.html"}>
+
+</body></html>
