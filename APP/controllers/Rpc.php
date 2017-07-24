@@ -49,10 +49,8 @@ class RpcController extends CoreController {
 	
 	
 	/** 
-	* 返回数据信息 
+	* 返回城市数据信息 
 	* 
-	* @param  $type 整型 类型（1: 类型a 2：类型b 3:类型c 4:类型d 5:类型e）
-	* @param  $quyu 整型 区域对应的ID
 	* 	
 	* @return $rows 数组 返回对应的数据包
 	*/
@@ -99,10 +97,8 @@ class RpcController extends CoreController {
 	
 	
 	/** 
-	* 返回数据信息 
+	* 返回汽车品牌数据信息 
 	* 
-	* @param  $type 整型 类型（1: 类型a 2：类型b 3:类型c 4:类型d 5:类型e）
-	* @param  $quyu 整型 区域对应的ID
 	* 	
 	* @return $rows 数组 返回对应的数据包
 	*/
@@ -135,10 +131,8 @@ class RpcController extends CoreController {
 	}
 	
 	/** 
-	* 返回数据信息 
+	* 返回汽车厂家数据信息 
 	* 
-	* @param  $type 整型 类型（1: 类型a 2：类型b 3:类型c 4:类型d 5:类型e）
-	* @param  $quyu 整型 区域对应的ID
 	* 	
 	* @return $rows 数组 返回对应的数据包
 	*/
@@ -166,10 +160,8 @@ class RpcController extends CoreController {
 	}
 	
 	/** 
-	* 返回数据信息 
+	* 返回汽车系列数据信息 
 	* 
-	* @param  $type 整型 类型（1: 类型a 2：类型b 3:类型c 4:类型d 5:类型e）
-	* @param  $quyu 整型 区域对应的ID
 	* 	
 	* @return $rows 数组 返回对应的数据包
 	*/
@@ -191,10 +183,8 @@ class RpcController extends CoreController {
 	}
 	
 	/** 
-	* 返回数据信息 
+	* 返回汽车型号数据信息 
 	* 
-	* @param  $type 整型 类型（1: 类型a 2：类型b 3:类型c 4:类型d 5:类型e）
-	* @param  $quyu 整型 区域对应的ID
 	* 	
 	* @return $rows 数组 返回对应的数据包
 	*/
@@ -216,10 +206,8 @@ class RpcController extends CoreController {
 	}
 	
 	/** 
-	* 返回数据信息 
+	* 返回汽车配件数据信息 
 	* 
-	* @param  $type 整型 类型（1: 类型a 2：类型b 3:类型c 4:类型d 5:类型e）
-	* @param  $quyu 整型 区域对应的ID
 	* 	
 	* @return $rows 数组 返回对应的数据包
 	*/
@@ -275,7 +263,7 @@ class RpcController extends CoreController {
 	 * @return string     $result    处理后的字符串
 	 */
 	private function authcode($string, $operation, $key = '') {
-		$authorization='changpei0628x9385dbc36c077a2e8bec942dd38';
+		$authorization=$this->config->application->rpcAuth;
 		$key = md5($key ? $key : $authorization);
 		$key_length = strlen($key);
 	

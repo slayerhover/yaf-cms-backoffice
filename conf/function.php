@@ -192,38 +192,6 @@ function curl_data($url,$postdata='',$pre_url='http://www.baidu.com',$proxyip=fa
 		return $result;
 }
 
-/***上传文件到七牛cdn***/
-function uploadToCDN($filePath, $cdnfileName){
-		require_once  APPLICATION_PATH . '/library/Qiniu/functions.php';
-    			
-		// 需要填写你的 Access Key 和 Secret Key
-		$accessKey = 'jHYFRjlEXA_iiuLrBXZyr7dD2FMyy6Nfo20PKBlc';
-		$secretKey = 'sLkQV3m7UHNlFU-7gEmezvg4N0WZUtcbOkVK5uV3';
-
-		// 构建鉴权对象
-		$auth = new Qiniu_Auth($accessKey, $secretKey);
-		// 要上传的空间
-		$bucket = 'wnwhy';
-
-		// 生成上传 Token
-		$token = $auth->uploadToken($bucket);
-
-		// 上传到七牛后保存的文件名
-		$key = $cdnfileName;
-
-		// 初始化 UploadManager 对象并进行文件的上传
-		$uploadMgr = new Qiniu_Storage_UploadManager();
-
-		// 调用 UploadManager 的 putFile 方法进行文件的上传
-		list($ret, $err) = $uploadMgr->putFile($token, $key, $filePath);
-		if ($err !== null) {
-			return false;
-		} else {
-			return 'http://o748t1241.bkt.clouddn.com/' . $ret['key'];
-		}
-}
-
-
 /**
  * 加密/解密字符串
  *
@@ -233,7 +201,7 @@ function uploadToCDN($filePath, $cdnfileName){
  * @return string     $result    处理后的字符串
  */
 function authcode($string, $operation, $key = '') {
-		$authorization='xxxxxxxx0628x9385dbc36c077a2e8bec942dd38';
+		$authorization=Yaf_Registry::get('config')->application->rpcAuth;
 		$key = md5($key ? $key : $authorization);
 		$key_length = strlen($key);
 	
