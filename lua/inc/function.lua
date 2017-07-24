@@ -102,7 +102,7 @@ function _M:trim(str)
 	return str;
 end
 
-function _M:trim_left( str )
+function _M:ltrim( str )
 	if ''==str or nil==str then
 		return str;
 	end
@@ -130,7 +130,7 @@ function _M:trim_left( str )
 	return str;
 end
 
-function _M:trim_right( str )
+function _M:rtrim( str )
 	if ''==str or nil==str then
 		return str;
 	end
