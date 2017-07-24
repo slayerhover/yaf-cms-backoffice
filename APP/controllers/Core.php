@@ -1,6 +1,6 @@
 <?php
 /**
-  *���Ŀ��������������������ɴ���չ
+  *核心控制器，其它控制器由此继承
   *
   */
 abstract class CoreController extends Yaf_Controller_Abstract {
@@ -15,7 +15,7 @@ abstract class CoreController extends Yaf_Controller_Abstract {
 	protected $session;
 	protected $auth;
     /**
-     * ��ʼ��
+     * 初始化
      *
      */
     public function init() {		
