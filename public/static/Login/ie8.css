@@ -1,0 +1,38 @@
+#username,
+#password {
+	width: 370px;
+	line-height: 37px;
+}
+.input-group-addon {
+	float:left;
+	display: inline-block;
+	padding: 0;
+	width: 48px;
+	height: 48px;
+	line-height: 30px;
+	background: #f4f4f4;	
+}
+#login_form a{
+	float: right;
+}
+.input-group .username_show_ie8 {
+		width:302px;
+}
+
+.new-login-wrap #username,
+.new-login-wrap #password {
+	width: 267px;
+	height: 45px;
+	line-height: 45px;
+}
+.new-login-wrap .kaptchaImage {
+	height: 45px;
+	margin-top: -8px;
+}
+.new-login-wrap .change-code {
+	display:inline-block;
+	height: 45px;
+	line-height: 45px;
+}
+
+

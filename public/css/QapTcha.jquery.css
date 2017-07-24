@@ -1,0 +1,26 @@
+﻿/*****************/
+/** QapTcha CSS **/
+/*****************/
+.QapTcha {float:left;margin-top:20px;width:298;}
+.QapTcha .clr{clear:both}
+.QapTcha .bgSlider {width:298px;height:37px;float:left;border:1px solid #040404;background-color:#101010;}
+.QapTcha .Slider {width:52px;height:37px;background:transparent url('../images/bg_draggable_qaptcha.jpg') no-repeat;cursor:e-resize;position:relative;top:0;left:0}
+.QapTcha .TxtStatus {width:252px;margin-top:7px;text-align:left;color:#bb2828;font-family:"微软雅黑";font-size:11px;clear:both}
+.QapTcha .dropSuccess {color:#33CC00}
+.QapTcha .dropError {color:orange}
+
+.QapTcha label{float:left;clear:both;width:60px;margin-top:10px}
+.QapTcha select,.QapTcha input{float:left;margin-top:10px}
+.QapTcha label.large{width:150px}
+.QapTcha fieldset{border:none; padding:10px;}
+.QapTcha .clr{clear:both}
+.QapTcha .notice {background-color:#d8e6fc;color:#35517c;border:1px solid #a7c3f0;padding:10px;margin-top:10px;}
+
+.QapTcha .code {
+	margin:30px;
+	border:1px solid #F0F0F0;
+	background-color:#F8F8F8;
+	padding:10px;
+	color:#777;
+}
+.QapTcha .container{width:980px;margin:auto}

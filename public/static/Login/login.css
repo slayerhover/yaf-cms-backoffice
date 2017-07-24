@@ -1,0 +1,192 @@
+/* 新登陆页面 */
+* {
+	margin: 0;
+	padding: 0;
+	outline: 0 !important;
+}
+html, body {
+	width: 100%;
+}
+html {
+	height: 100%;
+}
+body{
+	font-size:12px;
+	font-family: "微软雅黑","Microsoft Yahei";
+	color:#333;
+	margin:0 auto;
+	background: #e8e8e8;
+}
+.wrap1200 {
+	width: 1200px;
+	margin: 0 auto;
+}
+.new-login-wrap .login-head {
+	line-height: 90px;
+	background: #fff;
+}
+.new-login-wrap .head-logo-img {
+	display:  block;
+	float: left;
+	width: 205px;
+	height: 94px;
+	margin-top: -5px;
+}
+.new-login-wrap .head-logo-title {
+	display: block;
+	float: left;
+	line-height: 28px;
+	font-size: 24px;
+	margin: 28px 15px 0;
+	padding-left: 10px;
+	border-left: 3px solid #adadad;
+	color: #9fabb0;
+}
+.new-login-wrap .head-friend-link .head-link {
+	padding: 0 15px;
+	font-size: 14px;
+	color: #7d7d7d;
+	border-left: 1px solid #adadad;
+}
+.new-login-wrap .content-title-wrap {
+	height: 54px;
+	line-height: 54px;
+	border-bottom: 1px solid #dbdbdb;
+}
+.new-login-wrap .content-title {
+	display: block;
+	margin-left: 36px;
+	width: 75px;
+	line-height: 54px;
+	font-size: 18px;
+	color: #545454;
+	border-bottom: 2px solid #00a0e9;	
+}
+.new-login-wrap .login-bottom {
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	height: 106px;
+	background: #fff;
+}
+.new-login-wrap .bottom-copyright {
+	line-height: 92px;
+	font-size: 12px;
+	text-align: center;
+}
+.border-none {
+	border: none !important;
+}
+.new-login-wrap .form-div {	
+	width: 322px;
+	margin: 22px 0 0 36px;
+}
+.new-login-wrap .form-input-div {
+	position: relative;
+	width: 268px;
+	height: 45px;
+}
+.new-login-wrap .input-div-addon {
+	position: absolute;
+	left: 12px;
+	top: 10px;
+	width: 22px;
+	height: 22px;
+}
+.new-login-wrap .input-control {
+	width: 279px;
+	height: 45px;
+	line-height: 45px;
+	font-size: 12px;
+	border: 1px solid #d0d0d0;	
+	padding: 0 10px 0 46px;
+}
+.new-login-wrap .input-submit {
+	width: 279px;
+	padding: 0;	
+	background: #00a0e9;
+	color: #fff;
+	border: 0;
+}
+.new-login-wrap .error-info {
+	margin: 0;
+	color: #f00;
+	text-indent: 30px;
+	padding: 11px 0 0 0;
+}
+.new-login-wrap .onload-link-wrap {
+	width: 354px;
+	padding: 0 36px 0 36px;
+}
+.new-login-wrap .onload-link {	
+	display: inline-block;
+	margin: 14px 0 24px;
+	color: #7d7d7d;
+	font-size: 14px;
+}
+.new-login-wrap .alert-warning {
+	text-align: center;
+}
+.new-login-wrap .code-input-control {
+	width: 99px;
+	height: 45px;
+	line-height: 45px;
+	font-size: 12px;
+	border: 1px solid #d0d0d0;	
+	text-indent: 45px;
+}
+.new-login-wrap .kaptchaImage {
+	height: 45px;
+	margin-top: -5px;
+}
+.new-login-wrap .login-bg-img {
+	float: left;
+	width: 680px;
+	height: 480px;
+	margin: 112px 48px 0 28px;
+}
+.new-login-wrap .login-body {
+	height: 850px;
+	background: #64acf6;
+}
+.new-login-wrap .login-content-box {
+	float: left;
+	width: 352px;
+	padding-top: 174px;
+}
+.new-login-wrap .login-content {	
+	width: 352px;	
+	padding-bottom: 12px;
+	background: #fff;
+	border-radius: 2px;
+}
+.new-login-wrap .warn-tips {
+	font-size: 13px;
+	color: #fff;
+	margin-top: 12px;
+}
+input:-webkit-autofill {
+	-webkit-box-shadow: 0 0 0px 1000px white inset;
+	border: 1px solid #CCC!important;
+	height: 45px !important;
+	line-height: 45px !important;
+	border-radius: 0 4px 4px 0;
+} 
+
+/* ajisen login */
+.pay-web-login .addon-span {
+	display: block;
+	position: absolute;
+    right: 0;
+    top: 0;
+    height: 45px;
+    line-height: 45px;
+    padding: 0 10px;
+    border-left: 1px solid #d0d0d0;
+}
+
+
+
+
+

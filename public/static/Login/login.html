@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+<head>
+<base href='http://s.saofu.cn/saofu-web/'>
+<title>登录</title>
+<meta charset="utf-8">
+<link type="text/css" rel="stylesheet" href="css/bootstrap.min.css?v=5.1.0-3465d"/>
+<link type="text/css" rel="stylesheet" href="css/login/login.css?v=5.1.0-3465d" />
+<!--[if IE 7 ]>
+	<link href="css/ie-login/ie7.css?v=5.1.0-3465d" rel="stylesheet">
+<![endif]-->
+<!--[if IE 8 ]>
+	<link href="css/ie-login/ie8.css?v=5.1.0-3465d" rel="stylesheet">
+<![endif]-->
+
+
+<script type="text/javascript" src="javascripts/jquery-1.10.2.min.js?v=5.1.0-3465d"></script>
+
+<script type="text/javascript" src="javascripts/bootstrap.min.js?v=5.1.0-3465d"></script>
+<script type="text/javascript" src="javascripts/modernizr.custom.js?v=5.1.0-3465d"></script>
+<script type="text/javascript" src="javascripts/custom/utils.js?v=5.1.0-3465d"></script>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport">
+</head>
+<body>
+	
+	<!-- 新的登陆页面 -->
+	<div class="new-login-wrap">
+		<div class="login-head">
+			<div class="login-head-wrap wrap1200  clearfix">
+				<div class="head-logo pull-left">
+					<img  class="head-logo-img" src="images/login/logo.png?v=5.1.0-3465d" alt="logo" width="70" height="37"/>
+					<span class="head-logo-title">借贷管理系统</span>
+				</div>
+				<div class="head-friend-link  pull-right">
+					<a class="head-link border-none" href="http://www.yunnex.com">豫商贷官网</a>
+					<a class="head-link" href="http://help.yunnex.com">客户服务中心</a>
+				</div>
+			</div>
+		</div>
+		<div class="login-body">
+			<div class="wrap1200 login-content-wrap clearfix">
+				<div class="login-bg-img">
+					<img src="https://www.zzwms.com/static/images/dl1.png" width="680" height="480" />
+				</div>
+				<div class="login-content-box">
+					<div class="login-content">
+						<form id="login_form" action="login" method="post" onsubmit="return formSubmit();">				
+							<div class="content-title-wrap">
+								<span class="content-title">用户登录</span>
+							</div>
+							<div class="form-div">
+								<div class="form-input-div">
+									<span class="input-div-addon">
+										<img src="images/login/yonghuming.png?v=5.1.0-3465d" width="22" height="22">
+									</span>
+									<input id="username" name="username" class="input-control" type="text" placeholder="请输入用户名">
+								</div>
+							</div>						
+							<div class="form-div">
+								<div class="form-input-div">
+									<span class="input-div-addon">
+										<img src="images/login/mima.png?v=5.1.0-3465d" width="22" height="22">
+									</span>
+									<input id="password" name="password" class="input-control" type="password" placeholder="请输入密码">
+								</div>
+							</div>
+							<div class="form-div" id="kaptchadiv">
+								<div class="form-input-div">
+									<span class="input-div-addon">
+										<img src="images/login/kaptchaImage.png?v=5.1.0-3465d" width="22" height="22">
+									</span>
+									<input name="code" type="text" id="kaptchaCode" maxlength="4" class="code-input-control" placeholder="验证码">
+									<img src="" id="kaptchaImage" class="kaptchaImage">
+									<a href="#" class="change-code" onclick="changeCode();">换一张</a>
+								</div>
+							</div>
+							<p class="error-info">
+															
+								
+							</p> 
+							
+							<div class="form-div">
+								<div class="form-input-div">
+									<input class="input-control input-submit" type="submit" id="loginBtn" value="登录">
+								</div>
+							</div>
+							<div class="onload-link-wrap clearfix">
+								<a class="onload-link pull-left" href="#">客户端下载</a>
+								<a class="onload-link pull-right" href="#">忘记密码？</a>								
+							</div>
+						</form>
+					</div>
+					<p class="warn-tips">建议使用谷歌浏览器(chrome)访问商户后台，若使用其他浏览器访问可能存在兼容性问题，影响您的使用体验。</p>
+				</div>
+			</div>
+		</div>
+		<div class="login-bottom">
+			<p class="wrap1200 bottom-copyright">©2012-2017 河南豫商贷网络科技有限公司 版权所有 ICP证：粤12092612号</p>
+		</div>
+	</div>
+	
+</body>
+<script type="text/javascript">
+	var showCaptchaSystem = "saofu-web";
+	var system = "saofu-web";
+	var loginErrorCount = '4';
+	var allowLogin = false;
+	var isContainsSys = false;
+
+	function changeCode() {  //刷新验证码
+		$('#kaptchaImage').hide().attr('src', '/saofu-web/get_kaptcha_image?' + Math.floor(Math.random()*100) ).fadeIn();
+		$('#kaptchaCode').val('');
+		$('#kaptchaCode').focus();
+		allowLogin = false;
+	}
+
+	function formSubmit(){
+		if(loginErrorCount==null || loginErrorCount<3 || !isContainsSys){
+			return true;
+		}else{ //需要先验证验证码
+			var code = $("#kaptchaCode").val();
+			if(code == ''){
+				$(".error-info").empty();
+				$(".error-info").html('请您填写验证码');
+				return false;
+			}else if(code.length < 4){
+				$(".error-info").empty();
+				$(".error-info").html('您输入的验证码有误');
+				return false;
+			}else if(allowLogin){
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	function isSuperCardLogin(){
+		return $("#username").val().startsWith("ck_");
+	}
+
+	$(function(){
+		if(showCaptchaSystem!=null && showCaptchaSystem!='' && showCaptchaSystem.indexOf(system)>=0){ //判断该系统是否需要显示验证码
+			isContainsSys = true;
+		}
+		if(loginErrorCount!=null && loginErrorCount>=3 && isContainsSys){//显示验证码,并且以后登录先验证验证码
+			$("#kaptchadiv").show();
+			changeCode();
+		}else{
+			$("#kaptchadiv").hide();
+		}
+
+		$("#kaptchaCode").bind("input propertychange",function(){
+			var code = $(this).val();
+			if(code!='' && code.length == 4){
+				$.ajax({
+					type : "post",
+					url : "/saofu-web/captcha_validate",
+					dataType : "json",
+					data : {code:code},
+					success : function(data){
+						if(data.message == "success"){
+							$(".error-info").empty();
+							allowLogin = true;
+						}else{
+							$(".error-info").empty();
+							$(".error-info").html('您输入的验证码有误');
+							allowLogin = false;
+						}
+					}
+				});
+			}
+		});
+
+		$('#kaptchaImage').click(function (){
+			changeCode();
+		});
+
+		 $("#loginBtn").click(function(){
+			 if(isSuperCardLogin()){
+				$("#login_form").attr("action","http://supercard.cc/portal/login/");
+			 }
+
+		});
+	});
+</script>
+</html>

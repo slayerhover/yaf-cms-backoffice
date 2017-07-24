@@ -1,0 +1,71 @@
+.form-group{
+	width: 420px;
+}
+.input-group-addon {
+	float: left;
+	padding: 8px 0;
+	width: 40px;
+	height: 30px;
+}
+#username,
+#password {
+	float: left;
+	width: 345px;
+	height: 34px;
+	line-height: 37px;
+}
+.icon-user,
+.icon-lock{
+	display: inline-block;
+	margin-top: 5px;
+    width: 16px;
+	height: 16px;
+}
+.icon-user{
+	background: url("/saofu-shop-mall/images/login.png");
+}
+
+.input-group .username_show_ie7 {
+	float: left;
+	width: 278px;
+	height: 34px!important;
+}
+.addon-spe {
+	padding-top: 12px!important;
+	height: 26px;
+}
+.icon-lock{
+	background: url("/saofu-shop-mall/images/login01.png");
+}
+#login_form a{
+	float: right;
+}
+
+.new-login-wrap #username,
+.new-login-wrap #password {
+	width: 209px;
+	height: 45px;
+	line-height: 45px;
+}
+.new-login-wrap .code-input-control {
+	float: left;
+	width: 130px;
+}
+.new-login-wrap .kaptchaImage {
+	display: block;
+	float: left;
+	height: 45px;
+	margin: 0 5px;
+}
+.new-login-wrap .change-code {
+	display:block;
+	float: right;
+	height: 45px;
+	line-height: 45px;
+}
+#username_show {
+	width:291px
+}
+.new-login-wrap .onload-link-wrap {
+	width: 271px;
+}
