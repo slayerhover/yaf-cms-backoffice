@@ -1,5 +1,5 @@
 # yaf-cms-backoffice
-a simple cms backoffice by yaf &amp; easyui.  for expansion of other projects
+a simple cms backoffice by yaf &amp; easyui.  Base project for expansions.
 
 部署环境
 ===================================
@@ -23,7 +23,7 @@ Vendor
 ===================================
   laravel Eloquent
    
-访问路径
+配置文件
 ===================================
   nginx配置
   ```
@@ -56,12 +56,17 @@ Vendor
         access_log  /home/logs/yafcms.log access;
 }
 ```
-  
-  
-  
+ 
+  网站配置文件： /conf/app.ini
+  
+访问路径
+===================================   
   1.前端访问 http://www.yafcms.com/index.php ,主要用于接口调用输出，不调用模板显示,可用控制器index和user.
+  
   2.后端访问 http://www.yafcms.com/admin,  easyUI和smarty模板输出。
+  
   3.rpc远程服务调用 http://www.yafcms.com/rpc
+  
   4.lua高性能接口地址 http://www.yafcms.com/lapi/xxx, xxx会自动导入对应的xxx.lua文件执行。
   
   
