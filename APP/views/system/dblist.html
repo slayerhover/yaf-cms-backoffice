@@ -1,0 +1,51 @@
+<div class="dblistpageContent">
+	<div id="dblistw_list_print">
+	<table style="text-align:left; line-height:18px;" cellspacing="1" cellpadding="5" bgcolor="#c4d3e1" border="0" width="100%">
+		<thead>
+			<tr bgcolor="#FFFFFF">
+				<th style="line-height:30px;"  width="45%">文件名</th>
+				<th style="line-height:30px;"  width="15%">文件大小</th>
+				<th style="line-height:30px;"  width="20%">时间</th>
+				<th style="line-height:30px;"  width="10%">下载</th>
+				<th style="line-height:30px;"  width="10%">删除</th>
+			</tr>
+		</thead>
+		<tbody>
+		<{section name=sec1 loop=$dataset}>
+			<tr bgcolor="#FFFFFF">				
+				<td style="line-height:30px;" ><a href="<{url c=system a=downloadfile id=$dataset[sec1].name}>" target="_blank"><{$dataset[sec1].name}></a></td>				
+				<td style="line-height:30px;" ><{$dataset[sec1].size}> KB</td>
+				<td style="line-height:30px;" ><{$dataset[sec1].time}></td>
+				<td style="line-height:30px;" ><a href="<{url c=system a=downloadfile  id=$dataset[sec1].name}>" target="_blank"><span>下载</span></a></td>
+				<td style="line-height:30px;" ><a href="javascript:;" onclick="dblistdelete('<{$dataset[sec1].name}>');" ><span>删除</span></a></td>				
+			</tr>
+		<{/section}>	
+		</tbody>
+	</table>
+	</div>	
+</div>
+
+<script>
+var dblistdelete=function(id){				
+		$.messager.confirm('提示','确定删除吗？',function(r){
+			if(r==true){
+				$.messager.progress();
+				$.post('/system/dbdelete', {id:id}, function(data){
+					$.messager.progress('close');
+					if(data.code=='200'){
+							$.messager.show({
+									title:'提示',
+									msg:data.msg,
+									timeout:3000,
+									showType:'slide'
+							});
+							$("#databasedlg").dialog('close');
+					}else{
+							$.messager.alert('提示',data.msg,'warning');
+					}								
+				},'json');
+			}
+		});
+
+}
+</script>

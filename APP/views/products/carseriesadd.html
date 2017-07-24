@@ -1,0 +1,65 @@
+<form id="carseriesaddfm" method="post">
+<table border="0" width="100%" cellspacing="1" cellpadding="5" bgcolor="#c4d3e1" style="text-align:left; line-height:18px;">
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">名称：</td>
+			<td width="80%"><input name="series" type="text" style="width:400px;" class="textbox-text validatebox-text textbox-prompt easyui-validatebox" placeholder="请输入名称.."  required="true"  value="<{$dataset.brand}>" ></td>
+		</tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">品牌：</td>
+			<td width="80%">
+			<select id="brand_id" onchange="getFactory(this.value);">
+				<option value="0">--请选择--</option>
+				<{section name=sec loop=$carbrand}>
+				<option value="<{$carbrand[sec].id}>"><{$carbrand[sec].letter}> <{$carbrand[sec].brand}></option>
+				<{/section}>
+			</select></td>
+		</tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">厂家：</td>
+			<td width="80%">
+			<select name="factory_id" id="factory_id">
+				<option value="0">--请先选择品牌名称--</option>
+			</select></td>
+		</tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">排序：</td>
+			<td width="80%"><input name="sortorder" type="text" class="textbox-text validatebox-text textbox-prompt easyui-validatebox" placeholder="请输入排序.." value="500" ></td>
+		</tr>
+</table>
+</form>
+
+<script>
+var getFactory=function(brand_id){
+	$.get('/index/carfactory?brand_id='+brand_id, function(data){
+		var factory='';
+		$.each(data.data, function(key, value){
+			factory+="<option value='"+value.id+"'>"+value.factory+"</option>";
+		})
+		$('#factory_id').empty();
+		$('#factory_id').append(factory);
+	},'json');
+}
+$(function(){
+		$('#carseriesaddsubmit').click(function(data){			
+				$('#carseriesaddfm').form('submit', {    
+					url:'/products/carseriesincrease',    
+					success: function(data){    
+						var data = eval('(' + data + ')');
+						if(data.code=='200'){
+								$.messager.show({
+										title:'提示',
+										msg:data.msg,
+										timeout:3000,
+										showType:'slide'
+								});				
+								$('#carseriesaddfm').form('clear');
+								$("#carseriesdlg").dialog('close');
+								$("#carseries").datagrid('reload');
+						}else{
+								$.messager.alert('提示',data.msg,'warning');
+						}
+					}    
+				});
+		})	
+});
+</script>

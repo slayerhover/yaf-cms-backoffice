@@ -1,0 +1,336 @@
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<title><{$coinfo.title}></title>
+
+<meta name="keywords" content="<{$coinfo.keywords}>">
+
+<meta name="description" content="<{$coinfo.description}>">
+
+
+
+<link href="/css/nav.css" rel="stylesheet">
+
+<link href="/css/style.css" rel="stylesheet" type="text/css">
+
+<link href="/css/bdsstyle.css" rel="stylesheet" type="text/css">
+
+<!-- 加载jQuery1.10.2版本-->
+
+<script type="text/javascript" src="/Js/jquery-1.10.2.min.js"></script>
+
+<script type="text/javascript" src="/Js/jquery.nav.js"></script>
+
+<script type="text/javascript" src="/Js/JQ_common.js"></script>
+
+<script type="text/javascript" src="/Js/jquery.jcarousellite.min.js"></script>
+
+<script type="text/javascript" src="/Js/lazyload.js"></script>
+
+<script type="text/javascript" src="/Js/plugins.min.js"></script>
+
+<script type="text/javascript" src="/Js/revolution.min.js"></script>
+
+<script type="text/javascript" src="/Js/jquery.flexslider.js"></script>
+
+</head>
+
+<body>
+
+
+
+<{include file="index/header.html"}>
+
+
+
+        <div class="main">
+
+            <div class="blank2">
+
+            </div>
+
+            <div class="l w688">
+
+                <div class="tabshow">
+
+				                    
+
+                    <div class="tabcon" style="display: block;">
+
+                        <div class="flexslider">
+
+                            
+
+                        <div class="flex-viewport" style="overflow: hidden; position: relative;"><ul class="slides" style="width: 800%; transition-duration: 0s; transform: translate3d(-1124px, 0px, 0px);">
+
+								<{section name=sec loop=$products}>								
+
+								<li class="<{if $smarty.section.sec.first}>flex-active-slide<{else}>clone<{/if}>" style="width: 688px; float: left; display: block;">
+
+                                    <div class="index_pro">
+
+                                        <a title="<{$products[sec].title}>" href="<{url c=index a=viewproducts id=$products[sec].id}>#pro">
+
+                                            <img title="<{$products[sec].title}>" alt="<{$products[sec].title}>" onerror="javascript:this.src=&#39;images/no_pro.jpg&#39;" width="200" height="150" src="<{$products[sec].logo}>"></a>
+
+                                        <p class="p1 f01">
+
+                                            <a title="<{$products[sec].title}>" href="<{url c=index a=viewproducts id=$products[sec].id}>#pro"><{$products[sec].title}></a></p>
+
+                                        <p class="p2"><a title="<{$products[sec].categories.title}>" href="<{url c=index a=listproducts id=$products[sec].categories_id}>#pro"><{$products[sec].categories.title}></a></p>
+
+                                        <p class="p3"><{$products[sec].info|strip_tags|cntruncate:"70":".."}></p>
+
+                                        <p class="p4"><{$products[sec].keywords}></p>
+
+                                    </div>
+
+                                </li>
+
+                                <{/section}>                               
+
+								
+
+						</ul></div><ol class="flex-control-nav flex-control-paging">
+
+						</ol></div>
+
+                    </div>                    
+
+                </div>
+
+                <script type="text/javascript">
+
+                    $(window).load(function () {
+
+                        $('.flexslider').flexslider({
+
+                            animation: "slide"
+
+                        });
+
+                    });
+
+                </script>
+
+                <!--tabshow end-->
+
+                <div class="blank4">
+
+                </div>
+
+                <div class="index_bg">
+
+                    <ul class="index_tit2 f01">
+
+						<{section name=sec loop=$newsclass}>
+
+						<li class="<{if $smarty.section.sec.first}>hover<{/if}>"><span><{$newsclass[sec].title}></span></li>
+
+						<{/section}>
+
+                    </ul>
+
+                    <div class="clear">
+
+                    </div>
+
+                    <div class="blank4">
+
+                    </div>
+
+                    <div class="blank2">
+
+                    </div>
+
+                    <div class="index_news">
+
+                        
+
+						<{counter start=0 skip=1 print=false}>
+
+						<{section name=sec1 loop=$news}>
+
+						<div id="index_txt<{counter}>" class="none" style="display: <{if $smarty.section.sec1.first}>block<{else}>none<{/if}>;">
+
+                           
+
+						    <{section name=sec2 loop=$news[sec1]}>
+
+							<div class="index_list">
+
+                                <a title="<{$news[sec1][sec2].title}>" href="<{url c=index a=viewnews id=$news[sec1][sec2].id}>">
+
+                                    <img title="<{$news[sec1][sec2].title}>" alt="<{$news[sec1][sec2].title}>" width="168" height="110" src="<{if $news[sec1][sec2].logo neq ''}><{$news[sec1][sec2].logo}><{else}>/images/no_new.jpg<{/if}>" onerror="javascript:this.src=&#39;/images/no_new.jpg&#39;"></a>
+
+                                <strong><a title="<{$news[sec1][sec2].title}>" href="<{url c=index a=viewnews id=$news[sec1][sec2].id}>">
+
+                                    <{$news[sec1][sec2].title}></a></strong><span><{$news[sec1][sec2].addtime|date_format:"%Y-%m-%d %H:%M:%S"}></span><br>
+
+									<{$news[sec1][sec2].content.content|cntruncate:'110':'..'}> 
+
+                                <br>
+
+                                <a class="index_xi" title="<{$news[sec1][sec2].title}>" href="<{url c=index a=viewnews id=$news[sec1][sec2].id}>">
+
+                                    查看详细 &gt;&gt;</a>
+
+                                <div class="clear">
+
+                                </div>
+
+                            </div>
+
+							<{/section}>
+
+							
+
+                            <div style="float: right; padding-right: 20px;">
+
+                                <a style="color: #47C3D0" href="<{url c=index a=listnews id=$news[sec1][0].newsclass_id}>#pro">更多&gt;&gt;</a></div>
+
+                            <div class="blank3">
+
+                            </div>
+
+                        </div>
+
+                        <{/section}>
+
+
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="r w290">
+
+                <div class="index_bg">
+
+                    <div class="index_brand">
+
+                        <div class="p1">
+
+                            支持各种产品加工设计<a>&nbsp;</a>
+
+						</div>
+
+                        <div class="p2">
+
+                            <a href="#">品质第一</a> 
+
+                            <a href="#">信誉至上</a> 
+
+                            <a href="#">物美价廉</a> 
+
+                            <a href="#">互利互惠</a>
+
+                            <div class="clear"></div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="index_ico">
+
+                    </div>
+
+                </div>
+
+                <div class="blank4">
+
+                </div>
+
+                <div class="index_bg" style="width: 290px;">
+
+                    <div class="index_tit1">
+
+                        <a href="#">MORE+</a><p class="f01">
+
+                            荣誉认证<br>
+
+                            <i>Honor</i></p>
+
+                    </div>
+
+                    <div class="index_rz f01">
+
+                        <img src="/images/lq_pic21.jpg">
+
+                        <p>ISO9001<br>：2008</p>
+
+                        <div class="clear">
+
+                        </div>
+
+                    </div>
+
+                    <div class="index_rz f01">
+
+                        <img src="/images/lq_pic21.jpg">
+
+                        <p>ISO9001<br>：2009</p>
+
+                        <div class="clear">
+
+                        </div>
+
+                    </div>
+
+                    <div class="index_rz f01">
+
+                        <img src="/images/lq_pic21.jpg">
+
+                        <p>ISO9001<br>：2010</p>
+
+                        <div class="clear">
+
+                        </div>
+
+                    </div>
+
+                    <div class="index_rz f01">
+
+                        <img src="/images/lq_pic21.jpg">
+
+                        <p>ISO9001<br>：2011</p>
+
+                        <div class="clear">
+
+                        </div>
+
+                    </div>
+
+                    <div class="clear">
+
+                    </div>
+
+                    <div class="blank2">
+
+                    </div>
+
+                </div>
+
+                <div style="padding-top: 5px;">
+
+                    <a href="#"><img src="/images/lq_pic22.png"></a></div>
+
+            </div>
+
+            <div class="clear">
+
+            </div>
+
+            <div style="height:15px;"></div>
+
+    	</div>
+
+    
+
+<{include file="index/footer.html"}>
+
+
+
+</body></html>
+

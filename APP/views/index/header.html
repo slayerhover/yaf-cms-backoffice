@@ -1,0 +1,69 @@
+<div class="h_fixed">
+<div id="header">
+    <div class="header">
+        <div class="logo l h_btn">
+            <a class="btn01" href="/index.html">YAF CMS</a>
+        </div>
+        <ul id="nav" class="nav l f01">
+        <{section name=sec1 loop=$menus}>
+			<li class=""><a class="menu_tit" href="<{$menus[sec1].links}>"><{$menus[sec1].title}></a>
+            <{if $menus[sec1].submenu|@count gt 0}>
+			    <div class="nav_popup nav_popupl">
+                    <ul class="nav_tit">
+                        <{section name=sec2 loop=$menus[sec1].submenu}>
+						<li><span class=""><a href="<{$menus[sec1].submenu[sec2].links}>"><{$menus[sec1].submenu[sec2].title}></a></span></li>
+						<{/section}>
+                    </ul>
+                </div>
+			<{/if}>
+            </li>
+        <{/section}>
+        </ul>
+        <div class="r" style="margin-right: -35px;">
+            <div class="number r">
+                客服热线：<{$coinfo.co_phone}></div>            
+            <div class="clear">
+            </div>
+            <div class="search f01">
+                <input id="txtprokw" name="txtprokw" type="text" class="text" onFocus="focusInputEle(this)" onBlur="blurInputEle(this)" defaultval="Items" value="Items">
+                <input type="button" class="submit" value="" id="proField">
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+<div style="height:78px;"></div>
+
+<div id="main"><!--linked footer line50-->
+        <div class="rev_slider_wrapper">
+            <div id="inner">
+                <div class="hot-event">
+                    <div class="switch-nav" style="display: none;"><a href="#" onClick="return false;" class="prev"></a><a href="#" onClick="return false;" class="next"></a></div>
+					
+					<{section name=sec loop=$images}>
+                    <div class="event-item" style="display: <{if $smarty.section.sec.first}>block<{else}>none<{/if}>;">
+                        <a target="_blank" href="<{$images[sec].links}>" style="background: url(<{$images[sec].url}>) no-repeat center center;" class="banner"></a>
+                    </div>
+					<{/section}>
+                    
+                    <div class="switch-tab" style="display: none;">
+                        <{section name=sec loop=$images}>
+                        <a href="<{$images[sec].links}>" onClick="return false;" class="current"><{$images[sec].title}></a>
+						<{/section}>						
+                    </div>
+                </div>
+            </div>
+            <script type="text/javascript">
+                $('#inner').nav({ t: 5000, a: 1000, c: 2 });
+            </script>
+        </div>
+        <script type="text/javascript">
+            $("#inner").hover(
+            function () {
+                $(".switch-nav").show();
+            },
+            function () {
+                $(".switch-nav").hide();
+            }
+            )
+        </script>

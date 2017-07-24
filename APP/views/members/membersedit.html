@@ -1,0 +1,58 @@
+
+<div class="pageContent">
+	<form method="post" action="<{url controller=weixin action=membersupdate}>" class="pageForm required-validate" onsubmit="return validateCallback(this, dialogAjaxDone);">
+		<div class="pageFormContent" layoutH="56">
+			<p style="height:190px;">
+				<label>头像：</label>
+				<img src="<{$dataset.headimgurl}>" width=180px height=180px />
+			</p>
+			<div class="divider"></div>
+			<p>
+				<label>用户名：</label>
+				<input name="name" class="required" type="text" size="30" readonly="readonly" value="<{$dataset.name}>" alt="请输入用户名"/>
+			</p>
+			<p>
+				<label>手 机 号：</label>
+				<input name="phone" class="digits" value="<{$dataset.phone}>" type="text" size="30" readonly="readonly" alt="请输入手机号"/>
+			</p>
+			<p>
+				<label>性 别：</label>
+				<label style="width:100px"><input type="radio" name="sex"  value="1" <{if $dataset.sex eq 1}>checked="checked"<{/if}> />男</label>
+				<label style="width:100px"><input type="radio" name="sex"  value="0" <{if $dataset.sex eq 0}>checked="checked"<{/if}> />女</label>
+			</p>
+			<p>
+				<label>生 日：</label>
+				<input type="text" name="birthday" class="date" datefmt="yyyy-MM-dd" size="30" value="<{$dataset.birthday}>" /><a class="inputDateButton" href="javascript:;">选择</a>
+			</p>
+			
+			<p>
+				<label>注册日期：</label>
+				<input type="text" name="addtime" class="date" disabled="disabled" datefmt="yyyy-MM-dd HH:mm:ss" value="<{$dataset.addtime|date_format:"%Y-%m-%d %H:%M:%S"}>" size="30" />
+			</p>
+			<p>
+				<label>微信openId：</label>
+				<input type="text" size="30" name="openid" value="<{$dataset.openid}>"  readonly="readonly"/>
+			</p>
+			<p>
+				<label>会员积分：</label>
+				<input type="text" size="30" name="score" value="<{$dataset.score}>" />
+			</p>
+			<div class="divider"></div>
+			<div class="unit">
+				<label>状态：</label>
+				<label><input type="radio" name="status" value="1" <{if $dataset.status eq 1}>checked="checked"<{/if}> />激活</label>
+				<label><input type="radio" name="status" value="0" <{if $dataset.status eq 0}>checked="checked"<{/if}> />冻结</label>
+			</div>
+			
+		</div>
+		<div class="formBar">
+			<ul>
+				<input type="hidden" name="id" value="<{$dataset.id}>" />
+				<li><div class="buttonActive"><div class="buttonContent"><button type="submit">保存</button></div></div></li>
+				<li>
+					<div class="button"><div class="buttonContent"><button type="button" class="close">取消</button></div></div>
+				</li>
+			</ul>
+		</div>
+	</form>
+</div>

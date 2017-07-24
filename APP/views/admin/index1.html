@@ -1,0 +1,269 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title><{$appTitle}></title>
+<link rel="shortcut icon" href="/images/favicon.ico" type="image/x-icon" />
+<link href="/dwz/themes/default/style.css" rel="stylesheet" type="text/css" media="screen"/>
+<link href="/dwz/themes/css/core.css" rel="stylesheet" type="text/css" media="screen"/>
+<link href="/dwz/themes/css/print.css" rel="stylesheet" type="text/css" media="print"/>
+<link href="/dwz/uploadify/css/uploadify.css" rel="stylesheet" type="text/css" media="screen"/>
+<!--[if IE]>
+<link href="/dwz/themescss/ieHack.css" rel="stylesheet" type="text/css" media="screen"/>
+<![endif]-->
+
+<!--[if lt IE 9]><script src="/dwz/js/speedup.js" type="text/javascript"></script><script src="/dwz/js/jquery-1.11.3.min.js" type="text/javascript"></script><![endif]-->
+<!--[if gte IE 9]><!--><script src="/dwz/js/jquery-2.1.4.min.js" type="text/javascript"></script><!--<![endif]-->
+
+<script src="/dwz/js/jquery.cookie.js" type="text/javascript"></script>
+<script src="/dwz/js/jquery.validate.js" type="text/javascript"></script>
+<script src="/dwz/js/jquery.bgiframe.js" type="text/javascript"></script>
+<script src="/dwz/xheditor/xheditor-1.2.2.min.js" type="text/javascript"></script>
+<script src="/dwz/xheditor/xheditor_lang/zh-cn.js" type="text/javascript"></script>
+<script src="/dwz/uploadify/scripts/jquery.uploadify.js" type="text/javascript"></script>
+
+<!-- high charts图表-->
+<script type="text/javascript" src="/dwz/chart/highcharts.js"></script>
+
+<!-- 可以用dwz.min.js替换前面全部dwz.*.js (注意：替换是下面dwz.regional.zh.js还需要引入)-->
+<script src="/dwz/bin/dwz.min.js" type="text/javascript"></script>
+
+<script src="/dwz/js/dwz.regional.zh.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+$(function(){
+	DWZ.init("/dwz/dwz.frag.xml", {
+		statusCode:{ok:200, error:300, timeout:301}, //【可选】
+		pageInfo:{pageNum:"pageNum", numPerPage:"numPerPage", orderField:"orderField", orderDirection:"orderDirection"}, //【可选】
+		keys: {statusCode:"statusCode", message:"message"}, //【可选】
+		ui:{hideMode:'offsets'}, //【可选】hideMode:navTab组件切换的隐藏方式，支持的值有’display’，’offsets’负数偏移位置的值，默认值为’display’
+		debug:true,	// 调试模式 【true|false】
+		callback:function(){
+			initEnv();
+			$("#themeList").theme({themeBase:"/dwz/themes"}); // themeBase 相对于index页面的主题base路径
+		}
+	});
+});
+</script>
+</head>
+
+<body scroll="no">
+	<div id="layout">
+		<div id="header">
+			<div class="headerNav">
+				<div style="font-size:27px;color:#EADFDF; font-weight:600; padding:10px; font-style:italic; font-family:'微软雅黑'"><{$appTitle}></div>
+				<ul class="nav">
+					<li><a target="_blank" href="<{url c=index a=index}>">查看网站</a></li>
+					<li><a href="#"><{$username}></a></li>
+					<li id="switchEnvBox"><a href="javascript:">（<span>郑州</span>）切换城市</a>
+						<ul>
+							<li><a href="sidebar_1.html">郑州</a></li>
+							<li><a href="sidebar_2.html">上海</a></li>
+							<li><a href="sidebar_2.html">南京</a></li>
+							<li><a href="sidebar_2.html">深圳</a></li>
+							<li><a href="sidebar_2.html">广州</a></li>
+							<li><a href="sidebar_2.html">天津</a></li>
+							<li><a href="sidebar_2.html">杭州</a></li>
+						</ul>
+					</li>
+					<li><a href="<{url c=admin a=changepwd}>" target="dialog" width="600">修改密码</a></li>
+					<li><a href="<{url c=public a=logout}>">退出</a></li>
+				</ul>
+				<ul class="themeList" id="themeList">
+					<li theme="default"><div class="selected">蓝色</div></li>
+					<li theme="green"><div>绿色</div></li>
+					<li theme="purple"><div>紫色</div></li>
+					<li theme="silver"><div>银色</div></li>
+					<li theme="azure"><div>天蓝</div></li>
+				</ul>
+			</div>
+
+			<!-- navMenu -->
+			
+		</div>
+
+		<div id="leftside">
+			<div id="sidebar_s">
+				<div class="collapse">
+					<div class="toggleCollapse"><div></div></div>
+				</div>
+			</div>
+			<div id="sidebar">
+				<div class="toggleCollapse"><h2>主菜单</h2><div>收缩</div></div>
+
+				<div class="accordion" fillSpace="sidebar">
+															
+					<div class="accordionHeader">
+						<h2><span>Folder</span>网站设置</h2>
+					</div>
+					<div class="accordionContent">
+						<ul class="tree  treeFolder">
+							<li><a href="<{url c=admin a=coinfo}>" target="navTab" rel="timecount">基本信息</a></li>
+							<li><a href="<{url c=admin a=menus}>" target="navTab" rel="menus">导航菜单</a></li>
+							<li><a href="<{url c=admin a=images}>" target="navTab" rel="images">滚动图片</a></li>
+							<li><a href="<{url c=admin a=friendlink}>" target="navTab" rel="friendlink">友情链接</a></li>
+							<li><a href="<{url c=admin a=attachcode}>" target="navTab" rel="attachcode">附加代码</a></li>
+						</ul>
+					</div>
+					
+					<div class="accordionHeader">
+						<h2><span>Folder</span>页面管理</h2>
+					</div>
+					<div class="accordionContent">
+						<ul class="tree  treeFolder">
+							<li><a href="<{url c=pages a=pages}>" target="navTab" rel="pages">浏览页面</a></li>
+							<li><a href="<{url c=pages a=pagesadd}>" target="navTab" rel="pagesadd">添加页面</a></li>
+							<li><a href="<{url c=pages a=template}>" target="navTab" rel="template">前台模板</a></li>
+							<li><a href="<{url c=pages a=guestbook}>" target="navTab" rel="guestbook">在线留言</a></li>
+						</ul>
+					</div>
+										
+					<div class="accordionHeader">
+						<h2><span>Folder</span>文章管理</h2>
+					</div>
+					<div class="accordionContent">
+						<ul class="tree  treeFolder">
+							<li><a href="<{url c=news a=class}>" target="navTab" rel="class">文章栏目</a></li>
+							<li><a href="<{url c=news a=news}>" target="navTab" rel="news">浏览文章</a></li>
+							<li><a href="<{url c=news a=newsadd}>" target="navTab" rel="newsadd">发表文章</a></li>
+						</ul>
+					</div>
+					
+					<div class="accordionHeader">
+						<h2><span>Folder</span>产品管理</h2>
+					</div>
+					<div class="accordionContent">
+						<ul class="tree  treeFolder">
+							<li><a href="<{url c=products a=categories}>" target="navTab" rel="categories">产品目录</a></li>
+							<li><a href="<{url c=products a=products}>" target="navTab" rel="products">浏览产品</a></li>
+							<li><a href="<{url c=products a=productsadd}>" target="navTab" rel="productsadd">发布产品</a></li>
+						</ul>
+					</div>
+										
+					<div class="accordionHeader">
+						<h2><span>Folder</span>系统设置</h2>
+					</div>
+					<div class="accordionContent">
+						<ul class="tree  treeFolder">							
+							<li><a href="<{url c=system a=database}>" target="navTab" rel="database">数据库管理</a></li>							
+							<li><a href="<{url c=system a=users}>" target="navTab" rel="users">用户管理</a></li>
+							<li><a href="<{url c=system a=roles}>" target="navTab" rel="roles">权限管理</a></li>
+							<li><a href="<{url c=admin  a=changepwd}>" target="dialog" width="600">修改密码</a></li>
+							<li><a href="<{url c=public a=logout}>" target="_top">安全退出</a></li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div id="container">
+			<div id="navTab" class="tabsPage">
+				<div class="tabsPageHeader">
+					<div class="tabsPageHeaderContent"><!-- 显示左右控制时添加 class="tabsPageHeaderMargin" -->
+						<ul class="navTab-tab">
+							<li tabid="main" class="main"><a href="javascript:;"><span><span class="home_icon">我的主页</span></span></a></li>
+						</ul>
+					</div>
+					<div class="tabsLeft">left</div><!-- 禁用只需要添加一个样式 class="tabsLeft tabsLeftDisabled" -->
+					<div class="tabsRight">right</div><!-- 禁用只需要添加一个样式 class="tabsRight tabsRightDisabled" -->
+					<div class="tabsMore">more</div>
+				</div>
+				<ul class="tabsMoreList">
+					<li><a href="javascript:;">我的主页</a></li>
+				</ul>
+				<div class="navTab-panel tabsPageContent layoutBox">
+					<div class="page unitBox">
+						<div class="accountInfo">
+							<div class="right">
+								<p style="color:red">官方微博</p>
+							</div>
+							<p><span>系统概览</span></p>
+						</div>
+						<div class="pageFormContent" layoutH="80">
+							
+							<table border="0" width="100%" cellspacing="1" cellpadding="2" bgcolor="#c4d3e1" style="text-align:left;">
+							  <tr class="head"> 
+								<td height="33px" colspan="4"><b>网 站 信 息</b></td>
+							  </tr>
+							  <tr bgcolor="#FFFFFF"> 
+								<td style="line-height:30px;" width="10%">文章共有：</td><td width="50%"><{$systemMsg.artclenum}> 篇</td>
+								<td style="line-height:30px;" width="15%">网友评论：</td><td width="25%"><{$systemMsg.commentnum}> 条</td>
+							  </tr>
+							  <tr bgcolor="#FFFFFF"> 
+								<td style="line-height:30px;"  width="10%">待审文章：</td><td width="50%"><{$systemMsg.uartclenum}> 篇</td>
+								<td style="line-height:30px;"  width="10%">待审评论：</td><td width="30%"><{$systemMsg.ucommentnum}> 条</td>
+							  </tr>
+							  <tr bgcolor="#FFFFFF"> 
+								<td style="line-height:30px;"  width="10%">字符集：</td><td width="50%">utf-8</td>
+								<td style="line-height:30px;"  width="10%">图片上传目录：</td><td width="30%"><{$systemMsg.uploadpath}></td>
+							  </tr>
+								<tr bgcolor="#FFFFFF"> 
+								<td style="line-height:30px;"  width="10%">管理员：</td><td width="50%"><{$systemMsg.administrator}></td>
+								<td style="line-height:30px;"  width="10%">数据库备份目录：</td><td width="30%"><{$systemMsg.dbpath}></td>
+							  </tr>
+							</table>
+							
+							<div style="clear:both; padding:10px;"></div>
+							
+							<table border="0" width="100%" cellspacing="1" cellpadding="2" bgcolor="#c4d3e1" style="text-align:left; line-height:18px;">
+							  <tr class="head"> 
+								<td height="33px" colspan="4"><b>服 务 器 信 息</b></td>
+							  </tr>
+							  <tr bgcolor="#FFFFFF"> 
+								<td style="line-height:30px;"  width="10%">服务端信息：</td><td width="50%"><{$systemMsg.SERVER_SOFTWARE}></td>
+								<td style="line-height:30px;"  width="15%">邮件模式：</td><td width="25%"><{$systemMsg.sys_mail}></td>
+							  </tr>
+							  <tr bgcolor="#FFFFFF"> 
+								<td style="line-height:30px;"  width="10%">PHP版本：</td><td width="50%"><{$systemMsg.sysversion}></td>
+								<td style="line-height:30px;"  width="10%">服务器IP：</td><td width="30%"><{$systemMsg.SERVER_ADDR}></td>
+							  </tr>
+							  <tr bgcolor="#FFFFFF"> 
+								<td style="line-height:30px;"  width="10%">MYSQL版本：</td><td width="50%"><{$systemMsg.mysqlVersion}></td>
+								<td style="line-height:30px;"  width="10%">服务器端口：</td><td width="30%"><{$systemMsg.SERVER_PORT}></td>
+							  </tr>
+								<tr bgcolor="#FFFFFF"> 
+								<td style="line-height:30px;"  width="10%">是否允许文件上传：</td><td width="50%"><{$systemMsg.file_uploads}><span help="1">(如果不允许可把php.ini里的file_uploads=Off改成On，重启服务器即可)</span></td>
+								<td style="line-height:30px;"  width="10%">上传文件存放的临时目录：</td><td width="30%"><{$systemMsg.upload_tmp_dir}></td>
+							  </tr>
+							  <tr bgcolor="#FFFFFF"> 
+								<td style="line-height:30px;"  width="10%">最大上传限制：</td><td width="40%"><{$systemMsg.max_upload}><span help="1">(需更大可修改php.ini里的upload_max_filesize值，重启服务器即可)</span></td>
+								<td style="line-height:30px;"  width="10%">服务器所在时间：</td><td width="40%"><{$systemMsg.systemtime}></td>
+							  </tr>
+							  <tr bgcolor="#FFFFFF"> 
+								<td style="line-height:30px;"  width="10%">最大执行时间：</td><td width="40%"><{$systemMsg.max_ex_time}><span help="1">(需更大可修改php.ini里的max_execution_time值，重启服务器即可)</span></td>
+								<td style="line-height:30px;"  width="10%">网站所在磁盘物理位置：</td><td width="40%"><{$systemMsg.DOCUMENT_ROOT}></td>
+							  </tr>
+							   <tr bgcolor="#FFFFFF"> 
+								<td style="line-height:30px;"  width="10%">空间限制内存：</td><td width="40%"><{$systemMsg.memory_user_limit}><span help="1">(需更大可修改php.ini里的memory_limit值，重启服务器即可)</span></td>
+								<td style="line-height:30px;"  width="10%">当前文件路径：</td><td width="40%"><{$systemMsg.SCRIPT_FILENAME}></td>  
+							  </tr>
+							  <tr bgcolor="#FFFFFF"> 
+								<td style="line-height:30px;"  width="10%">是否支持采集：</td><td width="40%"><{$systemMsg.allow_url_fopen}><span help="1">(若不支持可把php.ini里的allow_url_fopen=Off改成On，重启服务器即可)</span></td>
+								 <td style="line-height:30px;"  width="10%">Zend Optimizer版本：</td><td width="40%"><{$systemMsg.zendVersion}></td>
+							  
+							  </tr>
+							  <tr bgcolor="#FFFFFF"> 
+								<td style="line-height:30px;"  width="10%">是否支持GD2库：</td><td width="40%"><{$systemMsg.gdpic}><span help="1">(若不支持可把php.ini中;extension=php_gd2.dll前面的;去掉，重启服务器即可)</span></td>
+								<td style="line-height:30px;"  width="10%">当前登陆IP：</td><td width="40%"><{$systemMsg.onlineip}></td>
+							  </tr>
+							   <tr bgcolor="#FFFFFF"> 
+								<td style="line-height:30px;"  width="10%">是否允许Cookie：</td><td width="40%"><{$systemMsg.ifcookie}><span help="1">(若不允许可在Windows控制面板 ,"Internet选项" ,隐私设置中调整)</span></td>
+								<td style="line-height:30px;"  width="10%">当前域名：</td><td width="40%"><{$systemMsg.SERVER_NAME}></td>
+							  </tr>
+							</table>
+							
+							
+							
+						</div>						
+					</div>
+					
+				</div>
+			</div>
+		</div>
+
+	</div>
+
+	<div id="footer">Copyright &copy; 2016 <a href="demo_page2.html" target="dialog">Powered By slayer.hover</a> 豫ICP备000001号</div>
+
+
+</body>
+</html>

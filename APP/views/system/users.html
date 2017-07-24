@@ -1,0 +1,131 @@
+<div id="tb<{$uniqid}>" style="padding:5px">
+		<table cellspacing="0" cellpadding="0"><tbody><tr>
+		<td><a href="javascript:;" onclick="usersadd();" class="l-btn l-btn-small l-btn-plain" group="" id=""><span class="l-btn-left l-btn-icon-left"><span class="l-btn-text">增加</span><span class="l-btn-icon icon-add">&nbsp;</span></span></a></td><td><div class="datagrid-btn-separator"></div></td>
+		<td><a href="javascript:;" onclick="usersedit();"  class="l-btn l-btn-small l-btn-plain" group="" id=""><span class="l-btn-left l-btn-icon-left"><span class="l-btn-text">编辑</span><span class="l-btn-icon icon-edit">&nbsp;</span></span></a></td>
+		<td><div class="datagrid-btn-separator"></div></td>
+		<td><a href="javascript:;" onclick="usersdelete();"  class="l-btn l-btn-small l-btn-plain" group="" id=""><span class="l-btn-left l-btn-icon-left"><span class="l-btn-text">删除</span><span class="l-btn-icon icon-cancel">&nbsp;</span></span></a></td><td><div class="datagrid-btn-separator"></div></td>
+		<td><a href="javascript:;" onclick="usersreload();"  class="l-btn l-btn-small l-btn-plain" group="" id=""><span class="l-btn-left l-btn-icon-left"><span class="l-btn-text">重载</span><span class="l-btn-icon icon-reload">&nbsp;</span></span></a></td>
+		<td>&nbsp;&nbsp;<input  id="userskeywords"  style="width:100px" type="text" class= "easyui-input textbox" > </input></td>
+		<td><span><a href="javascript:void(0)" class="easyui-linkbutton" plain="true" iconCls="icon-search" onclick="userssearch()">查询</a></span>	</td>
+		</tr></tbody></table>
+</div>
+
+<div class="con" onselectstart="return false;" style="-moz-user-select:none;">
+    <table id="users"></table>
+</div>
+
+<div id="usersdlg" class="easyui-dialog" style="width:720px; height:460px;" title="信息框" closed="true"></div>
+
+<script>
+var usersadd=function(){
+                $("#usersdlg").dialog({    
+					title: '新增信息',      
+					closed: false,    
+					width: 700,
+					height:300,
+					cache: false,    
+					href: '/system/usersadd',    
+					modal: true,
+					buttons:[{
+						text:'保存',
+						id:'usersaddsubmit',
+						iconCls:'icon-ok',
+					},{
+						text:'关闭',
+						iconCls:'icon-no',
+						handler:function(){$("#usersdlg").dialog('close');}
+					}]  
+				});
+}
+var usersedit=function(){
+				var row = $('#users').datagrid('getSelected');
+				if (row){
+						$("#usersdlg").dialog({    
+							title: '编辑信息',      
+							closed: false,
+							width: 700,
+							height:300,    
+							cache: false,    
+							href: '/system/usersedit?id='+row.id,
+							modal: true,
+							buttons:[{
+								text:'保存',
+								id:'usersupdatesubmit',
+								iconCls:'icon-ok',
+							},{
+								text:'关闭',
+								iconCls:'icon-no',
+								handler:function(){$("#usersdlg").dialog('close');}
+							}]  
+						});				
+				}else{
+						$.messager.alert('提示','请先选择要编辑的行！','warning');
+				}
+}
+var usersdelete=function(){
+				var row = $('#users').datagrid('getSelected');
+				if (row){
+                    $.messager.confirm('提示','确定删除吗？',function(r){
+                        if(r==true){
+                            $.messager.progress();
+                            $.post('/system/usersdelete', {id:row.id}, function(data){
+                                $.messager.progress('close');
+								if(data.code=='200'){
+										$.messager.show({
+												title:'提示',
+												msg:data.msg,
+												timeout:3000,
+												showType:'slide'
+										});
+										usersreload();
+								}else{
+										$.messager.alert('提示',data.msg,'warning');
+								}								
+                            },'json');
+                        }
+                    });
+                }else{
+						$.messager.alert('提示','请先选择要删除的行！','warning');
+				}
+}
+var usersreload=function(){
+                $("#users").datagrid('reload');
+}
+var userssearch=function(){
+		var wh = $(window).height()-$(".top").height()-70;//表格高度
+        $("#users").datagrid({
+            title:'用户管理',
+            height:wh,//高度
+            singleSelect:true,//如果为true，则只允许选择一行
+            striped:true,//是否显示斑马线效果。
+            rownumbers:true,//如果为true，则显示一个行号列。
+            pagination:true,//是否显示分页
+            pageSize:10,
+            pageList:[10,15,20,25],
+            method:'post',
+            sortName:'id',
+            sortOrder:'asc',
+            url:'<{url c=system a=usersGet}>',
+			queryParams : {keywords:$('#userskeywords').val()},
+            fitColumns:true,//真正的自动展开/收缩列的大小，以适应网格的宽度，防止水平滚动。
+            nowrap:true,//如果为true，则在同一行中显示数据。设置为true可以提高加载性能。 是否换行
+            selectOnCheck:false,
+            checkOnSelect:true,
+			toolbar: '#tb<{$uniqid}>',
+			
+            columns:[[
+                {field:'username',title:'用户名',width:'15%'},
+                {field:'roles',title:'所属权限组',width:'15%'},
+				{field:'status',title:'状态',width:'15%'},
+				{field:'loginedtimes',title:'登陆次数',width:'10%'},
+				{field:'lasttime',title:'上次登陆时间',width:'15%'},
+				{field:'created_at',title:'创建时间',width:'15%'},
+				{field:'updated_at',title:'更新时间',width:'15%'},
+            ]],
+			onDblClickRow : function(index,field){					
+				usersedit();
+			} 
+    	});
+}
+userssearch();
+</script>

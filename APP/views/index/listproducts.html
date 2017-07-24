@@ -1,0 +1,185 @@
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<title>公司产品_<{$coinfo.title}></title>
+
+<meta name="keywords" content="<{$coinfo.keywords}>">
+
+<meta name="description" content="<{$coinfo.description}>">
+
+
+
+<link href="/css/nav.css" rel="stylesheet">
+
+<link href="/css/style.css" rel="stylesheet" type="text/css">
+
+<link href="/css/bdsstyle.css" rel="stylesheet" type="text/css">
+
+<!-- 加载jQuery1.10.2版本-->
+
+<script type="text/javascript" src="/Js/jquery-1.10.2.min.js"></script>
+
+<script type="text/javascript" src="/Js/jquery.nav.js"></script>
+
+<script type="text/javascript" src="/Js/JQ_common.js"></script>
+
+<script type="text/javascript" src="/Js/jquery.jcarousellite.min.js"></script>
+
+<script type="text/javascript" src="/Js/lazyload.js"></script>
+
+<script type="text/javascript" src="/Js/plugins.min.js"></script>
+
+<script type="text/javascript" src="/Js/revolution.min.js"></script>
+
+<script type="text/javascript" src="/Js/jquery.flexslider.js"></script>
+
+</head>
+
+<body>
+
+
+
+<{include file="index/header.html"}>
+
+
+
+<div id="main" class="bg incontenter">
+
+        <div class="main" style="width: 1055px;">
+
+            <div class="blank1">
+
+            </div>
+
+            <div class="blank2">
+
+            </div>
+
+            <div class="inside_tit f01">
+
+                产品中心</div>
+
+            <div class="blank">
+
+            </div>			
+
+            <div class="wz">
+
+                您的位置：<a href="<{url c=index a=index}>">首 页</a> > <a href="<{url c=index a=listproducts}>">产品中心</a></div>							
+
+            <div class="blank4">
+
+			<a name="pro"></a>
+
+            </div>			
+
+            <div class="inside_sift">
+
+               <!-- <div class="tit f01">
+
+                    筛选</div>-->
+
+            </div>			
+
+            <div class="blank4">
+
+            </div>			
+
+            <div class="incontenter">
+
+                <!-- 标题开始 -->
+
+                <div class="inside-nav">
+
+					<ul class="inside-nav-list clearfix">
+
+					<{section name=sec loop=$categories}>
+
+						<li <{if $categories_id eq $categories[sec].id}>class="on"<{/if}> ><a href="<{url c=index a=listproducts id=$categories[sec].id}>#pro"><{$categories[sec].title}></a></li>
+
+					<{/section}>
+
+					</ul>
+
+				</div>
+
+				
+
+                <!-- 内容开始 -->
+
+        <div class="TabContent">
+
+                    
+
+		<div class="pros-all-wrap">
+
+			<ul class="pros-show-list row-list-4 clearfix">				
+
+				<{section name=sec loop=$products}>
+
+				<li>				
+
+				<div class="pro_list pros-simple-one">
+
+                            <a title="<{$products[sec].title}>" href="<{url c=index a=viewproducts id=$products[sec].id}>#pro">
+
+                            <img alt="<{$products[sec].title}>" title="<{$products[sec].title}>" onerror="javascript:this.src='/images/no_pro.jpg'" width="200" height="150" src="<{$products[sec].logo}>">
+
+                            </a>
+
+                            <p class="f01 p1">
+
+                                <a title="<{$products[sec].title}>" href="<{url c=index a=viewproducts id=$products[sec].id}>#pro"><{$products[sec].title}></a></p>
+
+                            <p class="p2">
+
+                                <{$products[sec].classname}></p>
+
+                            <br>
+
+                            <{$products[sec].keywords}><br>
+
+							<{$products[sec].info|strip_tags|cntruncate:"40":".."}><br>
+
+                            <br>
+
+                            <a title="<{$products[sec].title}>" href="<{url c=index a=viewproducts id=$products[sec].id}>#pro"><img src="/images/lq_pic62.jpg"></a>
+
+                </div>
+
+				</li>
+
+				<{/section}>
+
+			</ul>
+
+		</div>
+
+					
+
+				<div class="pager"><{$pager}></div>
+
+
+					
+
+                </div>
+
+            </div>
+
+            <div class="blank4">
+
+            </div>
+
+        </div>
+
+</div>
+
+
+
+    
+
+<{include file="index/footer.html"}>
+
+
+
+</body></html>
+

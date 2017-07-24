@@ -1,0 +1,84 @@
+<div id="tb<{$uniqid}>" style="padding:5px">
+		<table cellspacing="0" cellpadding="0"><tbody><tr>		
+		<td><a href="javascript:;"  onclick="exportdb();" class="l-btn l-btn-small l-btn-plain" group="" id=""><span class="l-btn-left l-btn-icon-left"><span class="l-btn-text">备份数据库</span><span class="l-btn-icon icon-add">&nbsp;</span></span></a></td><td><div class="datagrid-btn-separator"></div></td>
+		<td><a href="<{url c=system a=downloaddb}>" class="l-btn l-btn-small l-btn-plain" group="" id=""><span class="l-btn-left l-btn-icon-left"><span class="l-btn-text">下载数据库</span><span class="l-btn-icon icon-edit">&nbsp;</span></span></a></td>
+		<td><a href="javascript:;" onclick="dblist();"  class="l-btn l-btn-small l-btn-plain" group="" id=""><span class="l-btn-left l-btn-icon-left"><span class="l-btn-text">查看备份</span><span class="l-btn-icon icon-trash">&nbsp;</span></span></a></td><td><div class="datagrid-btn-separator"></div></td>		
+		</tr></tbody></table>
+</div>
+
+<div class="con" onselectstart="return false;" style="-moz-user-select:none;">
+    <table id="database"></table>
+</div>
+
+<div id="databasedlg" class="easyui-dialog" style="width:720px; height:460px;" title="信息框" closed="true"></div>
+<script>
+var exportdb=function(){
+		$.messager.confirm('提示','确定备份数据库吗？',function(r){
+				if(r==true){
+					$.messager.progress();
+					$.post('/system/exportdb', function(data){
+						$.messager.progress('close');
+						if(data.code=='200'){
+								$.messager.show({
+										title:'提示',
+										msg:data.msg,
+										timeout:3000,
+										showType:'slide'
+								});
+								productsreload();
+						}else{
+								$.messager.alert('提示',data.msg,'warning');
+						}								
+					},'json');
+				}
+			});
+}
+var dblist=function(title){
+		$("#databasedlg").dialog({    
+				title: '查看备份',      
+				closed: false,    
+				width: 700,
+				height:480,
+				cache: false,    
+				href: '/system/dblist',    
+				modal: true,
+				buttons:[{
+					text:'关闭',
+					id:'friendlinkaddsubmit',
+					iconCls:'icon-ok',
+					handler:function(){$("#databasedlg").dialog('close');}
+				}]  
+		});
+}
+
+var databasesearch=function(){
+		var wh = $(window).height()-$(".top").height()-70;//表格高度
+        $("#database").datagrid({
+            title:'数据库管理',
+            height:wh,//高度
+            singleSelect:true,//如果为true，则只允许选择一行
+            striped:true,//是否显示斑马线效果。
+            rownumbers:true,//如果为true，则显示一个行号列。
+            pagination:false,//是否显示分页
+            pageSize:10,
+            pageList:[10,15,20,25],
+            method:'post',
+            url:'<{url c=system a=databaseGet}>',
+            fitColumns:true,//真正的自动展开/收缩列的大小，以适应网格的宽度，防止水平滚动。
+            nowrap:true,//如果为true，则在同一行中显示数据。设置为true可以提高加载性能。 是否换行
+            selectOnCheck:false,
+            checkOnSelect:true,
+			toolbar: '#tb<{$uniqid}>',
+            columns:[[
+                {field:'Name',title:'数据表名',width:'30%'},
+				{field:'Rows',title:'记录行数',width:'10%'},
+				{field:'Data_length',title:'表容量',width:'10%'},
+                {field:'Create_time',title:'创建时间',width:'15%'},
+				{field:'Update_time',title:'更新时间',width:'15%'},
+				{field:'Engine',title:'引擎',width:'10%',sortable:true},				
+				{field:'Collation',title:'校对字符集',width:'10%',sortable:true},
+            ]]
+    	});
+}
+databasesearch();
+</script>

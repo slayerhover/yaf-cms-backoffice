@@ -1,0 +1,137 @@
+<div id="tb<{$uniqid}>" style="padding:5px">
+		<table cellspacing="0" cellpadding="0"><tbody><tr>
+		<td><a href="javascript:;" onclick="friendlinkadd();" class="l-btn l-btn-small l-btn-plain" group="" id=""><span class="l-btn-left l-btn-icon-left"><span class="l-btn-text">增加</span><span class="l-btn-icon icon-add">&nbsp;</span></span></a></td><td><div class="datagrid-btn-separator"></div></td>
+		<td><a href="javascript:;" onclick="friendlinkedit();"  class="l-btn l-btn-small l-btn-plain" group="" id=""><span class="l-btn-left l-btn-icon-left"><span class="l-btn-text">编辑</span><span class="l-btn-icon icon-edit">&nbsp;</span></span></a></td>
+		<td><div class="datagrid-btn-separator"></div></td>
+		<td><a href="javascript:;" onclick="friendlinkdelete();"  class="l-btn l-btn-small l-btn-plain" group="" id=""><span class="l-btn-left l-btn-icon-left"><span class="l-btn-text">删除</span><span class="l-btn-icon icon-cancel">&nbsp;</span></span></a></td><td><div class="datagrid-btn-separator"></div></td>
+		<td><a href="javascript:;" onclick="friendlinkreload();"  class="l-btn l-btn-small l-btn-plain" group="" id=""><span class="l-btn-left l-btn-icon-left"><span class="l-btn-text">重载</span><span class="l-btn-icon icon-reload">&nbsp;</span></span></a></td>
+		<td>&nbsp;&nbsp;<input  id="friendlinkkeywords"  style="width:100px" type="text" class= "easyui-input textbox" > </input></td>
+		<td><span><a href="javascript:void(0)" class="easyui-linkbutton" plain="true" iconCls="icon-search" onclick="friendlinksearch()">查询</a></span>	</td>
+		</tr></tbody></table>
+</div>
+
+<div class="con" onselectstart="return false;" style="-moz-user-select:none;">
+    <table id="friendlink"></table>
+</div>
+
+<div id="friendlinkdlg" class="easyui-dialog" style="width:720px; height:460px;" title="信息框" closed="true"></div>
+
+<script>
+var friendlinkadd=function(){
+                $("#friendlinkdlg").dialog({    
+					title: '新增信息',      
+					closed: false,    
+					width: 700,
+					height:480,
+					cache: false,    
+					href: '/admin/friendlinkadd',    
+					modal: true,
+					buttons:[{
+						text:'保存',
+						id:'friendlinkaddsubmit',
+						iconCls:'icon-ok',
+					},{
+						text:'关闭',
+						iconCls:'icon-no',
+						handler:function(){$("#friendlinkdlg").dialog('close');}
+					}]  
+				});
+}
+var friendlinkedit=function(){
+				var row = $('#friendlink').datagrid('getSelected');
+				if (row){
+						$("#friendlinkdlg").dialog({    
+							title: '编辑信息',      
+							closed: false,
+							width: 700,
+							height:480,    
+							cache: false,    
+							href: '/admin/friendlinkedit?id='+row.id,
+							modal: true,
+							buttons:[{
+								text:'保存',
+								id:'friendlinkupdatesubmit',
+								iconCls:'icon-ok',
+							},{
+								text:'关闭',
+								iconCls:'icon-no',
+								handler:function(){$("#friendlinkdlg").dialog('close');}
+							}]  
+						});				
+				}else{
+						$.messager.alert('提示','请先选择要编辑的行！','warning');
+				}
+}
+var friendlinkdelete=function(){
+				var row = $('#friendlink').datagrid('getSelected');
+				if (row){
+                    $.messager.confirm('提示','确定删除吗？',function(r){
+                        if(r==true){
+                            $.messager.progress();
+                            $.post('/admin/friendlinkdelete', {id:row.id}, function(data){
+                                $.messager.progress('close');
+								if(data.code=='200'){
+										$.messager.show({
+												title:'提示',
+												msg:data.msg,
+												timeout:3000,
+												showType:'slide'
+										});
+										friendlinkreload();
+								}else{
+										$.messager.alert('提示',data.msg,'warning');
+								}								
+                            },'json');
+                        }
+                    });
+                }else{
+						$.messager.alert('提示','请先选择要删除的行！','warning');
+				}
+}
+var friendlinkreload=function(){
+                $("#friendlink").datagrid('reload');
+}
+var friendlinksearch=function(){
+		var wh = $(window).height()-$(".top").height()-70;//表格高度
+        $("#friendlink").datagrid({
+            title:'友情链接',
+            height:wh,//高度
+            singleSelect:true,//如果为true，则只允许选择一行
+            striped:true,//是否显示斑马线效果。
+            rownumbers:true,//如果为true，则显示一个行号列。
+            pagination:true,//是否显示分页
+            pageSize:10,
+            pageList:[10,15,20,25],
+            method:'post',
+            sortName:'sortorder',
+            sortOrder:'desc',
+            url:'<{url c=admin a=friendlinkGet}>',
+			queryParams : {keywords:$('#friendlinkkeywords').val()},
+            fitColumns:true,//真正的自动展开/收缩列的大小，以适应网格的宽度，防止水平滚动。
+            nowrap:true,//如果为true，则在同一行中显示数据。设置为true可以提高加载性能。 是否换行
+            selectOnCheck:false,
+            checkOnSelect:true,
+			toolbar: '#tb<{$uniqid}>',
+			
+            columns:[[
+                {field:'title',title:'名称',width:'15%'},
+				{field:'file',title:'文件',width:'10%',formatter:function (value,rowData,rowIndex){
+					if(value!=''){
+						  	return '<img src="'+value+'?imageView2/1/w/60/h/60" style="height:60px;width:60px;">';
+					}else{
+						  	return 'none';
+					}
+				}},
+                {field:'links',title:'链接',width:'20%'},
+				{field:'status',title:'状态',width:'10%'},
+				{field:'sortorder',title:'排序',width:'5%',sortable:true},
+				{field:'created_at',title:'创建时间',width:'20%'},
+				{field:'updated_at',title:'更新时间',width:'20%'},
+            ]],
+			onDblClickRow : function(index,field){					
+				friendlinkedit();
+			} 
+    	});
+}
+friendlinksearch();
+</script>

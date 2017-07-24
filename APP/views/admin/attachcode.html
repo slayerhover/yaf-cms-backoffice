@@ -1,0 +1,51 @@
+<div class="pageContent">
+	<form method="post">
+	<div class="pageFormContent" layoutH="56">
+
+	<table border="0" width="100%" cellspacing="0" cellpadding="5">
+	<tr height=8px><td width=10%></td><td width=90%></td></tr>
+	
+	<tr>
+		<td class="main">代码状态:</td>
+		<td class="main">
+		<fieldset style="width:30%">
+		<label><input type="radio" name="flag" value="1" <{if $flag==1}>checked="checked"<{/if}> />开启</label>
+		<label><input type="radio" name="flag" value="0" <{if $flag==0}>checked="checked"<{/if}> />关闭</label>
+		</fieldset>
+		</td>
+	</tr>
+	<tr>
+		<td class="main">内容:</td>
+		<td class="main">
+		<textarea  id="attachcodecontent" name="attachcodecontent"  class="required" style="width:98%;height:410px;overflow:auto"><{$code}></textarea>
+		</td>
+	</tr>
+	  		  
+	</table>
+	</div>
+	</form>
+	<div class="formBar">
+		<ul>
+				<li><div class="buttonActive"><div class="buttonContent"><button id="dosubmit">保存</button></div></div></li>
+				<li><div class="button"><div class="buttonContent"><button type="button" class="close">取消</button></div></div></li>
+		</ul>
+	</div>
+	
+
+</div>
+
+<script language="javascript" src="/Js/jquery.base64.js"></script>
+<script>
+$('#dosubmit').click(function(){
+	$.base64.utf8encode = true;
+	var flag=$("input:radio[name='flag']:checked").val();
+	var mycontent= $.base64.btoa($("#attachcodecontent").val());
+	$.post("<{url c=admin a=attachcodeupdate}>", {"attachcodecontent":mycontent, 'flag':flag}, function(data){
+		if(data.statusCode=='200'){
+			alert('更新成功.');
+		}else{
+			alert('更新失败,请重试.');
+		}
+	},"json");
+})
+</script>

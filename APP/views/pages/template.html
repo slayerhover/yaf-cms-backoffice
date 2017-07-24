@@ -1,0 +1,68 @@
+<div id="tb<{$uniqid}>" style="padding:5px">
+<form id="templatefm" method="post">
+<table border="0" width="100%" cellspacing="1" cellpadding="5" bgcolor="#c4d3e1" style="text-align:left; line-height:18px;">
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="10%">选择文件：</td>
+			<td width="90%">
+			<select name="file" class="selectfile">
+				<option value="">选择模板文件</option>
+				<{section name=sec1 loop=$filearr}>
+				<option value="<{$filearr[sec1]}>"><{$filearr[sec1]}></option>
+				<{/section}>
+			</select></td>
+		</tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;">内容：</td>
+			<td>
+			<textarea id="templatecontent" style="width:90%; height:500px;" name="content"></textarea>
+			</td>
+		</tr>
+		<tr> 
+			<td colspan="2" bgcolor="#F4F4F4" style="border-top:#ddd 1px solid;text-align:right; padding-right:25px;">			
+			<div>
+			<a href="javascript:;" class="l-btn l-btn-small" onclick="templatesubmitForm()"><span class="l-btn-left l-btn-icon-left"><span class="l-btn-text">保存</span><span class="l-btn-icon icon-ok">&nbsp;</span></span></a>
+			<a href="javascript:;" class="l-btn l-btn-small" onclick="templateclearForm()"><span class="l-btn-left l-btn-icon-left"><span class="l-btn-text">关闭</span><span class="l-btn-icon icon-no">&nbsp;</span></span></a>
+			</div>
+			</td>			
+		</tr>
+</table>
+</form>
+</div>
+
+<script>
+var templateclearForm=function(){
+	$('#templatefm').form('clear');
+	$('#rightTabs').tabs('close','前台模板');
+}
+var templatesubmitForm=function(){
+	filename=$(".selectfile option:selected").val();
+	if(filename==''){
+			$.messager.alert('请先选择要更新的模板文件',data.msg,'warning');
+			return false;
+	}
+	$.base64.utf8encode = true;
+	var mycontent= $.base64.btoa($("#templatecontent").val());
+	$.post("<{url c=pages a=updatefile}>", {filename:filename,content:mycontent}, function(data) {
+		if(data.code=='200'){
+				$.messager.show({
+						title:'提示',
+						msg:data.msg,
+						timeout:3000,
+						showType:'slide'
+				});
+		}else{
+				$.messager.alert('提示',data.msg,'warning');
+		}
+	},"json");
+}; 
+$(function(){
+		$('.selectfile').change(function(){
+				filename=$(".selectfile option:selected").val();
+				if(filename!=''){
+					$.post("<{url c=pages a=readfile}>", {filename:filename}, function(data) {
+						$("#templatecontent").val(data);
+					});
+				}
+		})
+})
+</script>

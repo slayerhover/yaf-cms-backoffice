@@ -1,0 +1,38 @@
+<div class="pageContent">
+	
+	<form method="post" action="<{url c=pages a=guestbookupdate}>" class="pageForm required-validate" onsubmit="return validateCallback(this, dialogAjaxDone)">
+		<div class="pageFormContent" layoutH="58">
+			<div class="unit">
+				<label>姓名：</label><fieldset style="width:50%;"><{$dataset.nickname}></fieldset>
+			</div>
+			<div class="unit">
+				<label>电话：</label><fieldset style="width:50%;"><{$dataset.phone}></fieldset>
+			</div>
+			<div class="unit">
+				<label>时间：</label><fieldset style="width:50%;"><{$dataset.addtime|date_format:'%Y-%m-%d %H:%M:%S'}></fieldset>
+			</div>
+			<div class="unit">
+				<label>留言：</label><fieldset style="width:70%; min-height:50px;"><{$dataset.content}></fieldset>
+			</div>
+			<div class="unit">
+				<label>回复：</label><textarea style="width:70%;" rows="5" name="reply"><{$dataset.reply}></textarea>
+			</div>
+			<div class="unit">
+				<label>状态：</label>
+				<fieldset style="width:50%">
+				<label><input type="radio" name="status"  <{if $dataset.status eq '1'}>checked="checked"<{/if}>  value="1" />开启</label>
+				<label><input type="radio" name="status"  <{if $dataset.status eq '0'}>checked="checked"<{/if}>  value="0" />关闭</label>
+				</fieldset>
+			</div>
+			
+			<input type="hidden" name="id" value="<{$dataset.id}>" />
+		</div>
+		<div class="formBar">
+			<ul>
+				<li><div class="buttonActive"><div class="buttonContent"><button type="submit">提交</button></div></div></li>
+				<li><div class="button"><div class="buttonContent"><button type="button" class="close">取消</button></div></div></li>
+			</ul>
+		</div>
+	</form>
+	
+</div>

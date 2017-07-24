@@ -1,0 +1,97 @@
+<div id="footer">
+
+    <div style="height: 1px; -font-size: 0;">
+
+    </div>
+
+    <div class="f_line">
+
+    </div>
+
+    <div class="footer">
+
+        <div class="blank1">
+
+        </div>
+
+        <div class="blank2">
+
+        </div>
+
+        <div class="l">		
+
+            <div><a style="font-size:30px; color:#FFFFFF;" href="/index.html">YAF CMS</a></div>
+
+            <div style="line-height: 30px; padding-top: 15px;">
+
+                <p style="font-family: &#39;微软雅黑&#39;; font-size: 16px; font-weight:bold; color: #9e9e9e;">
+
+                    全国统一客服热线</p>
+
+                <p style="color: #FFF; font-size: 16px;font-weight:bold; font-family: &#39;微软雅黑&#39;;letter-spacing:1px;"><{$coinfo.co_phone}></p>
+
+            </div>
+
+        </div>
+
+        <ul class="f_nav l">
+
+            <{section name=sec1 loop=$menus}>
+
+				<li><a class="menu_tit" href="<{$menus[sec1].links}>"><{$menus[sec1].title}></a>
+
+				<{if $menus[sec1].submenu|@count gt 0}>					
+
+						<ul>
+
+							<{section name=sec2 loop=$menus[sec1].submenu}>
+
+							<li><a href="<{$menus[sec1].submenu[sec2].links}>"><{$menus[sec1].submenu[sec2].title}></a></li>
+
+							<{/section}>
+
+						</ul>
+
+				<{/if}>
+
+				</li>
+
+			<{/section}>			
+
+        </ul>
+
+        <ul class="f_link r f01">
+
+            <li><a href="javascript:">友情链接</a>
+
+                <ul>
+
+				<{section name=sec loop=$friendlink}>
+
+                    <li><a target="_blank" href="<{$friendlink[sec].links}>"><{$friendlink[sec].title}></a></li>
+
+				<{/section}>
+
+                </ul>
+
+            </li>
+
+        </ul>
+
+        <div class="clear">
+
+        </div>
+
+    </div>
+
+    <div class="bottom01">
+
+        <div class="text bottom01_01">Copyleft © <{$coinfo.title}> Open all rights. | 
+
+        &nbsp;&nbsp;Powered By slayer.hover</div>
+
+    </div>
+
+</div>
+
+</div>
