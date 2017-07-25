@@ -10,9 +10,9 @@ CREATE TABLE go_admin (
    KEY UserName (username)
 );
 
-INSERT INTO go_admin VALUES('1', 'admin', '1', '132d4bacc660c537f2049694260a2751', '25', '1494152676');
-INSERT INTO go_admin VALUES('2', 'user', '2', '132d4bacc660c537f2049694260a2751', '6', '1461122370');
-INSERT INTO go_admin VALUES('3', 'client', '4', '132d4bacc660c537f2049694260a2751', '0', NULL);
+INSERT INTO go_admin VALUES('1', 'admin', '1', 'e10adc3949ba59abbe56e057f20f883e', '25', '1494152676');
+INSERT INTO go_admin VALUES('2', 'user', '2', 'e10adc3949ba59abbe56e057f20f883e', '6', '1461122370');
+INSERT INTO go_admin VALUES('3', 'client', '4', 'e10adc3949ba59abbe56e057f20f883e', '0', NULL);
 
 DROP TABLE IF EXISTS go_categories;
 CREATE TABLE go_categories (
