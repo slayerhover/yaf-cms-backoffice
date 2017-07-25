@@ -25,7 +25,7 @@ function _M.new(self)
     if not ok then
 		return nil
     end
-	--db:query("set names utf8")
+    db:query("set names utf8")
     db.close = close
     return db
 end
