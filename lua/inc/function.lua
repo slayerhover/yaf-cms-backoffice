@@ -97,8 +97,8 @@ function _M:replace(str, find, replace)
 end
 
 function _M:trim(str)
-	str = _M:trim_left( str );
-	str = _M:trim_right( str );
+	str = _M:ltrim( str );
+	str = _M:rtrim( str );
 	return str;
 end
 
