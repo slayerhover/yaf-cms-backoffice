@@ -44,6 +44,7 @@ function _M.curl(url, params, method)
 	local resp, err = httpc:request_uri(url, {  
 		method	= method,  
 		body 	= params,
+		ssl_verify = false, --兼容https	
 		headers = {  
 			["User-Agent"]  = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.111 Safari/537.36",
 			["Content-Type"]= "application/x-www-form-urlencoded"
