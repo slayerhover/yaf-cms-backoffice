@@ -21,7 +21,7 @@ function _M.dump(t)
 		end
 		
 		local str = type(t);		
-		if type(t)=='table' then		
+		if str=='table' then		
 			str = str .. '(' .. #t .. ')' .. '\n{\n' 
 			for k,v in pairs(t) do
 				if type(v)=="table" then
