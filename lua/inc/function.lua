@@ -11,26 +11,31 @@ function _M.empty(t)
     end
 end
 
-function _M.dump(t)
-    local function parse_array(key, tab)
-		local str = ''
-		for _, v in pairs(tab) do
-			str	=	str .. key .. ' = ' .. v .. '\r\n'
+function _M.dump(t)	
+		local function parse_array(key, tab)
+			local str = ''
+			for _, v in pairs(tab) do
+				str	=	str .. '\t' .. key .. ' => ' .. v .. '\n'
+			end			
+			return str
 		end
 		
-		return str
-	end
-	
-	local str = ''
-	for k,v in pairs(t) do
-		if type(v)=="table" then
-			str = str .. parse_array(k, v)
+		local str = type(t);		
+		if type(t)=='table' then		
+			str = str .. '(' .. #t .. ')' .. '\n{\n' 
+			for k,v in pairs(t) do
+				if type(v)=="table" then
+					str = str .. parse_array(k, v)
+				else
+					str = str .. '\t' .. k .. ' => ' .. (v) ..  '\n'
+				end
+			end
 		else
-			str = str .. k .. ' = ' .. (v) ..  '\r\n'
-		end
-	end
-	
-	ngx.say(str)
+			str = str .. '\n{\n' .. tostring(t) .. '\n'
+		end		
+		str = str .. '}'
+		
+		ngx.say('\n' .. str .. '\n')
 end	
 
 function _M.curl(url, params, method)
@@ -65,7 +70,7 @@ function _M.json_decode(str)
 	return json
 end
 
-function _M:split(split, str)
+function _M.explode(split, str)
 	local str_split_tab = {}
 	while true do
 		local idx = string.find(str,split,1,true);
@@ -91,18 +96,80 @@ function _M:split(split, str)
 	return str_split_tab;
 end
 
-function _M:replace(str, find, replace)
+function _M.str_replace(str, find, replace)
 	local res,res_count = string.gsub(str,find,replace);
 	return res,res_count
 end
 
-function _M:trim(str)
+function _M.strpos(str, find)
+	local res,res_end = string.find(str, find)
+	if ''==res or nil==res then
+		return false;
+	end	
+	return res;
+end
+
+function _M.stripos(str, find)
+	local str = string.lower(str);
+	local find= string.lower(find);
+	
+	local res,res_end = string.find(str, find)
+	if ''==res or nil==res then
+		return false;
+	end	
+	return res;
+end
+
+function _M.preg_match(regex, str)
+	local res,err = ngx.re.match(str, regex, "io")
+	if res then
+		return res;
+	else
+		ngx.log(ngx.ERR, "error: ", err)
+		return false;
+	end
+end
+
+function _M.preg_match_all(regex, str)
+	local it,err = ngx.re.gmatch(str, regex, "io")
+    if not it then
+        ngx.log(ngx.ERR, "error: ", err)
+        return false;
+    end
+	local res = {};	
+    while true do
+        local m, err = it()
+        if err then
+            ngx.log(ngx.ERR, "error: ", err)
+            return false;
+        end 
+        if not m then
+            break
+        end
+		table.insert(res, m);
+    end			
+	return res;
+end
+
+function _M.preg_replace(regex, replacement, str, option)
+	local newstr, n, err = ngx.re.gsub(str, regex, replacement, option)
+    if newstr then
+		return newstr;		
+        -- newstr == "[hello,h], [world,w]"
+        -- n == 2
+    else
+        ngx.log(ngx.ERR, "error: ", err)
+        return false;
+    end
+end
+
+function _M.trim(str)
 	str = _M:ltrim( str );
 	str = _M:rtrim( str );
 	return str;
 end
 
-function _M:ltrim( str )
+function _M.ltrim( str )
 	if ''==str or nil==str then
 		return str;
 	end
@@ -130,7 +197,7 @@ function _M:ltrim( str )
 	return str;
 end
 
-function _M:rtrim( str )
+function _M.rtrim( str )
 	if ''==str or nil==str then
 		return str;
 	end
@@ -158,14 +225,14 @@ function _M:rtrim( str )
 
 end
 
-function _M:upper(str)
+function _M.upper(str)
 	if ''==str or nil==str then
 		return str;
 	end
 	return string.upper(str);
 end
 
-function _M:lower(str)
+function _M.lower(str)
 	if ''==str or nil==str then
 		return str;
 	end
