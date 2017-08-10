@@ -12,10 +12,10 @@ function _M.empty(t)
 end
 
 function _M.dump(t)	
-		local function parse_array(key, tab)
+		local function parse_array(tab)
 			local str = ''
 			for _, v in pairs(tab) do
-				str	=	str .. '\t' .. key .. ' => ' .. v .. '\n'
+				str	=	str .. '\t\t' .. _ .. ' => ' .. v .. '\n'
 			end			
 			return str
 		end
@@ -25,7 +25,7 @@ function _M.dump(t)
 			str = str .. '(' .. #t .. ')' .. '\n{\n' 
 			for k,v in pairs(t) do
 				if type(v)=="table" then
-					str = str .. parse_array(k, v)
+					str = str .. '\t' .. k .. ' = > {\n' .. parse_array(v) .. '\t}' .. '\n'
 				else
 					str = str .. '\t' .. k .. ' => ' .. (v) ..  '\n'
 				end
@@ -42,9 +42,9 @@ function _M.curl(url, params, method)
 	local httpc	=	http.new()
 	httpc:set_timeout(2000) --2秒超时
 	local resp, err = httpc:request_uri(url, {  
-		method	= method,  
+		method	= method or 'GET',
 		body 	= params,
-		ssl_verify = false, --兼容https	
+		ssl_verify = false, --兼容https
 		headers = {  
 			["User-Agent"]  = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.111 Safari/537.36",
 			["Content-Type"]= "application/x-www-form-urlencoded"
@@ -57,6 +57,21 @@ function _M.curl(url, params, method)
 	  	
 	httpc:close()
 	return resp.body
+end
+
+function _M.sizeof(t)
+	local count = 0
+	for _, v in pairs(t) do
+		count = count + 1
+	end			
+	return count;
+end
+function _M.count(t)
+	local count = 0
+	for _, v in pairs(t) do
+		count = count + 1
+	end			
+	return count;
 end
 
 function _M.json_encode(t)
@@ -95,6 +110,14 @@ function _M.explode(split, str)
 		end
 	end
 	return str_split_tab;
+end
+
+function _M.implode(split, t)
+	local tab = {}
+	for _, v in pairs(t) do
+		table.insert(tab, v)
+	end			
+	return table.concat(tab, split);
 end
 
 function _M.str_replace(str, find, replace)
