@@ -4,25 +4,106 @@ class Validate {
 	 *检测输入参数
 	 *传送参数格式：
 	 *	array(
-	 *		0=>['name'=>'username',	'value'	=>	'slayer.hover',		'fun'	=>	'isUsername',	'msg'=>'用户名格式有误,请输入2-30位的字符.' ],
-	 *		1=>['name'=>'email',	'value'	=>	'hover@gmail.com',	'fun'	=>	'isEmail',		'msg'=>'邮件地址格式有误.' ],
+	 *		['name'=>'username','value'=>'slayer.hover',	'fun'=>'isUsername',
+	 'conditions'=>'min:5|max:64|required|gt:1|gte:3|lt:10|lte:8|eq:5|neq:6|in:1,2,3,4|notin:5,6,7,8|like:good|between:1,10','msg'=>'用户名请输入2-30位的字符.' ],
+	 *		['name'=>'email',	'value'=>'hover@gmail.com', 'fun'=>'isEmail', 'conditions'=>'min:5|max:64|required|gt:1|gte:3|lt:10|lte:8|eq:5|neq:6|in:1,2,3,4|notin:5,6,7,8|like:good|between:1,10','msg'=>'邮件地址格式有误.' ],
 	 *	);
 	 *输出参数格式：
 	 *	array(
-	 *		'用户名格式有误,请输入2-30位的字符.',
-	 *		'邮件地址格式有误.',
+	 *		'username' => '用户名格式有误,请输入2-30位的字符.',
+	 *		'email'	   => '邮件地址格式有误.',
 	 *	);
 	 ***/
 	public static function check($options){
 		$result	=	[];
 		if(is_array($options)&&!empty($options)){
 		foreach($options as $k=>$v){
+			if(isset($v['conditions'])&&!empty($v['conditions'])){
+				$conditions	= explode('|',$v['conditions']);
+				if(!empty($conditions)&&is_array($conditions)){
+				foreach($conditions as $ck=>$cv){
+					$cv = explode(':',$cv);
+					switch(strtolower(trim($cv[0]))){
+						case 'min':
+							if(isset($cv[1])&&$cv[1]>0&&strlen($v['value']<$cv[1])){				
+									$result[$v['name']]	=	'最小长度不足' . $cv[1];
+							}
+							break;
+						case 'max':
+							if(isset($cv[1])&&$cv[1]>0&&strlen($v['value']>$cv[1])){
+									$result[$v['name']]	=	'最大长度超过' . $cv[1];
+							}
+							break;
+						case 'required':
+							if($v['value']===''){				
+									$result[$v['name']]	=	'必填项不能为空';
+							}
+							break;
+						case 'gt':
+							if(isset($cv[1])&&$v['value']<=$cv[1]){
+									$result[$v['name']]	=	'值必须大于' . $cv[1];
+							}
+							break;
+						case 'gte':
+							if(isset($cv[1])&&$v['value']<$cv[1]){
+									$result[$v['name']]	=	'值必须大于等于' . $cv[1];
+							}
+							break;
+						case 'lt':
+							if(isset($cv[1])&&$v['value']>=$cv[1]){
+									$result[$v['name']]	=	'值必须小于' . $cv[1];
+							}
+							break;
+						case 'lte':
+							if(isset($cv[1])&&$v['value']>$cv[1]){
+									$result[$v['name']]	=	'值必须小于等于' . $cv[1];
+							}
+							break;
+						case 'eq':
+							if(isset($cv[1])&&$v['value']<>$cv[1]){
+									$result[$v['name']]	=	'值必须等于' . $cv[1];
+							}
+							break;
+						case 'neq':
+							if(isset($cv[1])&&$v['value']==$cv[1]){
+									$result[$v['name']]	=	'值必须不等于' . $cv[1];
+							}
+							break;
+						case 'in':
+							$in = explode(',',$cv[1]);
+							if(!in_array($v['value'], $in)){
+									$result[$v['name']]	=	'值必须包含在[' . $cv[1] . ']';
+							}
+							break;
+						case 'like':
+							if(stripos($v['value'], $cv[1])===FALSE){
+									$result[$v['name']]	=	'值必须相似于%' . $cv[1] . '%';
+							}
+							break;
+						case 'between':
+							$between = explode(',',$cv[1]);
+							if(isset($between[0])&&($v['value']<$between[0]||$v['value']>$between[1])){
+									$result[$v['name']]	=	'值必须间于' . $between[0].'-'.$between[1];
+							}
+							break;
+						break;
+					}
+				}}
+			}			
 			$yz	=	call_user_func('self::'.$v['fun'], $v['value']);
-			if( $yz['code']==0 )
-				$result[$v['name']]	=	empty($v['msg']) ? $yz['msg'] : $v['msg'];
-		}}	
-
+			if( $yz['code']==0 ){
+					$result[$v['name']]	=	empty($v['msg']) ? $yz['msg'] : $v['msg'];
+			}
+		}}
 		return $result;
+	}
+	
+	public static function isNotempty($value){
+		if(!empty($value)){
+			return	['code'=>1];
+		}else{
+			return	['code'=>0, 'msg'=>'字段不能为空.'];
+		}
 	}
 	
 	public static function isUsername($value,$minLen=2,$maxLen=30){
@@ -189,6 +270,13 @@ class Validate {
 			return	['code'=>0, 'msg'=>'openid格式有误.'];
 		}
 	}
+	public static function isInteger($value) {
+		if( is_int($value) || preg_match('/^[0-9]+$/', $value) ){
+			return	['code'=>1];
+		}else{
+			return	['code'=>0, 'msg'=>'整数格式有误.'];
+		}
+	}
 	public static function isInt($value) {
 		if( is_int($value) || preg_match('/^[0-9]+$/', $value) ){
 			return	['code'=>1];
@@ -196,7 +284,7 @@ class Validate {
 			return	['code'=>0, 'msg'=>'整数格式有误.'];
 		}
 	}
-	public static function isUint($value) {
+	public static function isUinteger($value) {
 		if(preg_match('#^[0-9]+$#', (string)$value) && $value<4294967296 && $value>0){
 			return	['code'=>1];
 		}else{
