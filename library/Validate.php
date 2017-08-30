@@ -5,8 +5,8 @@ class Validate {
 	 *传送参数格式：
 	 *	array(
 	 *		['name'=>'username','value'=>'slayer.hover',	'fun'=>'isUsername',
-	 'conditions'=>'min:5|max:64|required|gt:1|gte:3|lt:10|lte:8|eq:5|neq:6|in:1,2,3,4|notin:5,6,7,8|like:good|between:1,10','msg'=>'用户名请输入2-30位的字符.' ],
-	 *		['name'=>'email',	'value'=>'hover@gmail.com', 'fun'=>'isEmail', 'conditions'=>'min:5|max:64|required|gt:1|gte:3|lt:10|lte:8|eq:5|neq:6|in:1,2,3,4|notin:5,6,7,8|like:good|between:1,10','msg'=>'邮件地址格式有误.' ],
+	 'role'=>'min:5|max:64|required|gt:1|gte:3|lt:10|lte:8|eq:5|neq:6|in:1,2,3,4|notin:5,6,7,8|like:good|between:1,10','msg'=>'用户名请输入2-30位的字符.' ],
+	 *		['name'=>'email',	'value'=>'hover@gmail.com', 'fun'=>'isEmail', 'role'=>'min:5|max:64|required|gt:1|gte:3|lt:10|lte:8|eq:5|neq:6|in:1,2,3,4|notin:5,6,7,8|like:good|between:1,10','msg'=>'邮件地址格式有误.' ],
 	 *	);
 	 *输出参数格式：
 	 *	array(
@@ -18,81 +18,83 @@ class Validate {
 		$result	=	[];
 		if(is_array($options)&&!empty($options)){
 		foreach($options as $k=>$v){
-			if(isset($v['conditions'])&&!empty($v['conditions'])){
-				$conditions	= explode('|',$v['conditions']);
-				if(!empty($conditions)&&is_array($conditions)){
-				foreach($conditions as $ck=>$cv){
+			if(isset($v['role'])&&!empty($v['role'])){
+				$role	= explode('|',$v['role']);
+				if(!empty($role)&&is_array($role)){
+				foreach($role as $cv){
 					$cv = explode(':',$cv);
 					switch(strtolower(trim($cv[0]))){
 						case 'min':
 							if(isset($cv[1])&&$cv[1]>0&&strlen($v['value']<$cv[1])){				
-									$result[$v['name']]	=	'最小长度不足' . $cv[1];
+									$result[$v['name']]	=	'最小长度不足' . $cv[1] . ';' . $v['msg'];
 							}
 							break;
 						case 'max':
 							if(isset($cv[1])&&$cv[1]>0&&strlen($v['value']>$cv[1])){
-									$result[$v['name']]	=	'最大长度超过' . $cv[1];
+									$result[$v['name']]	=	'最大长度超过' . $cv[1] . ';' . $v['msg'];
 							}
 							break;
 						case 'required':
 							if($v['value']===''){				
-									$result[$v['name']]	=	'必填项不能为空';
+									$result[$v['name']]	=	'必填项不能为空' . ';' . $v['msg'];
 							}
 							break;
 						case 'gt':
 							if(isset($cv[1])&&$v['value']<=$cv[1]){
-									$result[$v['name']]	=	'值必须大于' . $cv[1];
+									$result[$v['name']]	=	'值必须大于' . $cv[1] . ';' . $v['msg'];
 							}
 							break;
 						case 'gte':
 							if(isset($cv[1])&&$v['value']<$cv[1]){
-									$result[$v['name']]	=	'值必须大于等于' . $cv[1];
+									$result[$v['name']]	=	'值必须大于等于' . $cv[1] . ';' . $v['msg'];
 							}
 							break;
 						case 'lt':
 							if(isset($cv[1])&&$v['value']>=$cv[1]){
-									$result[$v['name']]	=	'值必须小于' . $cv[1];
+									$result[$v['name']]	=	'值必须小于' . $cv[1] . ';' . $v['msg'];
 							}
 							break;
 						case 'lte':
 							if(isset($cv[1])&&$v['value']>$cv[1]){
-									$result[$v['name']]	=	'值必须小于等于' . $cv[1];
+									$result[$v['name']]	=	'值必须小于等于' . $cv[1] . ';' . $v['msg'];
 							}
 							break;
 						case 'eq':
 							if(isset($cv[1])&&$v['value']<>$cv[1]){
-									$result[$v['name']]	=	'值必须等于' . $cv[1];
+									$result[$v['name']]	=	'当前值与对比者不相等：' . $cv[1] . ';' . $v['msg'];
 							}
 							break;
 						case 'neq':
 							if(isset($cv[1])&&$v['value']==$cv[1]){
-									$result[$v['name']]	=	'值必须不等于' . $cv[1];
+									$result[$v['name']]	=	'值必须不等于' . $cv[1] . ';' . $v['msg'];
 							}
 							break;
 						case 'in':
 							$in = explode(',',$cv[1]);
 							if(!in_array($v['value'], $in)){
-									$result[$v['name']]	=	'值必须包含在[' . $cv[1] . ']';
+									$result[$v['name']]	=	'值必须包含在[' . $cv[1] . ']' . ';' . $v['msg'];
 							}
 							break;
 						case 'like':
 							if(stripos($v['value'], $cv[1])===FALSE){
-									$result[$v['name']]	=	'值必须相似于%' . $cv[1] . '%';
+									$result[$v['name']]	=	'值必须相似于%' . $cv[1] . '%' . ';' . $v['msg'];
 							}
 							break;
 						case 'between':
 							$between = explode(',',$cv[1]);
 							if(isset($between[0])&&($v['value']<$between[0]||$v['value']>$between[1])){
-									$result[$v['name']]	=	'值必须间于' . $between[0].'-'.$between[1];
+									$result[$v['name']]	=	'值必须间于' . $between[0].'-'.$between[1] . ';' . $v['msg'];
 							}
 							break;
 						break;
 					}
 				}}
-			}			
-			$yz	=	call_user_func('self::'.$v['fun'], $v['value']);
-			if( $yz['code']==0 ){
-					$result[$v['name']]	=	empty($v['msg']) ? $yz['msg'] : $v['msg'];
+			}
+			if(isset($v['fun'])&&!empty($v['fun'])){			
+				$yz	=	call_user_func('self::'.$v['fun'], $v['value']);
+				if( $yz['code']==0 ){
+						$result[$v['name']]	=	empty($v['msg']) ? $yz['msg'] : $v['msg'];
+				}
 			}
 		}}
 		return $result;
