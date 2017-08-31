@@ -90,7 +90,7 @@ class Validate {
 					}
 				}}
 			}
-			if(isset($v['fun'])&&!empty($v['fun'])){			
+			if($v['value']!==''&&isset($v['fun'])&&!empty($v['fun'])){			
 				$yz	=	call_user_func('self::'.$v['fun'], $v['value']);
 				if( $yz['code']==0 ){
 						$result[$v['name']]	=	empty($v['msg']) ? $yz['msg'] : $v['msg'];
