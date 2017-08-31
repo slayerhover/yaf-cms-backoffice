@@ -2,12 +2,22 @@
 class Validate {
 	/***
 	 *检测输入参数
-	 *传送参数格式：
-	 *	array(
-	 *		['name'=>'username','value'=>'slayer.hover',	'fun'=>'isUsername',
-	 'role'=>'min:5|max:64|required|gt:1|gte:3|lt:10|lte:8|eq:5|neq:6|in:1,2,3,4|notin:5,6,7,8|like:good|between:1,10','msg'=>'用户名请输入2-30位的字符.' ],
-	 *		['name'=>'email',	'value'=>'hover@gmail.com', 'fun'=>'isEmail', 'role'=>'min:5|max:64|required|gt:1|gte:3|lt:10|lte:8|eq:5|neq:6|in:1,2,3,4|notin:5,6,7,8|like:good|between:1,10','msg'=>'邮件地址格式有误.' ],
+	 *传送参数格式,调用方式：
+	 *	$username= trim($this->get('username', ''));
+	 * 	$email	 = trim($this->get('email', ''));
+	 * 	$inputs	= array(
+	 *		['name'=>'username','value'=>$username,	'fun'=>'isUsername','role'=>'min:2|max:32|required','msg'=>'用户名请输入2-32位的字符.' ],
+	 *		['name'=>'email','value'=>$email,'fun'=>'isEmail','role'=>'min:5|max:64|required','msg'=>'邮件地址格式有误.' ],
 	 *	);
+	 *	$result	= Validate::check($inputs);
+	 *	if(!empty($result)){
+	 *		$result	= array(
+	 *				'code'	=>	'0',
+	 *				'msg'	=>	'输入参数有误.',
+	 *				'data'	=>	$result,
+	 *		);
+	 *		json($result);
+	 * 	}
 	 *输出参数格式：
 	 *	array(
 	 *		'username' => '用户名格式有误,请输入2-30位的字符.',
