@@ -96,7 +96,6 @@ class Validate {
 									$result[$v['name']]	=	'值必须间于' . $between[0].'-'.$between[1] . ';' . $v['msg'];
 							}
 							break;
-						break;
 					}
 				}}
 			}
