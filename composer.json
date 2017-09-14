@@ -1,0 +1,7 @@
+{
+    "require": {
+        "qiniu/php-sdk": "^7.1",
+        "illuminate/database": "*",
+  	    "owasp/phprbac": "^2.0"
+    }
+}
