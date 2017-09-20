@@ -91,5 +91,19 @@ abstract class CoreController extends Yaf_Controller_Abstract {
     protected function isXml() {
         return $this->getRequest()->isXmlHttpRequest();
     }
+	
+	/**
+	  *记录最后一条SQL日志
+	  */
+	protected function sqllog(){
+		$sqllog		= DB::getQueryLog()[0];
+		$query		= str_replace('?','%s',$sqllog['query']);
+		$bindings	= $sqllog['bindings'];		
+		array_walk($bindings, function(&$v){ $v = "'$v'"; });
+				
+		array_unshift($bindings, $query);
+		$sql = call_user_func_array('sprintf', $bindings);
+		Log::out('sql', 'I', call_user_func_array('sprintf', $bindings));
+	}	
 
 }
