@@ -1,4 +1,5 @@
 <?php
+use Illuminate\Database\Capsule\Manager as DB;
 /**
   *核心控制器，其它控制器由此继承
   *
@@ -94,6 +95,7 @@ abstract class CoreController extends Yaf_Controller_Abstract {
 	
 	/**
 	  *记录最后一条SQL日志
+	  *前置 DB::enableQueryLog();
 	  */
 	protected function sqllog(){
 		$sqllog		= DB::getQueryLog()[0];
