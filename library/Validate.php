@@ -35,12 +35,12 @@ class Validate {
 					$cv = explode(':',$cv);
 					switch(strtolower(trim($cv[0]))){
 						case 'min':
-							if(isset($cv[1])&&$cv[1]>0&&strlen($v['value']<$cv[1])){				
+							if(isset($cv[1])&&$cv[1]>0&&strlen($v['value'])<$cv[1]){				
 									$result[$v['name']]	=	'最小长度不足' . $cv[1] . ';' . $v['msg'];
 							}
 							break;
 						case 'max':
-							if(isset($cv[1])&&$cv[1]>0&&strlen($v['value']>$cv[1])){
+							if(isset($cv[1])&&$cv[1]>0&&strlen($v['value'])>$cv[1]){
 									$result[$v['name']]	=	'最大长度超过' . $cv[1] . ';' . $v['msg'];
 							}
 							break;
