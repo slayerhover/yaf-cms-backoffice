@@ -101,60 +101,6 @@ class IndexController extends CoreController {
 		json($result, self::$datatype, self::$callback);
 	}
 	
-	/**
-	 *接口名称	搜索询价
-	 *接口地址	http://api.com/user/index/
-	 *接口说明	显示欢迎页图片
-	 *参数 @param无
-	 *返回 @return
-	 *返回格式	Json
-	 * @images   图片地址组
-	 *
-	 **/
-	public function searchAction(){
-		do{	
-			$startdate  =  date('Y-m-d', strtotime($this->get('startdate', date('Y-m-d'))));
-			$fromcity   =  $this->get('fromcity', '');
-			$tocity   	=  $this->get('tocity', '');
-			
-			$pagenum        =  intval($this->get('pagenum', 1));
-			$pagesize    	=  intval($this->get('pagesize', 10));
-			$startpagenum	=  ($pagenum-1) * $pagesize;
-			$limit			=  " LIMIT {$startpagenum}, {$pagesize} ";			
-			$sortorder		=  " ORDER BY a.id DESC ";			
-			$conditions		=  " WHERE a.status=1 AND a.fromcity like '%{$fromcity}%' AND a.tocity like '%{$tocity}%' AND left(a.startdate,10)='{$startdate}' ";			
-			
-			$_DB	=	new Model;					
-			$rows	= $_DB->getAll("SELECT a.*,b.showname,b.sex,b.logo,b.address,b.email,b.phone,b.autobrand,b.autovin from {trip} a inner join {members} b 
-											on a.members_id=b.id " . $conditions . $sortorder . $limit );
-			$total	= $_DB->getValue("SELECT count(*) from {trip} a " . $conditions);											
-			if( !is_array($rows) || empty($rows) ){
-				$result	= array(
-							'code'	=>	'0',
-							'msg'	=>	'未找到相关行程.',
-							'data'	=>	array(),
-						);
-				break;
-			}
-						
-			$result	=	array(
-							'code'	=>	'1',
-							'msg'	=>	'找到的相关行程.',
-							'msg'	=>	' ',
-							'data'	=>	array(
-											'fromcity'	=>	$fromcity,
-											'tocity'	=>	$tocity,
-											'pagenum'	=>	$pagenum,
-											'pagesize'	=>	$pagesize,											
-											'total'		=>	$total,
-											'totalpage'	=>	ceil($total/$pagesize),
-											'list' 		=>	$rows,
-										)
-						);
-		}while(FALSE);
-		
-		json($result, self::$datatype, self::$callback);
-	}
 	
 	/**
 	 *接口名称	提示消息
