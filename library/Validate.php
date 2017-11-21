@@ -34,65 +34,65 @@ class Validate {
 				foreach($role as $cv){
 					$cv = explode(':',$cv);
 					switch(strtolower(trim($cv[0]))){
-						case 'min':
-							if(isset($cv[1])&&$cv[1]>0&&strlen($v['value'])<$cv[1]){				
-									$result[$v['name']]	=	'最小长度不足' . $cv[1] . ';' . $v['msg'];
-							}
-							break;
-						case 'max':
-							if(isset($cv[1])&&$cv[1]>0&&strlen($v['value'])>$cv[1]){
-									$result[$v['name']]	=	'最大长度超过' . $cv[1] . ';' . $v['msg'];
-							}
-							break;
 						case 'required':
 							if($v['value']===''){				
 									$result[$v['name']]	=	'必填项不能为空' . ';' . $v['msg'];
 							}
 							break;
+						case 'min':
+							if($v['value']!==''&&isset($cv[1])&&$cv[1]>0&&strlen($v['value'])<$cv[1]){				
+									$result[$v['name']]	=	'最小长度不足' . $cv[1] . ';' . $v['msg'];
+							}
+							break;
+						case 'max':
+							if($v['value']!==''&&isset($cv[1])&&$cv[1]>0&&strlen($v['value'])>$cv[1]){
+									$result[$v['name']]	=	'最大长度超过' . $cv[1] . ';' . $v['msg'];
+							}
+							break;						
 						case 'gt':
-							if(isset($cv[1])&&$v['value']<=$cv[1]){
+							if($v['value']!==''&&isset($cv[1])&&$v['value']<=$cv[1]){
 									$result[$v['name']]	=	'值必须大于' . $cv[1] . ';' . $v['msg'];
 							}
 							break;
 						case 'gte':
-							if(isset($cv[1])&&$v['value']<$cv[1]){
+							if($v['value']!==''&&isset($cv[1])&&$v['value']<$cv[1]){
 									$result[$v['name']]	=	'值必须大于等于' . $cv[1] . ';' . $v['msg'];
 							}
 							break;
 						case 'lt':
-							if(isset($cv[1])&&$v['value']>=$cv[1]){
+							if($v['value']!==''&&isset($cv[1])&&$v['value']>=$cv[1]){
 									$result[$v['name']]	=	'值必须小于' . $cv[1] . ';' . $v['msg'];
 							}
 							break;
 						case 'lte':
-							if(isset($cv[1])&&$v['value']>$cv[1]){
+							if($v['value']!==''&&isset($cv[1])&&$v['value']>$cv[1]){
 									$result[$v['name']]	=	'值必须小于等于' . $cv[1] . ';' . $v['msg'];
 							}
 							break;
 						case 'eq':
-							if(isset($cv[1])&&$v['value']<>$cv[1]){
-									$result[$v['name']]	=	'当前值与对比者不相等：' . $cv[1] . ';' . $v['msg'];
+							if($v['value']!==''&&isset($cv[1])&&$v['value']<>$cv[1]){
+									$result[$v['name']]	=	'值不相等：' . $v['name'] . ';' . $v['msg'];
 							}
 							break;
 						case 'neq':
-							if(isset($cv[1])&&$v['value']==$cv[1]){
+							if($v['value']!==''&&isset($cv[1])&&$v['value']==$cv[1]){
 									$result[$v['name']]	=	'值必须不等于' . $cv[1] . ';' . $v['msg'];
 							}
 							break;
 						case 'in':
 							$in = explode(',',$cv[1]);
-							if(!in_array($v['value'], $in)){
+							if($v['value']!==''&&!in_array($v['value'], $in)){
 									$result[$v['name']]	=	'值必须包含在[' . $cv[1] . ']' . ';' . $v['msg'];
 							}
 							break;
 						case 'like':
-							if(stripos($v['value'], $cv[1])===FALSE){
+							if($v['value']!==''&&stripos($v['value'], $cv[1])===FALSE){
 									$result[$v['name']]	=	'值必须相似于%' . $cv[1] . '%' . ';' . $v['msg'];
 							}
 							break;
 						case 'between':
 							$between = explode(',',$cv[1]);
-							if(isset($between[0])&&($v['value']<$between[0]||$v['value']>$between[1])){
+							if($v['value']!==''&&isset($between[0])&&($v['value']<$between[0]||$v['value']>$between[1])){
 									$result[$v['name']]	=	'值必须间于' . $between[0].'-'.$between[1] . ';' . $v['msg'];
 							}
 							break;
@@ -117,7 +117,7 @@ class Validate {
 		}
 	}
 	
-	public static function isUsername($value,$minLen=2,$maxLen=30){
+	public static function isUsername($value,$minLen=2,$maxLen=32){
 		if(preg_match('/^[_\.\w\d\x{4e00}-\x{9fa5}]{'.$minLen.','.$maxLen.'}$/ius',$value)){
 			return	['code'=>1];
 		}else{
