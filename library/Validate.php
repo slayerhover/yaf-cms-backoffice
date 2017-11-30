@@ -96,6 +96,15 @@ class Validate {
 									$result[$v['name']]	=	'值必须间于' . $between[0].'-'.$between[1] . ';' . $v['msg'];
 							}
 							break;
+						case 'unique':
+							$table = explode(',',$cv[1]);
+							if($v['value']!==''&&$table[0]!==''){
+									$column = empty($table[1]) ? $v['name'] : $table[1];
+									if( Illuminate\Database\Capsule\Manager::table($table[0])->where($column, '=', $v['value'])->count()>0 ){
+										$result[$v['name']]	=	'值已存在;' . $v['msg'];
+									}
+							}
+							break;
 					}
 				}}
 			}

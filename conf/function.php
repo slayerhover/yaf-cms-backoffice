@@ -34,11 +34,35 @@ function dump($vars, $label = '', $return = false)
     echo $content;
     return null;
 }
-function json($vars)
-{	
-	header("Content-type: application/json");
-	$data = updateNull($vars);	
-    die(json_encode($data));
+function json($vars, $format='json', $callback='callback')
+{
+	header("Access-Control-Allow-Origin:*");
+	header("Access-Control-Allow-Methods", "PUT,POST,GET,OPTIONS,DELETE");
+	header("Access-Control-Allow-Headders", "content-type");
+	if($format=='json'){
+		header("Content-type: application/json");		
+		$data = updateNull($vars);	
+		die(json_encode($data));
+	}else{
+		header("Content-type: text/javascript");		
+		$data = updateNull($vars);	
+		die("{$callback}(".json_encode($data).")");
+	}
+}
+function ret($ret=0, $data=[], $msg='ok')
+{
+	header("Access-Control-Allow-Origin:*");
+	header("Access-Control-Allow-Methods", "PUT,POST,GET,OPTIONS,DELETE");
+	header("Access-Control-Allow-Headders", "content-type");
+	header("Content-type: application/json");		
+	
+	$data = updateNull($data);
+	$ret  = array(
+		'ret'	=>	$ret,
+		'msg'	=>	$msg,		
+	);
+	if($data){ $ret['data']	=$data; }
+	die(json_encode($ret));	
 }
 function updateNull(& $onearr){
 	if(!empty($onearr)&&is_array($onearr)){
@@ -62,8 +86,12 @@ function getIp(){
 	}elseif(!empty($_SERVER['REMOTE_ADDR'])){
 	   return $_SERVER['REMOTE_ADDR'];
 	}else{
-	   return "unknow IP";
+	   return "unknow";
 	}
+}
+
+function getLang($code){
+	return Illuminate\Database\Capsule\Manager::table('scsj_language')->where('code','=',$code)->first()['string'];
 }
 
 function url($controller='index', $action='index', $args=array()){
@@ -121,19 +149,16 @@ function redirect($url) {
 	} */
 }
 
-function postSMS($url,$data='')
+function postSMS($url, $postData='')
 {
 	$row = parse_url($url);
 	$host = $row['host'];
 	$port = isset($row['port']) ? $row['port']:80;
-	$file = $row['path'];
-	$post = "";
-	while (list($k,$v) = each($data)) 
-	{
-		$post .= rawurlencode($k)."=".rawurlencode($v)."&";	//转URL标准码
+	$file = $row['path'];	
+	if(is_array($postData)){
+		$postData = http_build_query($postData);
 	}
-	$post = substr( $post , 0 , -1 );
-	$len = strlen($post);
+	$len = strlen($postData);
 	$fp = @fsockopen( $host ,$port, $errno, $errstr, 10);
 	if (!$fp) {
 		return "$errstr ($errno)\n";
@@ -144,7 +169,7 @@ function postSMS($url,$data='')
 		$out .= "Content-type: application/x-www-form-urlencoded\r\n";
 		$out .= "Connection: Close\r\n";
 		$out .= "Content-Length: $len\r\n\r\n";
-		$out .= $post;		
+		$out .= $postData;		
 		fwrite($fp, $out);
 		while (!feof($fp)) {
 			$receive .= fgets($fp, 128);
@@ -192,6 +217,55 @@ function curl_data($url,$postdata='',$pre_url='http://www.baidu.com',$proxyip=fa
 		return $result;
 }
 
+function http_post_json($url, $jsonStr)
+{
+	$ch = curl_init();
+	curl_setopt($ch, CURLOPT_POST, 1);
+	curl_setopt($ch, CURLOPT_URL, $url);
+	curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonStr);
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+	curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+		'Content-Type: application/json; charset=utf-8',
+		'Content-Length: ' . strlen($jsonStr)
+	)
+	);
+	$response = curl_exec($ch);
+	#$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+	return $response;
+}
+
+/***上传文件到七牛cdn***/
+function uploadToCDN($filePath, $cdnfileName){
+		require_once  APPLICATION_PATH . '/library/Qiniu/functions.php';
+    			
+		// 需要填写你的 Access Key 和 Secret Key
+		$accessKey = 'jHYFRjlEXA_iiuLrBXZyr7dD2FMyy6Nfo20PKBlc';
+		$secretKey = 'sLkQV3m7UHNlFU-7gEmezvg4N0WZUtcbOkVK5uV3';
+
+		// 构建鉴权对象
+		$auth = new Qiniu_Auth($accessKey, $secretKey);
+		// 要上传的空间
+		$bucket = 'cnwhy';
+
+		// 生成上传 Token
+		$token = $auth->uploadToken($bucket);
+
+		// 上传到七牛后保存的文件名
+		$key = $cdnfileName;
+
+		// 初始化 UploadManager 对象并进行文件的上传
+		$uploadMgr = new Qiniu_Storage_UploadManager();
+
+		// 调用 UploadManager 的 putFile 方法进行文件的上传
+		list($ret, $err) = $uploadMgr->putFile($token, $key, $filePath);
+		if ($err !== null) {
+			return false;
+		} else {
+			return 'http://o748t1241.bkt.clouddn.com/' . $ret['key'];
+		}
+}
+
+
 /**
  * 加密/解密字符串
  *
@@ -201,7 +275,7 @@ function curl_data($url,$postdata='',$pre_url='http://www.baidu.com',$proxyip=fa
  * @return string     $result    处理后的字符串
  */
 function authcode($string, $operation, $key = '') {
-		$authorization=Yaf_Registry::get('config')->application->rpcAuth;
+		$authorization='changpei0628x9385dbc36c077a2e8bec942dd38';
 		$key = md5($key ? $key : $authorization);
 		$key_length = strlen($key);
 	
