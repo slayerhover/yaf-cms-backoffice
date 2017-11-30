@@ -1,9 +1,6 @@
 <?php
 use Illuminate\Database\Capsule\Manager as DB;
-/**
-  *核心控制器，其它控制器由此继承
-  *
-  */
+
 abstract class CoreController extends Yaf_Controller_Abstract {
 
     protected $moduleName;
@@ -15,8 +12,9 @@ abstract class CoreController extends Yaf_Controller_Abstract {
     protected $config;
 	protected $session;
 	protected $auth;
+	protected $postData;
     /**
-     * 初始化
+     * ��ʼ��
      *
      */
     public function init() {		
@@ -26,56 +24,80 @@ abstract class CoreController extends Yaf_Controller_Abstract {
         $this->method			= Yaf_Dispatcher::getInstance()->getRequest()->getMethod();
 		$this->curr_url 		= Yaf_Dispatcher::getInstance()->getRequest()->getRequestUri();				
         $this->config 			= Yaf_Application::app()->getConfig();
-		$this->session			= Yaf_Session::getInstance();				
-		global $auth;
-		$this->auth				= $auth;
+		$this->postData			= array_merge($this->getQuery(), $this->getPost());
     }
-	
 	
 	/**
-     * get/post
+     * get one parameter
      *
      */
-    protected function get($name, $default = ''){
-        $value = $this->getRequest()->get($name, $default);
-        $value = Tools::filter($value);
-        return $value;
-    }
-
-	/**
-     * get
-     *
-     */
-	protected function getQuery($name, $default = ''){
-        $value = $this->getRequest()->getQuery($name, $default);
-        $value = Tools::filter($value);
-        return $value;
-    }
-	
-    /**
-     * post
-     *
-     */
-    protected function getPost($name= '', $default = ''){
-		if( empty($name) ){
-			return $this->getRequest()->getPost();
+    protected function get($name='', $default = ''){		
+		if( empty($name) ){			
+			return $this->postData;
 		}else{
-			$value = $this->getRequest()->getPost($name, $default);
+			$value = $this->postData[$name] ?? $default;
+			$value = Tools::filter($value);
+			return $value;
+		}		
+    }
+		
+	/**
+     * Get
+     *
+     */
+	protected function getQuery($name= '', $default = ''){
+		if( empty($name) ){
+			return $this->getRequest()->getQuery();
+		}else{
+			$value = $this->getRequest()->getQuery($name, $default);
 			$value = Tools::filter($value);
 			return $value;
 		}
     }
-
+	
     /**
-     * cookie
+     * Post
      *
      */
-    protected function getCookie($name, $default = '') {
+    protected function getPost($name= '', $default = ''){
+		$json	=	$this->parse_json(file_get_contents("php://input"));		
+		if(empty($json)){
+			if( empty($name) ){
+				return $this->getRequest()->getPost();
+			}else{
+				$value = $this->getRequest()->getPost($name, $default);
+				$value = Tools::filter($value);
+				return $value;
+			}
+		}else{			
+			if( empty($name) ){
+				return $json;
+			}else{
+				$value = $json[$name];
+				$value = Tools::filter($value);
+				return $value;
+			}
+		}
+    }
+	
+	protected function parse_json($string) {
+		$json = json_decode($string, TRUE);		
+		if(json_last_error() == JSON_ERROR_NONE){
+			return $json;
+		}else{
+			return [];
+		}
+	}
+	
+    /**
+     * request
+     *
+     */
+    protected function getCookie($name='', $default = '') {
         $value = $this->getRequest()->getCookie($name, $default);
         $value = Tools::filter($value);
         return $value;
-    }
-	
+    }	
 	/**
      * files
      *
@@ -83,19 +105,19 @@ abstract class CoreController extends Yaf_Controller_Abstract {
     protected function getFiles($name) {
         $value = $this->getRequest()->getFiles($name, $default);       
         return $value;
-    }	
-	
+    }
 	/**
-     * request
+     * xml
      *
      */
     protected function isXml() {
         return $this->getRequest()->isXmlHttpRequest();
     }
 	
+	
 	/**
-	  *记录最后一条SQL日志
-	  *前置 DB::enableQueryLog();
+	  *��¼���һ��SQL��־
+	  *ǰ�� DB::enableQueryLog();
 	  */
 	protected function sqllog(){
 		$sqllog		= DB::getQueryLog()[0];
