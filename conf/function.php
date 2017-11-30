@@ -42,27 +42,21 @@ function json($vars, $format='json', $callback='callback')
 	if($format=='json'){
 		header("Content-type: application/json");		
 		$data = updateNull($vars);	
-		die(json_encode($data));
+		exit(json_encode($data));
 	}else{
 		header("Content-type: text/javascript");		
 		$data = updateNull($vars);	
-		die("{$callback}(".json_encode($data).")");
+		exit("{$callback}(".json_encode($data).")");
 	}
 }
 function ret($ret=0, $data=[], $msg='ok')
-{
-	header("Access-Control-Allow-Origin:*");
-	header("Access-Control-Allow-Methods", "PUT,POST,GET,OPTIONS,DELETE");
-	header("Access-Control-Allow-Headders", "content-type");
-	header("Content-type: application/json");		
-	
-	$data = updateNull($data);
+{	
 	$ret  = array(
 		'ret'	=>	$ret,
 		'msg'	=>	$msg,		
 	);
 	if($data){ $ret['data']	=$data; }
-	die(json_encode($ret));	
+	json($ret);	
 }
 function updateNull(& $onearr){
 	if(!empty($onearr)&&is_array($onearr)){
