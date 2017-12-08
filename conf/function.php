@@ -71,7 +71,18 @@ function updateNull(& $onearr){
 	}}
 	return $onearr;
 }
-
+function remember($key, $ttl, callable $func){	
+		$cache_enable =	Yaf_Registry::get('config')->cache->object_cache_enable;				
+		if( $cache_enable && Cache::getInstance()->exists($key) ){			
+				Cache::getInstance()->expire($key, $ttl);
+				return Cache::getInstance()->get($key);
+		}
+		$rows	= call_user_func($func);			
+		if( $cache_enable ){
+				Cache::getInstance()->set($key, $rows, $ttl);
+		}
+		return $rows;	
+}
 function getIp(){
 	if(!empty($_SERVER['HTTP_CLIENT_IP'])){
 	   return $_SERVER['HTTP_CLIENT_IP']; 
