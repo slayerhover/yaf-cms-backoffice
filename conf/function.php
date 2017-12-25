@@ -71,7 +71,7 @@ function updateNull(& $onearr){
 	}}
 	return $onearr;
 }
-function remember($key, $ttl, closure $func){	
+function remember($key, $ttl, callable $func){	
 		$cache_enable =	Yaf_Registry::get('config')->cache->object_cache_enable;				
 		if( $cache_enable && Cache::getInstance()->exists($key) ){			
 				Cache::getInstance()->expire($key, $ttl);
