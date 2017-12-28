@@ -24,7 +24,13 @@ abstract class CoreController extends Yaf_Controller_Abstract {
         $this->method			= Yaf_Dispatcher::getInstance()->getRequest()->getMethod();
 		$this->curr_url 		= Yaf_Dispatcher::getInstance()->getRequest()->getRequestUri();				
         $this->config 			= Yaf_Application::app()->getConfig();
-		$this->postData			= array_merge($this->getQuery(), $this->getPost());
+		$this->postData			= array_merge($this->getQuery(), $this->getPost());		
+		$midware=$this->config['application']['directory'].'/middleware/' . ucfirst($this->controllerName) . '.' . $this->config['application']['ext'];
+		if(file_exists($midware)){	
+			Yaf_Loader::import($midware);			
+			$middle =	ucfirst($this->controllerName) . 'Middle';
+			if(class_exists($middle, false)) (new $middle)->handle($this->postData);
+		}
     }
 	
 	/**
