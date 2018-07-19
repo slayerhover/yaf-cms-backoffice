@@ -229,7 +229,7 @@ class IndexController extends CoreController {
         $host = "https://cexpress.market.alicloudapi.com";
         $path = "/cexpress";
         $method = "GET";
-        $appcode = "2bfaa4d2177549c2aa0c141c22c9dcfd";
+        $appcode = "";
         $headers = array();
         array_push($headers, "Authorization:APPCODE " . $appcode);
         $querys = "no={$no}";
@@ -645,11 +645,11 @@ class IndexController extends CoreController {
                 break;
         }
         $c = new TopClient;
-        $c->appkey = '23446811';
-        $c->secretKey = '0380ab9b5e9309d2f6a63518c71bccf8';
+        $c->appkey = '';
+        $c->secretKey = '';
         $req = new AlibabaAliqinFcSmsNumSendRequest;
         $req->setSmsType("normal");
-        $req->setSmsFreeSignName("葡团");
+        $req->setSmsFreeSignName("");
         $req->setSmsParam("{\"code\":\"{$rand}\", \"product\":\"{$product}\"}");
         $req->setRecNum($phone);
         $req->setSmsTemplateCode($templateCode);
@@ -1127,260 +1127,7 @@ class IndexController extends CoreController {
 		
 		json($result);
 	}
-	
-	/**
-     * @api 验证登陆标记token是否合法
-     */
-	private function checkTokenValid($token){		
-		if(	!empty($checkResult) ){return FALSE;}
-		if(Cache::getInstance()->exists('auth_'.$token)==FALSE){ return FALSE; }		
-		$myuser	= DB::table('t_user')->where('token','=',$token)->select('id','phone','type','code','inviter_id','inviter_code','saleuser_state','token')->first();
-		if(empty($myuser)){return FALSE;}
-		$rows	=	array(
-					'uid'		=> $myuser['id'],
-					'phone'		=> $myuser['phone'],
-					'type'		=> $myuser['type'],
-					'code'		=> $myuser['code'],
-					'inviter_id'=> $myuser['inviter_id'],
-					'inviter_code'=> $myuser['inviter_code'],
-					'saleuser_state'=>$myuser['saleuser_state'],
-					'created'	=> time(),
-		);
-		Cache::getInstance()->set('auth_'.$token, $rows, $this->config['cache']['redis']['expire']);		
-		return $rows;
-	}
-	
-	#获取scheme
-	private function getScheme(){	
-		$http_type = ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') || (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https')) ? 'https://' : 'http://';		
-		return $http_type;
-	}
 
-	/**
-	 *接口名称	主页内容
-	 *接口说明	询价列表页
-	 *参数 @param无
-	 *返回 @return
-	 *返回格式	Json
-	 *
-	 **/
-	public function homepageAction(){			
-		do{	
-			$token		= $this->get('token', 		'');			
-			/***参数验证BOF***/
-			$inputs	= array(					
-					['name'=>'token',  'value'=>$token,	 'role'=>'required', 'msg'=>'登陆标识.'],
-			);
-			$result		= Validate::check($inputs);			
-			if(	!empty($result) ){
-					$result	= array(
-							'ret'	=>	'1',
-							'msg'	=>	$result,
-					);
-					break;
-			}
-			/***参数验证EOF***/
-			$myuser	= $this->checkTokenValid($token);
-			if($myuser==FALSE){
-					$result	= array(
-							'ret'	=>	'1',
-							'msg'	=>	'请重新登陆.',
-							'data'	=>	$result,
-					);
-					break;
-			}
-			$cuser  = DB::table('t_user')->find($myuser['uid']);			
-			$money	= json_decode(http_post_json($this->url . '/u/benefits', json_encode(['token'=>$token])), TRUE);
-			Log::out('benefits', 'I', $this->url . '/u/benefits');
-			Log::out('benefits', 'I', json_encode($money, JSON_UNESCAPED_UNICODE));			
-			if($money['ret']==0){
-				$sum		= floatval($money['data']['sum']);
-				$usemoney	= floatval($money['data']['useMoney']);
-			}else{
-				$sum		= 0.00;
-				$usemoney	= 0.00;
-			}
-			$result	= array(
-							'ret'	=>	'0',
-							'msg'	=>	'主页',
-							'data'	=>	array(
-								"uid"					=>	$myuser['uid'],
-								"code"					=>	$myuser['code'],
-								"sum"					=>	$sum,
-								"usemoney"				=>	$usemoney,
-								"phone"					=>	$cuser['phone'],
-								"user_truename"			=>	$cuser['user_truename'],
-								"saleuser_state"		=>	$cuser['saleuser_state'],
-								"baozhengjin_status"	=>	$cuser['baozhengjin_status'],
-								"fxlinks"				=>	$this->pageurl . '/template/register.html?code=' . $myuser['code'],
-								'url'	=>	'http://qrcode.scsj.net.cn/?s=' . $this->pageurl . '/template/register.html?code=' . $myuser['code'],
-								'notice'=>	DB::table('t_notice')->select('id','title','create_date')->where('is_use','=',1)->orderby('create_date','DESC')->limit(5)->get(),
-							),
-			);
-		}while(FALSE);
-		
-		json($result);
-	}
-	
-	/**
-	 *接口名称	联盟会员列表
-	 *参数 @param无
-	 *返回 @return
-	 *返回格式	Json
-	 *
-	 **/
-	public function membersAction(){			
-		do{	
-			$token		= $this->get('token', 		'');
-			$page		= $this->get('page', 		1);
-			$pagesize	= $this->get('pagesize', 	20);
-			/***参数验证BOF***/
-			$inputs	= array(			
-					['name'=>'token',  'value'=>$token,	 'role'=>'required', 'msg'=>'登陆标识'],
-					['name'=>'page',   'value'=>$page,	 'role'=>'required|gte:1', 'fun'=>'isInteger',   'msg'=>'页码'],
-					['name'=>'pagesize','value'=>$pagesize,'role'=>'required|gte:1', 'fun'=>'isInteger', 'msg'=>'页量'],
-			);			
-			$result		= Validate::check($inputs);			
-			if(	!empty($result) ){
-					$result	= array(
-							'ret'	=>	'1',
-							'msg'	=>	$result,
-					);
-					break;
-			}			
-			/***参数验证EOF***/
-			$myuser	= $this->checkTokenValid($token);
-			if($myuser==FALSE){
-					$result	= array(
-							'ret'	=>	'1',
-							'msg'	=>	'请重新登陆.',
-							'data'	=>	$result,
-					);
-					break;
-			}
-			$members= DB::table('t_user')->where('inviter_id', '=', $myuser['uid']);
-			$total	= $members->count();
-			$members= $members->select('id','phone','code','user_avatar','create_date','saleuser_state','baozhengjin_status','user_truename')
-							 ->offset(($page-1)*$pagesize)
-							 ->limit($pagesize)
-							 ->get();			
-			if(!empty($members)&&is_array($members)){
-			foreach($members as $k=>&$v){	
-					$unionNum		= $this->getUnionNumber($v['code']);
-					$v['total']		= $unionNum['total'];
-					$v['certied']	= $unionNum['certied'];
-					$v['create_date']=substr($v['create_date'], 0, 10);
-			}}
-			$result	= array(
-							'ret'	=>	'0',
-							'msg'	=>	'联盟会员列表',
-							'data'	=>	array(
-										'page'		=>	$page,
-										'pagesize'	=>	$pagesize,
-										'totalpage'	=>	ceil($total/$pagesize),
-										'members'	=>	$members,
-							),
-			);
-		}while(FALSE);
-		
-		json($result);
-	}
-
-    public function bindPhoneAction(){
-        $phone  = $this->get('phone', '');
-        $smscode= $this->get('smscode', '');
-        $openid = $this->get('openid', '');
-        $name   = $this->get('name', '');
-        $gender = $this->get('gender', 0);
-        $avatar = $this->get('avatar', '');
-        $inputs	= array(
-            ['name'=>'phone','value'=>$phone,'role'=>'required','fun'=>'isPhone', 'msg'=>'手机号码'],
-            ['name'=>'smscode','value'=>$smscode,'role'=>'gte:1000|lte:9999|required', 'fun'=>'isInteger','msg'=>'短信验证码'],
-        );
-        $result	= Validate::check($inputs);
-        if(	!empty($result) ){ret(1, $result);}
-
-        $mdMembers = new membersModel;
-        if($mdMembers->checksmscode($phone, $smscode)==FALSE){
-            ret(1, '短信验证码不正确.', ['failedTimes'=>1]);
-        }else{
-            if(DB::table('members')->where('phone','=',$phone)->count()>0){
-                #绑定openid
-                DB::table('members')->where('phone','=',$phone)->update(['openid'=>$openid]);
-                $info=(new membersModel)->setAutoLogin($openid);
-                ret(0, '绑定微信成功', $info);
-            }else {
-                #注册用户并设置登陆
-                $now  = time();
-                $ip   = getIp();
-                $rows = [
-                    'name'       => $name,
-                    'gender'     => $gender,
-                    'phone'      => $phone,
-                    'avatar'     => $avatar,
-                    'openid'     => $openid,
-                    'consultant_id'=> DB::table('admin')->where('roles_id','=',6)->where('status','=',1)->orderbyRaw('rand()')->first()['id'],
-                    'status'     => 1,
-                    'created_at' => date('Y-m-d H:i:s'),
-                ];
-                $lastId = DB::table('members')->insertGetId($rows);
-                if ($lastId) {
-                    $info=(new membersModel)->setAutoLogin($openid);
-                    ret(1, '注册用户成功，请设定密码', $info);
-                }else{
-                    ret(2, '注册用户失败');
-                }
-            }
-        }
-    }
-			
-	/**
-	 *接口名称	合伙人
-	 *参数 @param无
-	 *返回 @return
-	 *返回格式	Json
-	 *
-	 **/
-	public function partnerAction(){
-		do{
-			$token		= $this->get('token', 		'');			
-			/***参数验证BOF***/
-			$inputs	= array(			
-					['name'=>'token',  'value'=>$token,	 'role'=>'required', 'msg'=>'登陆标识'],
-			);
-			$result		= Validate::check($inputs);			
-			if(	!empty($result) ){
-					$result	= array(
-							'ret'	=>	'1',
-							'msg'	=>	$result,
-					);
-					break;
-			}
-			$myuser	= $this->checkTokenValid($token);
-			if($myuser==FALSE){
-					$result	= array(
-							'ret'	=>	'1',
-							'msg'	=>	'请重新登陆.',
-							'data'	=>	$result,
-					);
-					break;
-			}
-			/***参数验证EOF***/
-			$members= DB::table('t_user')->select('phone','user_truename','code','user_avatar','create_date','saleuser_state','baozhengjin_status')
-										 ->find($myuser['inviter_id']);			
-			$result	= array(
-							'ret'	=>	'0',
-							'msg'	=>	'我的合伙人',
-							'data'	=>	array(										
-									'members'		=>	$members,
-									'unbindstatus'	=>	$this->unbindcheck($myuser)['ret'],
-							),
-			);
-		}while(FALSE);
-		
-		json($result);
-	}
-		
 	/**
 	 *接口名称	公告列表
 	 *参数 @param无
@@ -1589,141 +1336,6 @@ class IndexController extends CoreController {
 		
 		json($result);
 	}
-	
-	/**
-	 *接口名称	上传身份证
-	 *参数 @param无
-	 *返回 @return
-	 *返回格式	Json
-	 *
-	 **/
-	public function uploadIdCardAction(){
-		do{	
-			$token		= $this->get('token', 		'');
-			$type		= $this->get('type', 		'1');
-			$img		= $this->get('img', 		'');			
-			/***参数验证BOF***/
-			$inputs	= array(			
-					['name'=>'token',  'value'=>$token,	 'role'=>'required', 'msg'=>'登陆标识'],
-					['name'=>'type',   'value'=>$type,	 'role'=>'required|in:1,2,3', 'msg'=>'上传图片类型'],
-					['name'=>'img',    'value'=>$img,	 'role'=>'required', 'msg'=>'上传图片'],
-			);
-			$result		= Validate::check($inputs);
-			if(	!empty($result) ){
-					$result	= array(
-							'ret'	=>	'1',
-							'msg'	=>	$result,
-					);
-					break;
-			}		
-			$myuser	= $this->checkTokenValid($token);
-			if($myuser==FALSE){
-					$result	= array(
-							'ret'	=>	'1',
-							'msg'	=>	'请重新登陆.',
-					);
-					break;
-			}
-			$ret =  json_decode(http_post_json('http://api.scsj.net.cn/userUpload?token=c1e5a22922af88c7483aa86bde1ccae9', json_encode(['img'=>$img])), TRUE);			
-			if($ret['ret']>0){
-					$result	= array(
-							'ret'	=>	'1',
-							'msg'	=>	'照片上传失败,请重试.',
-					);
-					break;
-			}
-			$photourl	=	$ret['data']['cdn_url'];
-			switch($type){
-				case 1:
-					$rows	=['front_img'	=>	$photourl];
-					break;
-				case 2:
-					$rows	=['reverse_img'	=>	$photourl];
-					break;
-				case 3:
-					$rows	=['idcard_img'	=>	$photourl];
-					break;
-			}			
-			if (DB::table('t_user')->where('id','=',$myuser['uid'])->update($rows)===FALSE) {
-				$result	= array(
-					'ret'	=>	'1',
-					'msg'	=>	'更新身份证照片更新失败.',
-				);
-			}else{
-				$result	= array(
-					'ret'	=>	'0',
-					'msg'	=>	'身份证照片更新成功.',
-					'data'	=>	array(			
-									'type'		=>	$type,
-									'photourl'	=>	$photourl
-					)
-				);
-			}
-		}while(FALSE);
-
-		json($result);
-	}
-	
-	/**
-	 *接口名称	上传头像
-	 *参数 @param无
-	 *返回 @return
-	 *返回格式	Json
-	 *
-	 **/
-	public function uploadavatarAction(){
-		do{	
-			$token		= $this->get('token', 		'');
-			$img		= $this->get('img', 		'');			
-			/***参数验证BOF***/
-			$inputs	= array(			
-					['name'=>'token',  'value'=>$token,	 'role'=>'required', 'msg'=>'登陆标识'],
-					['name'=>'img',    'value'=>$img,	 'role'=>'required', 'msg'=>'上传图片'],
-			);
-			$result		= Validate::check($inputs);
-			if(	!empty($result) ){
-					$result	= array(
-							'ret'	=>	'1',
-							'msg'	=>	$result,
-					);
-					break;
-			}		
-			$myuser	= $this->checkTokenValid($token);
-			if($myuser==FALSE){
-					$result	= array(
-							'ret'	=>	'1',
-							'msg'	=>	'请重新登陆.',
-					);
-					break;
-			}
-			$ret =  json_decode(http_post_json('http://api.scsj.net.cn/userUpload?token=c1e5a22922af88c7483aa86bde1ccae9', json_encode(['img'=>$img])), TRUE);			
-			if($ret['ret']>0){
-					$result	= array(
-							'ret'	=>	'1',
-							'msg'	=>	'照片上传失败,请重试.',
-					);
-					break;
-			}
-			$photourl	=	$ret['data']['cdn_url'];			
-			$rows		=	['user_avatar'	=>	$photourl];					
-			if (DB::table('t_user')->where('id','=',$myuser['uid'])->update($rows)===FALSE) {
-				$result	= array(
-					'ret'	=>	'1',
-					'msg'	=>	'更新头像更新失败.',
-				);
-			}else{
-				$result	= array(
-					'ret'	=>	'0',
-					'msg'	=>	'会员头像更新成功.',
-					'data'	=>	array(			
-									'photourl'	=>	$photourl
-					)
-				);
-			}
-		}while(FALSE);
-
-		json($result);
-	}
 
     /**
      *接口名称	ueditor编辑器上传图片
@@ -1870,7 +1482,7 @@ class IndexController extends CoreController {
 
         $total_amount	= round($rows['amount'],2);	//注意单位为元
         $out_trade_no	= $order_no;
-        $subject 		= '葡团网-支付宝在线支付';
+        $subject 		= '支付宝在线支付';
         $body 			= '支付宝在线支付';
         $timeout_express= "1m";//超时时间
 
@@ -2014,120 +1626,7 @@ class IndexController extends CoreController {
 		/***参数验证EOF***/
 		json($this->unbindcheck($myuser));
 	}
-	
-	#解绑检测
-	private function unbindcheck($myuser){
-		$flag = 1;
-		$reason = [];
-		#1.判断有无下级
-		if(DB::table('t_user')->where('inviter_code','=',$myuser['code'])->count()>0){
-			$flag = 0;
-			$reason[] = '已发展有下级成员';
-		}
-		#2.判断是否有缴纳保证金
-		$tuser = DB::table('t_user')->find($myuser['uid']);
-		if($tuser['baozhengjin_status']==2){
-			$flag = 0;
-			$reason[] = '已缴纳过保证金';
-		}
-		#3.判断是否解绑过
-		if(DB::table('scsj_bind_logs')->where('uid','=',$myuser['uid'])->count()>0){
-			$flag = 0;
-			$reason[] = '已成功解绑过一次';
-		}
-		#4.判断注册是否超过五天
-		if(floor((time()-strtotime($tuser['create_date']))/86400)>5){
-			$flag = 0;
-			$reason[] = '注册日期超过五天';
-		}
-		if($flag==1){
-			return ['ret'=>0, 'msg'=>'允许解绑'];
-		}
-		return ['ret'=>1, 'reason'=>$reason, 'msg'=>'禁止解绑'];
-	}
-	
-	#确认解绑
-	public function unbindAction(){
-		$token		= $this->get('token', 		'');
-		/***参数验证BOF***/
-		$inputs	= array(			
-				['name'=>'token',  'value'=>$token,	 'role'=>'required', 'msg'=>'登陆标识'],
-		);
-		$result		= Validate::check($inputs);			
-		if(!empty($result)){
-			ret(1, $result);
-		}
-		$myuser	= $this->checkTokenValid($token);
-		if($myuser==FALSE){
-			ret(1, '请重新登陆.');				
-		}
-		/***参数验证EOF***/
-		$enable = $this->unbindcheck($myuser);		
-		if($enable['ret']==0){
-			$rows = array(
-				'uid'				=>	$myuser['uid'],
-				'old_inviter_code'	=>	$myuser['inviter_code'],
-				'unbind_at'			=>	time(),
-			);			
-			$flag = DB::transaction(function () use ($rows,$myuser){
-				DB::table('scsj_bind_logs')->insert($rows);
-				DB::table('t_user')->where('id','=',$myuser['uid'])->update(['inviter_id'=>0, 'inviter_code'=>'']);
-				return TRUE;
-			});			
-			if($flag){#发送站内消息
-				$content="您的联盟会员{$myuser['phone']}向申请解除与您绑定的上下级服务专员关系。";
-				DB::table('user_notice')->insert(['user_id'=>$myuser['inviter_id'], 'content'=>$content, 'created_at'=>date('Y-m-d H:i:s')]);			
-				$content="您已成功操作解绑服务专员，现在可以绑定新服务专员。";
-				DB::table('user_notice')->insert(['user_id'=>$myuser['uid'], 'content'=>$content, 'created_at'=>date('Y-m-d H:i:s')]);			
-			}		
-			ret(0, '解绑成功.');
-		}
-		json($enable);	
-	}
-	
-	#重新绑定
-	public function bindAction(){
-		$token		= $this->get('token', 		'');
-		$new_inviter_code = $this->get('inviter_code', '');
-		/***参数验证BOF***/
-		$inputs	= array(			
-				['name'=>'token',  'value'=>$token,	 'role'=>'required', 'msg'=>'登陆标识'],
-				['name'=>'inviter_code',  'value'=>$new_inviter_code,	 'role'=>'required', 'msg'=>'邀请码'],
-		);
-		$result		= Validate::check($inputs);			
-		if(!empty($result)){
-			ret(1, $result);
-		}
-		$myuser	= $this->checkTokenValid($token);
-		if($myuser==FALSE){
-			ret(1, '请重新登陆.');				
-		}
-		$new_inviter = DB::table('t_user')->where('inviter_code','=',$new_inviter_code)->first();
-		if(empty($new_inviter)){
-			ret(1, '邀请码有误.');
-		}
-		$new_inviter_id = $new_inviter['inviter_id'];
-		/***参数验证EOF***/
-		$cuser = DB::table('t_user')->find($myuser['uid']);
-		if($cuser['inviter_code']==''&&$cuser['inviter_id']==0){		
-			$rows = array(
-				'new_inviter_code'	=>	$new_inviter_code,
-				'bind_at'			=>	time(),
-			);
-			$flag = DB::transaction(function () use ($rows,$myuser,$new_inviter_code,$new_inviter_id){
-				DB::table('scsj_bind_logs')->where('uid','=',$myuser['uid'])->update($rows);
-				DB::table('t_user')->where('id','=',$myuser['uid'])->update(['inviter_id'=>$new_inviter_id, 'inviter_code'=>$new_inviter_code]);
-				return TRUE;
-			});			
-			if($flag){#发送站内消息
-				$content="恭喜您，{$myuser['phone']}已绑定您为其服务专员，您可以在我的联盟会员中查看。";
-				DB::table('user_notice')->insert(['user_id'=>$new_inviter_id, 'content'=>$content, 'created_at'=>date('Y-m-d H:i:s')]);					
-			}
-			ret(0, '绑定服务专员成功.', ['inviter_code'=>$new_inviter_code]);
-		}
-		ret(1, '绑定失败.', ['inviter_code'=>$new_inviter_code]);
-	}
-	
+
 	#前端页面提示
 	public function pageTipsAction(){
 		$allTips = DB::table('scsj_language')->select('code','string')->get();
@@ -2140,123 +1639,7 @@ class IndexController extends CoreController {
 		echo json_encode($data, JSON_UNESCAPED_UNICODE);
 		echo "');</script>";		
 	}
-		
-	/**
-	 *接口名称	发送短信
-	 *接口地址	http://api.com/public/smscode/
-	 *接口说明	发送验证码短信
-	 *参数 @param
-	 * @phone    手机号码 
-	 *返回 @return
-	 *返回格式	Json
-	 * @code   验证码
-	 *
-	 **/
-	public function smscodeAction(){
-		do{
-			$type	= $this->get('type', 	1);		//1：登陆短信 2：注册 3：修改密码 4：消息短信 5:其它
-			$phone	= $this->get('phone', 	'');			
-			$inputs	= array(
-					['name'=>'type',  'value'=>$type,	'role'=>'in:1,2,3,4,5', 'fun'=>'isInteger', 'msg'=>'短信类型'],
-					['name'=>'phone', 'value'=>$phone,	'role'=>'min:11|max:11|required', 'fun'=>'isPhone', 'msg'=>'手机号码'],
-			);
-			$result		= Validate::check($inputs);
-			if(	!empty($result) ){
-				$result	= array(
-							'ret'	=>	'1',
-							'msg'	=>	$result,
-				);
-				break;
-			}
-			if($type!=5){
-				if($type==2){
-					if(DB::table('t_user')->where('phone','=',$phone)->count()>0){
-						$result	= array(
-								'ret'	=>	'1',
-								'msg'	=>	'手机号已存在.',
-						);
-						break;	
-					}
-				}else{
-					if(DB::table('t_user')->where('phone','=',$phone)->count()<=0){
-						$result	= array(
-								'ret'	=>	'1',
-								'msg'	=>	'手机号不存在.',
-						);
-						break;	
-					}
-				}
-			}
-			
-			if($phone!='15378790388'){
-			if(DB::table('scsj_smslog')->where('phone','=',$phone)->where('created','>',strtotime(date('Y-m-d 00:00:00')))->count()>=5){
-				$result	= array(
-							'ret'	=>	'1',
-							'msg'	=>	'本日发送次数已超过五条.',
-							'data'	=>	[],
-				);
-				break;
-			}
-			}
-			$smscode= rand(1000, 9999);
-			$rows	=	array(
-				'phone'	=>	$phone,
-				'from'	=>	'财富宝',
-				'type'	=>	$type,
-				'sn'	=>	$smscode,
-				'created'=>	time(),
-			);
-			if(DB::table('scsj_smslog')->insert($rows)===FALSE){
-				$result	= array(
-							'ret'	=>	'1',
-							'msg'	=>	'记录短信失败.',
-							'data'	=>	[],
-				);
-				break;
-			}			
-			/***测试环境，不发短信bof***/
-			if( $this->config->application->debug==TRUE ){
-				$result	= array(
-							'ret'	=>	'0',
-							'msg'	=>	'短信发送成功',
-							'data'	=>	array(
-										'type'		=>	$type,
-										'phone'		=>	$phone,
-										'sn'		=>	$smscode,
-							),
-				);
-				break;
-			}
-			/***测试环境，不发短信eof***/
-			
-			/***发送短信bof***/
-			$rows	=	array(
-				'token'		=>	'c1e5a22922af88c7483aa86bde1ccae9',
-				'phoneNo'	=>	$phone,
-				'sn'		=>	$smscode,
-			);
-			$result	=	json_decode(curl_data('http://api.scsj.net.cn/sms', $rows), TRUE);
-			if($result&&$result['ret']==0){
-					$result	= array(
-								'ret'	=>	'0',
-								'msg'	=>	'发送短信成功.',
-								'data'	=>	[
-									'type'	=>	$type,
-									'phone'	=>	$phone,
-								],
-					);
-			}else{
-					$result	= array(
-								'ret'	=>	'1',
-								'msg'	=>	'发送短信失败.',
-					);
-			}		
-			/***发送短信eof***/
-		}while(FALSE);
-		
-		json($result);
-	}
-		
+
 	/**
 	 *接口名称	退出登陆
 	 *接口地址	http://api.com/public/logout/
@@ -2475,7 +1858,7 @@ class IndexController extends CoreController {
                 json($result);
             }
             $out_trade_no	=	$orders['order_no'] . rand(100000, 999999);
-            $subject		=	'葡团订单支付';
+            $subject		=	'订单支付';
             $data = array(
                 'out_trade_no'	=> $out_trade_no,
                 'total_amount'	=> $total_fee,
@@ -2532,7 +1915,7 @@ class IndexController extends CoreController {
                 json($result);
             }
             $out_trade_no	=	$orders['order_no'] . rand(100000, 999999);
-            $subject		=	'葡团订单支付';
+            $subject		=	'订单支付';
             require_once "../library/Wxpay/wxAppPay.php";
             require_once "../library/Wxpay/lib/WxPay.Config.php";
             $appid = WxPayConfig::APPID;
@@ -2544,7 +1927,7 @@ class IndexController extends CoreController {
             $params['out_trade_no'] = $out_trade_no;    //自定义的订单号
             $params['total_fee'] = $total_fee;                       //订单金额 只能为整数 单位为分
             $params['trade_type'] = 'APP';                   //交易类型 JSAPI | NATIVE | APP | WAP
-            $params['scene_info'] = '{"app_info": "葡团","trade_name": "订单支付"}';
+            $params['scene_info'] = '{"app_info": "","trade_name": "订单支付"}';
             $result = $wxAppPay->unifiedOrder( $params );
             if($result['return_code']=='SUCCESS') {
                 $data= $wxAppPay->getAppPayParams($result['prepay_id']);
@@ -2807,7 +2190,5 @@ class IndexController extends CoreController {
         curl_close($curl);
         return $data;
     }
-
-
 
 }
