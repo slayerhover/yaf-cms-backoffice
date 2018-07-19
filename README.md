@@ -8,12 +8,11 @@ a simple cms backoffice by yaf &amp; easyui.  Base project for expansions.
 PHP扩展
 ===================================
   1. Yaf
-  2. Yar
-  3. Redis
+  2. Redis
   
 模板框架
 ===================================
-  easyUI
+  easyUI + Vue
   
  CDN
 ===================================
@@ -21,7 +20,14 @@ PHP扩展
   
 Vendor
 ===================================
-  laravel Eloquent
+{
+    "require": {
+		"qiniu/php-sdk": "^7.1",
+		"illuminate/database":"~4.2",
+		"phpunit/phpunit": "^6.5"    
+    }
+}
+  
    
 配置文件
 ===================================
