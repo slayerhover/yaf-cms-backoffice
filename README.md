@@ -21,9 +21,7 @@ PHP扩展
 Vendor
 ===================================
 {
-
     "require": {
-    
 		"qiniu/php-sdk": "^7.1",
 		"illuminate/database":"~4.2",
 		"phpunit/phpunit": "^6.5"    
