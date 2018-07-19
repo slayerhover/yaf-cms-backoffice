@@ -1,0 +1,165 @@
+<div id="tb<?php echo $uniqid;?>" style="padding:5px">
+		<table cellspacing="0" cellpadding="0"><tbody><tr>	
+		
+		<td><a href="javascript:;" onclick="couponadd();"  class="l-btn l-btn-small l-btn-plain" group="" id=""><span class="l-btn-left l-btn-icon-left"><span class="l-btn-text">添加</span><span class="l-btn-icon icon-add">&nbsp;</span></span></a></td>		
+		<td><a href="javascript:;" onclick="couponedit();"  class="l-btn l-btn-small l-btn-plain" group="" id=""><span class="l-btn-left l-btn-icon-left"><span class="l-btn-text">编辑</span><span class="l-btn-icon icon-edit">&nbsp;</span></span></a></td>
+		<td><div class="datagrid-btn-separator"></div></td>		
+		<td><a href="javascript:;" onclick="coupondelete();"  class="l-btn l-btn-small l-btn-plain" group="" id=""><span class="l-btn-left l-btn-icon-left"><span class="l-btn-text">删除</span><span class="l-btn-icon icon-cancel">&nbsp;</span></span></a></td><td><div class="datagrid-btn-separator"></div></td>		
+		<td><a href="javascript:;" onclick="couponreload();"  class="l-btn l-btn-small l-btn-plain" group="" id=""><span class="l-btn-left l-btn-icon-left"><span class="l-btn-text">重载</span><span class="l-btn-icon icon-reload">&nbsp;</span></span></a></td>
+		<td>&nbsp;&nbsp;<input  id="couponkeywords"  style="width:100px" type="text" placeholder="名称" class= "easyui-input textbox" > </input></td>
+		<td><span><a href="javascript:void(0)" class="easyui-linkbutton" plain="true" iconCls="icon-search" onclick="couponsearch()">查询</a></span>	</td>
+		</tr></tbody></table>
+</div>
+
+<div class="con" onselectstart="return false;" style="-moz-user-select:none;">
+    <table id="coupon"></table>
+</div>
+<div id="coupondlg" class="easyui-dialog" style="width:700px; height:380px;" title="信息框" closed="true"></div>
+
+<script>
+var couponadd=function(){
+                $("#coupondlg").dialog({    
+					title: '添加优惠券',      
+					closed: false,    
+					width: 700,
+					height:380,
+					cache: false,    
+					href: '/admin/coupon/add',    
+					modal: true,
+					buttons:[{
+						text:'保存',
+						id:'couponaddsubmit',
+						iconCls:'icon-ok',
+					},{
+						text:'关闭',
+						iconCls:'icon-no',
+						handler:function(){$("#coupondlg").dialog('close');}
+					}]  
+				});
+}
+var couponedit=function(){
+				var row = $('#coupon').datagrid('getSelected');
+				if (row){
+						$("#coupondlg").dialog({    
+							title: '编辑信息',      
+							closed: false,
+							width: 700,
+							height:380,    
+							cache: false,    
+							href: '/admin/coupon/edit?id='+row.id,
+							modal: true,
+							buttons:[{
+								text:'保存',
+								id:'couponeditsubmit',
+								iconCls:'icon-ok',
+							},{
+								text:'关闭',
+								iconCls:'icon-no',
+								handler:function(){$("#coupondlg").dialog('close');}
+							}]  
+						});				
+				}else{
+						$.messager.alert('提示','请先选择要编辑的行！','warning');
+				}
+}
+var coupondelete=function(){
+				var row = $('#coupon').datagrid('getSelected');
+				if (row){
+                    $.messager.confirm('提示','确定删除吗？',function(r){
+                        if(r==true){
+                            $.messager.progress();
+                            $.post('/admin/coupon/delete', {id:row.id}, function(data){
+                                $.messager.progress('close');
+								if(data.ret==0){
+										$.messager.show({
+												title:'提示',
+												msg:data.msg,
+												timeout:3000,
+												showType:'slide'
+										});
+										couponreload();
+								}else{
+										$.messager.alert('提示',data.msg,'warning');
+								}								
+                            },'json');
+                        }
+                    });
+                }else{
+						$.messager.alert('提示','请先选择要删除的行！','warning');
+				}
+}
+var couponreload=function(){
+        $("#coupon").datagrid('reload');
+}
+var couponsearch=function(){
+		var height = $(window).height() - $(".top").height() - 125;
+        var width = $(window).width() - $("#leftMenu").width() - 13;
+        $("#coupon").datagrid({
+            title:'优惠券管理',
+            width: width,
+            height: height,
+            singleSelect:true,//如果为true，则只允许选择一行
+            striped:true,//是否显示斑马线效果。
+            rownumbers:true,//如果为true，则显示一个行号列。
+            pagination:true,//是否显示分页
+            pageSize:10,
+            pageList:[10,15,20,25],
+            method:'post',
+            sortName:'id',
+            sortOrder:'desc',
+            url:'/admin/coupon/Get/',
+			queryParams : {keywords:$('#couponkeywords').val(), fields:'name'},
+            fitColumns:true,//真正的自动展开/收缩列的大小，以适应网格的宽度，防止水平滚动。
+            nowrap:true,//如果为true，则在同一行中显示数据。设置为true可以提高加载性能。 是否换行
+            selectOnCheck:false,
+            checkOnSelect:true,
+			toolbar: '#tb<?php echo $uniqid;?>',
+			rowStyler: function(index,row){
+			},
+            columns:[[
+				{field:'name',title:'名称',width:'20%'},				
+				{field:'value',title:'金额',width:'5%'},
+				{field:'min_amount',title:'最低可用金额',width:'5%'},
+				{field:'start_on',title:'开始日期',width:'10%'},
+				{field:'end_on',title:'结束日期',width:'10%'},
+				{field:'sortorder',title:'排序',width:'5%',sortable:true},
+				{field:'id',title:'适用商品',width:'10%',align:'center',formatter:function (value,rowData,rowIndex){
+					if(value!=''){
+						  	return '<a href="#" onclick="couponGoodsList('+value+')" class="easyui-linkbutton" plain="true">查看商品</a> | <a href="#" onclick="couponGoodsAdd('+value+')" class="easyui-linkbutton" plain="true">添加商品</a>';
+					}else{
+						  	return '';
+					}
+				}},
+				{field:'created_at',title:'创建时间',width:'10%',sortable:true},				
+            ]],
+			onDblClickRow : function(index,field){					
+				couponedit();
+			} 
+    	});
+}
+var couponGoodsList=function(id){
+		$("#coupondlg").dialog({    
+				title: '查看适用商品',      
+				closed: false,    
+				width: 700,
+				height:580,
+				cache: false,    
+				href: '/admin/coupon/goodsList?id='+id,    
+				modal: true,
+				buttons:[]
+		});
+}
+var couponGoodsAdd=function(id){
+		$("#coupondlg").dialog({    
+				title: '添加适用商品',      
+				closed: false,    
+				width: 700,
+				height:580,
+				cache: false,    
+				href: '/admin/coupon/goodsAdd?id='+id,    
+				modal: true,
+				buttons:[]
+		});
+}
+couponsearch();
+</script>

@@ -32,6 +32,7 @@ class CacheRedis extends Cache {
 		foreach ($servers as $server)
 			$this->redis->connect($server['host'], $server['port']);
 		$this->is_connected = true;
+		$this->redis->select(Yaf_Registry::get('config')->cache->redis->selectDB);
 
 		return true;
 	}
@@ -39,18 +40,26 @@ class CacheRedis extends Cache {
 	protected function _set($key, $value, $ttl = 900) {
 		if (!$this->is_connected)
 			return false;
+		if(is_array($value)){
+			$value =json_encode($value, JSON_UNESCAPED_UNICODE);
+		}
 		
 		if($ttl>0){
-			return $this->redis->setEx($key, $ttl, json_encode($value, JSON_UNESCAPED_UNICODE));
+			return $this->redis->setEx($key, $ttl, $value);
 		}else{
-			return $this->redis->set($key, json_encode($value, JSON_UNESCAPED_UNICODE));
+			return $this->redis->set($key, $value);
 		}
 	}
 
 	protected function _get($key) {
 		if (!$this->is_connected)
 			return false;		
-		return json_decode($this->redis->get($key), TRUE);
+		$result =json_decode($this->redis->get($key), TRUE);
+		if($result){
+			return $result;
+		}else{
+			return $this->redis->get($key);
+		}
 	}
 	
 	protected function _incr($key) {
@@ -79,12 +88,43 @@ class CacheRedis extends Cache {
 
 		return $this->redis->delete($key);
 	}
+	protected function _lpush($key, $value) {
+		if (!$this->is_connected)
+			return false;
+
+		return $this->redis->lpush($key, $value);
+	}
+	protected function _rpop($key) {
+		if (!$this->is_connected)
+			return false;
+
+		return $this->redis->rpop($key);
+	}
+	
+	protected function _sadd($key, $value) {
+		if (!$this->is_connected)
+			return false;
+
+		return $this->redis->sadd($key, $value);
+	}
+	protected function _smembers($key) {
+		if (!$this->is_connected)
+			return false;
+
+		return $this->redis->smembers($key);
+	}
+	protected function _srem($key) {
+		if (!$this->is_connected)
+			return false;
+
+		return $this->redis->srem($key);
+	}
 
 	public function flush() {
 		if (!$this->is_connected)
 			return false;
 
-		return $this->redis->flush();
+		return $this->redis->flushdb();
 	}
 
 	protected function close() {

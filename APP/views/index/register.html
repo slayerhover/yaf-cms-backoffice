@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html><head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black">
+	<meta name="format-detection" content="telephone=no">
+	<meta content="email=no" name="format-detection">
+	<!--禁止Android中自动识别页面中的邮件地址-->
+	<title>注册 | 葡团网</title>
+	<link rel="stylesheet" href="http://cfb.scsj.net.cn/static/css/reset.css">
+	<link rel="stylesheet" href="http://cfb.scsj.net.cn/static/css/base.css">
+	<link rel="stylesheet" href="http://cfb.scsj.net.cn/static/css/dialog.css">
+	<link rel="stylesheet" href="http://cfb.scsj.net.cn/static/css/register.css">
+	<script type="text/javascript" src="http://cfb.scsj.net.cn/static/js/zepto.js"></script>
+	<style>
+		/* #video {
+			height: 4rem;
+			width: 4rem;
+			display: block;
+			margin: 0;
+			padding: 0;
+		}
+
+		#canvas {
+			height: 400px;
+			width: 800px;
+			display: block;
+			margin: 0;
+			padding: 0;
+		} */
+	</style>
+</head>
+
+<body>
+	<!--头-->
+	<div class="header_body">
+		<div class="header_main">
+			<div class="header_icon01">
+				<a href="http://cfb.scsj.net.cn/index.html"></a>
+			</div>
+			<div class="header_txt">注册</div>
+			<div class="header_icon02">
+				<a></a>
+			</div>
+		</div>
+	</div>
+	<!--输入区域-->
+	<div class="register_tab_a_main">
+		<ul>
+			<li class="register_icon01">
+				<div>
+					<input id="telephone" name="" maxlength="11" placeholder="请输入手机号" type="tel">
+				</div>
+			</li>
+			<li class="register_icon05">
+				<div>
+					<input id="nickname" name="" placeholder="请输入昵称" type="text">
+				</div>
+			</li>
+			<li class="register_icon03">
+				<div style="margin-right:2rem">
+					<input id="code" name="" placeholder="请输入短信验证码" type="number">
+				</div>
+				<button class="hqyzm">获取验证码</button>
+			</li>
+			<li class="register_icon02">
+				<div>
+					<input id="password" name="" placeholder="请设置密码，不少于6位" type="password">
+				</div>
+			</li>
+			<li class="register_icon04">
+				<div>
+					<input id="inviter_code" name="" placeholder="请输入邀请码" type="number">
+				</div>
+			</li>
+		</ul>
+	</div>
+	<div class="xieyi">我已同意并接受
+		<a href="http://cfb.scsj.net.cn/template/register_txt.html">《相关协议》</a>
+	</div>
+	<!--登陆BUTTON-->
+	<div class="button">
+		<button href="javascript:;" id="btn">注册</button>
+	</div>
+	<!-- 已有账号去登录 -->
+	<div class="haveNum">
+		<a href="#">已有账号?去登录</a>
+	</div>
+	
+	<!--版本-->
+	<div class="banben">葡团网 V1.0</div>
+
+<script type="text/javascript" src="http://cfb.scsj.net.cn/static/js/jquery.js"></script>
+<script type="text/javascript" src="http://cfb.scsj.net.cn/static/js/jquery_002.js"></script>
+<script type="text/javascript" src="http://cfb.scsj.net.cn/static/js/dialog.js"></script>
+<script type="text/javascript" src="http://cfb.scsj.net.cn/static/js/register.js"></script>
+<script type="text/javascript">
+	//这段代 主要是获取摄像头的视频流并显示在Video 签中    
+	var canvas = null, context = null, video = null;
+	$('#snap').click(function () {
+		try {
+			canvas = document.getElementById("canvas");
+			context = canvas.getContext("2d");
+			video = document.getElementById("video");
+
+			var videoObj = { "video": true, audio: false },
+				flag = true,
+				MediaErr = function (error) {
+					flag = false;
+					if (error.PERMISSION_DENIED) {
+						alert('用户拒绝了浏览器请求媒体的权限', '提示');
+					} else if (error.NOT_SUPPORTED_ERROR) {
+						alert('对不起，您的浏览器不支持拍照功能，请使用其他浏览器', '提示');
+					} else if (error.MANDATORY_UNSATISFIED_ERROR) {
+						alert('指定的媒体类型未接收到媒体流', '提示');
+					} else {
+						alert('系统未能获取到摄像头，请确保摄像头已正确安装。或尝试刷新页面，重试', '提示');
+					}
+				};
+			//获取媒体的兼容代码，目前只支持（Firefox,Chrome,Opera）  
+			if (navigator.getUserMedia) {
+				//qq浏览器不支持  
+				if (navigator.userAgent.indexOf('MQQBrowser') > -1) {
+					alert('对不起，您的浏览器不支持拍照功能，请使用其他浏览器', '提示');
+					return false;
+				}
+				navigator.getUserMedia(videoObj, function (stream) {
+					video.src = stream;
+					video.play();
+				}, MediaErr);
+			}
+			else if (navigator.webkitGetUserMedia) {
+				navigator.webkitGetUserMedia(videoObj, function (stream) {
+					video.src = window.webkitURL.createObjectURL(stream);
+					video.play();
+				}, MediaErr);
+			}
+			else if (navigator.mozGetUserMedia) {
+				navigator.mozGetUserMedia(videoObj, function (stream) {
+					video.src = window.URL.createObjectURL(stream);
+					video.play();
+				}, MediaErr);
+			}
+			else if (navigator.msGetUserMedia) {
+				navigator.msGetUserMedia(videoObj, function (stream) {
+					$(document).scrollTop($(window).height());
+					video.src = window.URL.createObjectURL(stream);
+					video.play();
+				}, MediaErr);
+			} else {
+				alert('对不起，您的浏览器不支持拍照功能，请使用其他浏览器');
+				return false;
+			}
+			if (flag) {
+			}
+			//这个是拍照按钮的事件，            
+			$("#snap").click(function () { startPat(); }).show();
+		} catch (e) {
+			printHtml("浏览器不支持HTML5 CANVAS");
+		}
+	})
+
+	//打印内容到页面        
+	function printHtml(content) {
+		$(window.document.body).append(content + "<br/>");
+	}
+	//开始拍照  
+	function startPat() {
+		setTimeout(function () {//防止调用过快  
+			if (context) {
+				context.drawImage(video, 0, 0, 320, 320);
+				CatchCode();
+			}
+		}, 200);
+	}
+	//抓屏获取图像流，并上传到服务器        
+	function CatchCode() {
+		if (canvas != null) {
+			//以下开始编 数据     
+			var imgData = canvas.toDataURL();
+			//将图像转换为base64数据  
+			var base64Data = imgData;//.substr(22); //在前端截取22位之后的字符串作为图像数据  
+			//开始异步上  
+			$.post("saveimg.php", { "img": base64Data }, function (result) {
+				printHtml("解析结果：" + result.data);
+				if (result.status == "success" && result.data != "") {
+					printHtml("解析结果成功！");
+				} else {
+					startPat();//如果没有解析出来则重新抓拍解析         
+				}
+			}, "json");
+		}
+	}        
+</script>
+
+</body></html>

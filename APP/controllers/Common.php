@@ -1,55 +1,68 @@
 <?php
 use Illuminate\Database\Capsule\Manager as DB;
+abstract class CommonController extends BCoreController {
+	protected $table;
+    protected $primaryKey;
 
-abstract class CommonController extends CoreController {
-	
 	public function indexAction(){
 		$this->_view->assign('uniqid',	 uniqid());
     }
-
-	public function getAction() {			
-		$page   =	$this->getPost('page', '');
-		$sort	=	$this->getPost('sort',  'sortorder');
-		$order	=	$this->getPost('order', 'desc');
-		$keywords	= $this->getPost('keywords', '');
-		$query		= DB::table($this->controllerName);
+	public function getAction($flag=FALSE){
+		$page   =	$this->get('page', '');
+		$sort	=	$this->get('sort',  'sortorder');
+		$order	=	$this->get('order', 'desc');
+		$keywords	= $this->get('keywords', '');
+		$fields     = $this->get('fields', 'title');
+		$query		= DB::table($this->table);
 		if($keywords!==''){
-			$query	=	$query	->where('title','like',"%{$keywords}%");
+		    $fields = explode(',', $fields);
+			$query	=	$query->where(function($query)use($keywords, $fields){
+                $query->where($fields[0],'like',"%{$keywords}%");
+                $fieldsSize = sizeof($fields);
+                if($fieldsSize>1){
+                    for($i=1; $i<$fieldsSize; $i++){
+                        $query->orWhere($fields[$i],'like',"%{$keywords}%");
+                    }
+                }
+            });
 		}
 		$total		= $query->count();
 		$query 		= $query->orderBy($sort,$order);
 		if( !empty($page) ){
-			$limit  =	$this->getPost('rows', 10);
+			$limit  =	$this->get('rows', 10);
 			$offset	=	($page-1)*$limit;			
 			$query	=	$query->offset($offset)
 							 ->limit($limit);
 		}
 		$rows =	$query->get();
-		return ['total'=>$total, 'rows'=>$rows];
+		if($flag){
+			return ['total'=>$total, 'rows'=>$rows];
+		}else{
+			json(['total'=>$total, 'rows'=>$rows]);
+		}
     }
-	public function addAction(){
-		$dataset  	= DB::table($this->controllerName)->where('up','=',0)->get();
-		$this->_view->assign('dataset', $dataset);
+	public function addAction(){		
+		$this->_view->assign('uniqid',	 uniqid());
     }	
 	public function increaseAction(){
 		do{
 			if( $this->method!='POST' ){
 				$result	= array(
-							'code'=>	'300',
+							'ret'   =>	1,
 							'msg'	=>	'操作失败',		
 						);
 				break;
 			}
-			$rows = $this->getPost();			
+			$rows = $this->formData;			
 			$rows['created_at'] =	date('Y-m-d H:i:s');
-			if( DB::table($this->controllerName)->insert($rows) ){
+			if( DB::table($this->table)->insert($rows) ){
 				$result	= array(
-							'code'	=>	'200',
+							'ret'	=>	0,
 							'msg'	=>	'操作成功',								
 						);
 			}else{
 				$result	= array(
-							'code'	=>	'300',
+							'ret'	=>	3,
 							'msg'	=>	'数据插入失败',	
 						);
 			}
@@ -57,30 +70,40 @@ abstract class CommonController extends CoreController {
 		
 		json($result);
     }	
-	public	function editAction(){
-		$id	= $this->getQuery('id', 0);
-     	$dataset  	= DB::table($this->controllerName)->find($id);
+	public	function editAction($flag=FALSE){
+		$id	= $this->get('id', 0);
+     	$dataset  	= DB::table($this->table)->where($this->primaryKey,'=',$id)->first();
 		$this->_view->assign('dataset', $dataset);
+		$this->_view->assign('uniqid',	 uniqid());
+		if($flag) return $dataset;
     }
     public function updateAction(){
 		do{
 			if( $this->method!='POST' ){
 				$result	= array(
-							'code'	=>	'300',
+							'ret'	    =>	1,
 							'msg'		=>	'操作失败',										
 						);
 				break;
-			}				
-			$rows = $this->getPost();
+			}            
+			$rows = $this->formData;
+			if(!isset($rows['id'])&&isset($rows['dataset'])&&is_array($rows['dataset'])){
+				$rows = $rows['dataset'];
+			}
+			$inputs	= array(
+                ['name'=>'id','value'=>$rows['id'],'role'=>"required|exists:{$this->table}.{$this->primaryKey}",'fun'=>'isInt','msg'=>'主键索引'],
+            );
+            $result	= Validate::check($inputs);
+            if(	!empty($result) ){ret(2, $result);}
 			$rows['updated_at'] =	date('Y-m-d H:i:s');
-			if( DB::table($this->controllerName)->where('id','=',$rows['id'])->update($rows)!==FALSE ){
+			if( DB::table($this->table)->where($this->primaryKey,'=',$rows['id'])->update($rows)!==FALSE ){
 				$result	= array(
-							'code'		=>	'200',
+							'ret'		=>	0,
 							'msg'		=>	'操作成功',	
 						);
 			}else{
 				$result	= array(
-							'code'		=>	'300',
+							'ret'		=>	3,
 							'msg'		=>	'更新失败',	
 						);
 			}
@@ -92,27 +115,26 @@ abstract class CommonController extends CoreController {
 		do{
 			if($this->method!='POST'){
 				$result	= array(
-							'code'		=>	'300',
+							'ret'		=>	1,
 							'msg'		=>	'操作失败',										
 						);
 				break;				
 			}
-			$id	= $this->get('id', '');
-			if( empty($id) ){
-				$result	= array(
-							'code'		=>	'300',
-							'msg'		=>	'参数为空',
-						);
-				break;
-			}
-			if(DB::table($this->controllerName)->delete($id)){
+            $id = $this->get('id', 0);
+            $inputs	= array(
+                ['name'=>'id','value'=>$id,'role'=>"required|exists:{$this->table}.{$this->primaryKey}",'fun'=>'isInt','msg'=>'主键索引'],
+            );
+            $result	= Validate::check($inputs);
+            if(	!empty($result) ){ret(2, $result);}
+
+			if(DB::table($this->table)->where($this->primaryKey,'=',$id)->delete()){
 				$result		= array(
-							'code'		=>	'200',
+							'ret'		=>	0,
 							'msg'		=>	'操作成功',
 							);						
 			}else{
 				$result		= array(
-							'code'		=>	'300',
+							'ret'		=>	3,
 							'msg'		=>	'删除失败',
 							);
 			}
@@ -120,6 +142,4 @@ abstract class CommonController extends CoreController {
 		
 		json($result);    	
     }
-
-
 }

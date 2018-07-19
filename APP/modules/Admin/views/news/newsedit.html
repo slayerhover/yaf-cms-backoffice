@@ -1,0 +1,123 @@
+<div id="tb<?php echo $uniqid;?>" style="padding:5px">
+<form id="newseditfm" method="post" enctype="multipart/form-data">
+<input type="hidden" name="id" value="<?php echo $dataset['id'];?>" />
+<table border="0" width="100%" cellspacing="1" cellpadding="5" bgcolor="#c4d3e1" style="text-align:left; line-height:18px;">
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="10%">标题：</td>
+			<td colspan="5" width="90%"><input name="title" type="text" style="width:400px;"  value="<?php echo $dataset['title'];?>" class="textbox-text validatebox-text textbox-prompt easyui-validatebox" placeholder="请输入标题."  required="true"></td>
+		</tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td class="main" >栏目:</td>
+			<td class="main" >			
+			<SELECT name='newsclass_id' size='1' required="true">
+			<OPTION value="0">选择栏目</OPTION>
+			<OPTION value="0" disabled="disabled"> -------- </OPTION>
+			<?php foreach($newsclass as $k=>$v):?>
+			<OPTION <?php echo ($dataset['newsclass_id']==$v['id'])?"selected":"";?> value="<?php echo $v['id'];?>"><?php echo $v['title'];?></OPTION>
+				<?php foreach($v['children'] as $k1=>$v1):?>
+				<OPTION <?php if($dataset['newsclass_id']==$v1['id']){echo "selected";}?> value="<?php echo $v1['id'];?>">&nbsp;&nbsp;|--<?php echo $v1['title'];?></OPTION>
+				<?php endforeach;?>
+			<?php endforeach;?>
+			</SELECT>
+			</td>
+			<td style="line-height:30px;">关键词：</td>
+			<td colspan="3"><input name="keywords" type="text" style="width:400px;"  value="<?php echo $dataset['keywords'];?>"  class="textbox-text validatebox-text textbox-prompt easyui-validatebox" placeholder="请输入关键词"></td>
+		</tr>		
+		<tr bgcolor="#FFFFFF"> 
+			<td class="main">作者:</td>
+			<td class="main"><input type="text" size="20" name="author" value="<?php echo $dataset['author'];?>"  class="textbox-text validatebox-text textbox-prompt easyui-validatebox"  placeholder="请输入作者"></td>
+			
+			<td class="main">来源:</td>
+			<td><input type="text" size="20" name="copyfrom" class="textbox-text validatebox-text textbox-prompt easyui-validatebox"  placeholder="请输入来源"  value="<?php echo $dataset['copyfrom'];?>" ></td>
+			
+			<td>来源网址：</td>
+			<td><input type="text" size="45" class="textbox-text validatebox-text textbox-prompt easyui-validatebox"  placeholder="请输入来源网址"  name="copyfromurl" value="<?php echo $dataset['copyfromurl'];?>" ></td>
+		</tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td class="main">排序：</td>
+			<td class="main"><input type="text" name="sortorder" size="20"  class="textbox-text validatebox-text textbox-prompt easyui-validatebox"   value="<?php echo $dataset['sortorder'];?>" /></td>						 			<td style="line-height:30px;">状态：</td>
+			<td><label><input name="status" type="checkbox" class="textbox-prompt" value="1" <?php if($dataset['status']==1){echo "checked";}?> >激活</label></td>		
+			<td class="main">推荐：</td>
+			<td class="main"><label><input type="checkbox" name="recommend" class="textbox-prompt"  <?php if($dataset['recommend']==1){echo "checked";}?> value="1" />设为推荐</label></td>						 
+		</tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td class="main">缩略图:</td>
+			<td class="main" colspan="5"><span id="newseditlogo"
+			<?php if(!empty($dataset['logo'])):?>
+				<a target="_blank" href="<?php echo $dataset['logo'];?>"><img style="max-height:100px;" src="<?php echo $dataset['logo'];?>?imageView2/1" onerror="this.src='/images/none.jpg'" /></a>
+			<?php endif;?></span>
+			<a href="javascript:;" class="a-upload l-btn">
+			<input type="file" size="40" id="newseditupfile" name="upfile" accept="image/gif,image/jpeg,image/jpg,image/png,image/svg" onchange="html5ReaderNewsEdit()">
+			</a>
+			<span style="color:#FF0000">(未上传缩略图则默认采用内容中的第一张图片做缩略图)</span>
+			<script>
+			function html5ReaderNewsEdit() {
+				var simpleFile = document.getElementById("newseditupfile").files[0];
+				if(!/image\/\w+/.test(simpleFile.type)) {
+					alert("请确保文件类型为图像类型");
+					return false;
+				}
+				var reader = new FileReader();
+				reader.readAsBinaryString(simpleFile);
+				reader.onload = function(f){
+					var result = document.getElementById("newseditlogo");
+					var src = "data:" + simpleFile.type + ";base64," + window.btoa(this.result);
+					result.innerHTML = '<img style= "max-height:100px" src ="'+src+'"/>';
+				}
+			}
+			</script>
+			</td>
+		</tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;">内容：</td>
+			<td colspan="5">
+			<script id="newseditEditor" name="content" type="text/plain">
+	        <?php echo $dataset['content']['content'];?>
+		    </script>
+			</td>
+		</tr>
+		<tr> 
+			<td colspan="6" bgcolor="#F4F4F4" style="border-top:#ddd 1px solid;text-align:right; padding-right:25px;">			
+			<div>
+			<a href="javascript:;" class="l-btn l-btn-small" onclick="newseditsubmitForm()"><span class="l-btn-left l-btn-icon-left"><span class="l-btn-text">保存</span><span class="l-btn-icon icon-ok">&nbsp;</span></span></a>
+			<a href="javascript:;" class="l-btn l-btn-small" onclick="newseditclearForm()"><span class="l-btn-left l-btn-icon-left"><span class="l-btn-text">关闭</span><span class="l-btn-icon icon-no">&nbsp;</span></span></a>
+			</div>
+			</td>			
+		</tr>
+</table>
+</form>
+</div>
+
+<script>
+/***关闭umeditor BOF***/
+if(typeof(newseditum)!='undefined'){
+		 newseditum.destroy();
+}
+/***关闭umeditor EOF***/
+var newseditum = UM.getEditor('newseditEditor');
+var newseditclearForm=function(){
+	$('#newseditfm').form('clear');
+	$('#rightTabs').tabs('close','编辑文章');
+}
+var newseditsubmitForm=function(){
+	$('#newseditfm').form('submit', {    
+			url:'/admin/news/newsupdate',    
+			success: function(data){    
+				var data = eval('(' + data + ')');
+				
+				if(data.code=='200'){
+						$.messager.show({
+								title:'提示',
+								msg:data.msg,
+								timeout:3000,
+								showType:'slide'
+						});				
+						if(typeof($("#news"))!='undefined') $("#news").datagrid('reload');
+						newseditclearForm();
+				}else{
+						$.messager.alert('提示',data.msg,'warning');
+				}
+			}
+	});
+}
+</script>

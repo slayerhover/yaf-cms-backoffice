@@ -1,0 +1,150 @@
+<script type="text/javascript" src="/static/Js/plupload/moxie.js"></script>
+<script type="text/javascript" src="/static/Js/plupload/plupload.dev.js"></script>
+<script type="text/javascript" src="/static/Js/plupload/i18n/zh_CN.js"></script>
+<script type="text/javascript" src="/static/Js/qiniu.js"></script>
+<script type="text/javascript" src="/static/Js/ui.js"></script>
+<form id="carbrandeditfm" method="post">
+<input type="hidden" name="id" value="<{$dataset.id}>" />
+<table border="0" width="100%" cellspacing="1" cellpadding="5" bgcolor="#c4d3e1" style="text-align:left; line-height:18px;">
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">名称：</td>
+			<td width="80%"><input name="brand" type="text" style="width:400px;" class="textbox-text validatebox-text textbox-prompt easyui-validatebox" placeholder="请输入名称.."  required="true"  value="<{$dataset.brand}>" ></td>
+		</tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">首字母：</td>
+			<td width="80%"><input name="letter" type="text" maxlength="1" style="width:400px;"  class="textbox-text validatebox-text textbox-prompt easyui-validatebox" placeholder="请输入首字母.." value="<{$dataset.letter}>" ></td>
+		</tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">大小车型：</td>
+			<td width="80%">
+			<label><input name="type" type="radio" class="textbox-prompt" value="1" <{if $dataset.type eq 1}>checked="checked"<{/if}> >小车</label>
+			<label><input name="type" type="radio" class="textbox-prompt" value="2" <{if $dataset.type eq 2}>checked="checked"<{/if}> >大车</label>
+			<label><input name="type" type="radio" class="textbox-prompt" value="3" <{if $dataset.type eq 3}>checked="checked"<{/if}> >通用</label>
+			</td>
+		</tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">排序：</td>
+			<td width="80%"><input name="sortorder" type="text" class="textbox-text validatebox-text textbox-prompt easyui-validatebox" placeholder="请输入排序.." value="<{$dataset.sortorder}>" ></td>
+		</tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">是否推荐显示：</td>
+			<td width="80%"><input name="recommend" type="checkbox" class="textbox-prompt" value="1" <{if $dataset.recommend eq 1}>checked="checked"<{/if}> >是</td>
+		</tr>	
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">图标：</td>
+			<td width="80%">
+			<div title="个人证件">
+				<div class="col-md-12">
+					<div id="carbrandeditcontainer" style="background-color:#F9F9F4">
+						<a class="btn btn-default btn-lg" id="carbrandaddpickfiles" href="#" >
+							<i class="glyphicon glyphicon-plus"></i>
+							<div style="padding:20px;">点击上传新图片，或者将新图片拖至此处，此处仅会保存一张图片。</div>
+						</a>
+					</div>
+				</div>
+				<div style="display:none" id="success" class="col-md-12">
+					<div class="alert-success">
+						队列全部文件处理完毕
+					</div>
+				</div>
+				<div class="col-md-12 ">
+					<table id="uploadtable" class="table table-striped table-hover text-left" id="fsUploadProgressTable1"  style="margin-top:20px; width:96%;">
+						<thead>
+						  <tr>
+							<th width="20%"  class="col-md-4">图片</th>
+							<th width="10%"  class="col-md-2">字节</th>
+							<th width="70%"  class="col-md-6">网络文件</th>
+						  </tr>
+						</thead>
+						<tbody id="carbrandaddfsUploadProgress">
+						<tr id="o_1bdj11" class="progressContainer" style="opacity: 1;"><td class="progressName"><div class="Wrapper"><div class="imgWrapper col-md-3"><a class="linkWrapper" target="_blank" href="<{$dataset.icon}>" title="查看原图"><img style="max-height:100px;" src="<{$dataset.icon}>?imageView2/1/w/100/h/100"></a></div></div></td>
+						<td class="progressFileSize"></td><td><div class="info"><div class=""><div><span><{$dataset.icon}></span><br><br>						
+						<input name="images[]" value="<{$dataset.icon}>" type="hidden">
+						<input class='l-btn l-btn-small' style="font-size:12px" onclick="$.messager.confirm('确认对话框', '您确认删除么？', function(r){	if (r){ $('#o_1bdj11').remove();}});" value="删除图片" type="button"></div></div></div></td></tr>				
+						</tbody>
+					</table>
+				</div>
+			</div>	
+			</td>
+		</tr>
+</table>
+</form>
+
+<script>
+$(function(){
+		$('#carbrandupdatesubmit').click(function(data){			
+				$('#carbrandeditfm').form('submit', {    
+					url:'/products/carbrandupdate',    
+					success: function(data){    
+						var data = eval('(' + data + ')');
+						
+						
+						if(data.code=='200'){
+								$.messager.show({
+										title:'提示',
+										msg:data.msg,
+										timeout:3000,
+										showType:'slide'
+								});				
+								$('#carbrandeditfm').form('clear');
+								$("#carbranddlg").dialog('close');
+								$("#carbrand").datagrid('reload');
+						}else{
+								$.messager.alert('提示',data.msg,'warning');
+						}
+					}    
+				});
+		})
+		var uploader1 = Qiniu.uploader({
+				runtimes: 'html5,flash,html4', //上传模式,依次退化
+				browse_button: 'carbrandaddpickfiles', //上传选择的点选按钮，**必需**
+				uptoken_url: '/admin/uptoken', //Ajax请求upToken的Url，**强烈建议设置**（服务端提供）
+				domain: 'http://oseihxzg8.bkt.clouddn.com/', //bucket 域名，下载资源时用到，**必需**
+				container: 'carbrandeditcontainer', //上传区域DOM ID，默认是browser_button的父元素，
+				max_file_size: '5mb', //最大文件体积限制
+				flash_swf_url: '/static/Js/plupload/Moxie.swf', //引入flash,相对路径
+				max_retries: 3, //上传失败最大重试次数
+				dragdrop: true, //开启可拖曳上传
+				drop_element: 'carbrandeditcontainer', //拖曳上传区域元素的ID，拖曳文件或文件夹后可触发上传
+				chunk_size: '2mb', //分块上传时，每片的体积
+				auto_start: true, //选择文件后自动上传，若关闭需要自己绑定事件触发上传
+				unique_names: true,
+				init: {
+						'FilesAdded': function(up, files) {
+							$('#uploadtable').show();
+							$('#success').hide();
+							plupload.each(files, function(file) {
+								var progress = new FileProgress(file, 'carbrandaddfsUploadProgress');
+								progress.setStatus("等待...");
+								progress.bindUploadCancel(up);
+							});
+						},
+						'BeforeUpload': function(up, file) {
+							var progress = new FileProgress(file, 'carbrandaddfsUploadProgress');
+							var chunk_size = plupload.parseSize(this.getOption('chunk_size'));
+							if (up.runtime === 'html5' && chunk_size) {
+								progress.setChunkProgess(chunk_size);
+							}
+						},
+						'UploadProgress': function(up, file) {
+							var progress = new FileProgress(file, 'carbrandaddfsUploadProgress');
+							var chunk_size = plupload.parseSize(this.getOption('chunk_size'));
+							progress.setProgress(file.percent + "%", file.speed, chunk_size);
+						},
+						'UploadComplete': function() {
+							$('#success').hide();
+						},
+						'FileUploaded': function(up, file, info) {
+							var progress = new FileProgress(file, 'carbrandaddfsUploadProgress');
+							progress.setComplete(up, info, 1);
+						},
+						'Error': function(up, err, errTip) {
+							$('#uploadtable').show();
+							var progress = new FileProgress(err.file, 'carbrandaddfsUploadProgress');
+							progress.setError();
+							progress.setStatus(errTip);
+						}
+				}
+		})		
+});
+</script>

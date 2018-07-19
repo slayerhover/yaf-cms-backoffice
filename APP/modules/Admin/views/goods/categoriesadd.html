@@ -1,0 +1,56 @@
+<form id="categoriesaddfm" method="post">
+<table border="0" width="100%" cellspacing="1" cellpadding="5" bgcolor="#c4d3e1" style="text-align:left; line-height:18px;">
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">上级菜单：</td>
+			<td width="80%">
+			<SELECT name='up' style="width:153px; height:25px;" size='1'>
+				<OPTION value="0">根目录 </OPTION>
+				<OPTION value="0" disabled="disabled"> ----------------- </OPTION>
+				<{section name=sec1 loop=$dataset}>
+				<OPTION value="<{$dataset[sec1].id}>"><{$dataset[sec1].title}></OPTION>
+				<{/section}>
+			</SELECT>
+			</td>
+		</tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">标题：</td>
+			<td width="80%"><input name="title" type="text" style="width:400px;" class="textbox-text validatebox-text textbox-prompt easyui-validatebox" placeholder="请输入标题.."  required="true"></td>
+		</tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">是否激活：</td>
+			<td width="80%"><input name="status" type="checkbox" class="textbox-prompt" checked="checked" value="1" >是</td>
+		</tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">排序：</td>
+			<td width="80%"><input name="sortorder" type="text" class="textbox-text validatebox-text textbox-prompt easyui-validatebox" value="500" placeholder="请输入排序.."></td>
+		</tr>
+				
+</table>
+</form>
+
+<script>
+$(function(){
+		$('#categoriesaddsubmit').click(function(data){			
+				$('#categoriesaddfm').form('submit', {    
+					url:'/products/categoriesincrease',    
+					success: function(data){    
+						var data = eval('(' + data + ')');
+						
+						if(data.code=='200'){
+								$.messager.show({
+										title:'提示',
+										msg:data.msg,
+										timeout:3000,
+										showType:'slide'
+								});				
+								$('#categoriesaddfm').form('clear');
+								$("#categoriesdlg").dialog('close');
+								$("#categories").treegrid('reload');
+						}else{
+								$.messager.alert('提示',data.msg,'warning');
+						}
+					}    
+				});
+		})	
+});
+</script>

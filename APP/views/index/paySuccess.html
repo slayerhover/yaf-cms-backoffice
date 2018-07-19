@@ -1,0 +1,161 @@
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>支付成功.</title>
+<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+<script src="https://cdn.jsdelivr.net/npm/vue"></script>
+<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+<script typet="text/javascript" src="https://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
+<link rel="stylesheet" type="text/css" href="http://putuan.zy52.cn/web/front/static/css/style.css" />
+</head>
+<body>
+
+<div id="wrap">
+	<div class="center">
+		<!--header-->
+		<header style=" color: #666; background: #fff; display: none;">
+			<div @click="back">
+				<i class="iconfont icon-xiangzuo"></i>
+			</div>
+			<div class="search-box text-left">
+				支付成功
+			</div>
+			<div></div>
+		</header>
+		<div class="main-content" style="margin-top: 0px; padding-top: 0px;">
+			<div style=" padding: 2rem; color: #fff;background: rgb(208,46,62); text-align: center;">
+				<div style=" display: flex;">
+					<i class="iconfont icon-duihao" style=" flex: 2; text-align: right; font-size: 3rem;"></i>
+					<div style=" flex: 3; text-align: left; padding-left: 1rem;">
+						<p style=" font-size: 1.5rem;">支付成功!</p>
+						<p style=" font-size: 1rem;">感谢您的购买</p>
+					</div>
+				</div>
+			</div>
+			<div v-if="isVisibile">
+				<img src="http://putuan.zy52.cn/images/libao.png" style="width:100%;max-width:100%;" />
+			</div>
+			<div style="position: absolute;width:100%;bottom:0;left:0; text-align: center; font-size:14px; line-height: 250%;" v-if="isVisibile">
+				<p>您的礼包已成功支付</p>
+				<p>请点击下方按钮馈赠亲友</p>
+			</div>
+		</div>
+		<div style="position: absolute;width:100%;bottom:0;left:0;" v-if="isVisibile">
+			<span class="ui-btn" style=" background: rgb(221,12,34); border: none; color: #fff;" @click="shengcheng">馈赠亲友</span>
+		</div>
+
+		<div v-if="shareVisible" @click="shareVisible = !shareVisible" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,.7);">
+			<img src="http://putuan.zy52.cn/images/share.png" style="width:100%;max-width:100%;" />
+		</div>
+	</div>
+</div>
+<script>
+    function getUrlParam(name) {
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+        var r = window.location.search.substr(1).match(reg);
+        if (r != null) return unescape(r[2]);
+        return null;
+    }
+    var vm = new Vue({
+        el: '#wrap',
+        data: {
+            isVisibile:false,
+            shareVisible: false,
+            order_no: getUrlParam('order_no')
+        },
+        mounted:function () {
+            this.getOrderDetail(getUrlParam('order_no'))
+        },
+        methods: {
+            back:function () {
+                window.location.href = 'http://putuan.zy52.cn/web/front/#/center'
+            },
+            getOrderDetail:function (id) {
+                var _this = this;
+                $.ajax({
+                    url: 'http://putuan.zy52.cn/user/ordersdetail',
+                    type: 'post',
+                    data: {
+                        token: localStorage.getItem('token'),
+                        order_no :id
+                    },
+                    success: function(data){
+                        if(data.ret == 0) {
+                            if(data.data.shipping_type == 2) {
+                                _this.isVisibile = true
+                            }else {
+                                window.location.href = 'http://putuan.zy52.cn/web/front/#/myOrder'
+                            }
+                        }
+                    }
+                })
+            },
+            shengcheng:function () {
+                let _this = this
+                _this.shareVisible = true;
+                $.ajax({
+                    url:'http://putuan.zy52.cn/index/wxshare',
+                    data:{
+						order_no: getUrlParam('order_no'),
+                        shareurl:window.location.href,
+                    },
+                    type:'post',
+                    success:function(res){
+                        wx.config({
+                            debug: false,
+                            appId: res.data.appId,
+                            timestamp: res.data.timestamp,
+                            nonceStr: res.data.nonceStr,
+                            signature: res.data.signature,
+                            jsApiList: ['onMenuShareTimeline','onMenuShareAppMessage','onMenuShareQQ']
+                        });
+
+                        wx.ready(function(){
+                            wx.onMenuShareTimeline({
+                                title: '您的好友赠送您一份礼物, 请前往领取.', // 分享标题
+                                link: res.data.link,
+                                imgUrl: 'http://oseihxzg8.bkt.clouddn.com/img-t152643966890550.png', // 分享图标
+                                success: function () {
+                                    // 用户确认分享后执行的回调函数
+                                },
+                                cancel: function () {
+                                    // 用户取消分享后执行的回调函数
+                                }
+                            });
+                            wx.onMenuShareAppMessage({
+                                title: '礼物赠送', // 分享标题
+                                desc: '您的好友赠送您一份礼物, 请前往领取.', // 分享描述
+                                link: res.data.link,
+                                imgUrl: 'http://oseihxzg8.bkt.clouddn.com/img-t152643966890550.png', // 分享图标
+                                type: 'link', // 分享类型,music、video或link，不填默认为link
+                                dataUrl: '', // 如果type是music或video，则要提供数据链接，默认为空
+                                success: function () {
+                                    // 用户确认分享后执行的回调函数
+                                },
+                                cancel: function () {
+                                    // 用户取消分享后执行的回调函数
+                                }
+                            });
+                            wx.onMenuShareQQ({
+                                title: '礼物赠送', // 分享标题
+                                desc: '您的好友赠送您一份礼物, 请前往领取.', // 分享描述
+                                link: res.data.link,
+                                imgUrl: 'http://oseihxzg8.bkt.clouddn.com/img-t152643966890550.png', // 分享图标
+                                success: function () {
+                                    // 用户确认分享后执行的回调函数
+                                },
+                                cancel: function () {
+                                    // 用户取消分享后执行的回调函数
+                                }
+                            });
+                        });
+
+                    },
+                    error:function(){
+                        alert('请于客服联系');
+                    }
+                });
+            }
+        }
+    })
+</script>
+
+</body></html>

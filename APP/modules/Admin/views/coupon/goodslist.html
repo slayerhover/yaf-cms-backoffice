@@ -1,0 +1,104 @@
+<div id="tb<?php echo $uniqid;?>" style="padding:0px">
+		<table cellspacing="0" cellpadding="0"><tbody><tr>			
+		<td><a href="javascript:;" onclick="coupongoodslistdelete();"  class="l-btn l-btn-small l-btn-plain" group="" id=""><span class="l-btn-left l-btn-icon-left"><span class="l-btn-text">删除</span><span class="l-btn-icon icon-cancel">&nbsp;</span></span></a></td><td><div class="datagrid-btn-separator"></div></td>		
+		<td><a href="javascript:;" onclick="coupongoodslistreload();"  class="l-btn l-btn-small l-btn-plain" group="" id=""><span class="l-btn-left l-btn-icon-left"><span class="l-btn-text">重载</span><span class="l-btn-icon icon-reload">&nbsp;</span></span></a></td>
+		<td><SELECT id='coupongoodslistlabel_id' onchange="coupongoodslistsearch();" class="textbox-text validatebox-text">
+				<OPTION value="0">所有标签</OPTION>
+				<OPTION value="0" disabled="disabled"> -------- </OPTION>
+				<?php foreach($label as $k=>$v):?>
+				<OPTION value="<?php echo $v['id'];?>"><?php echo $v['name'];?></OPTION>					
+				<?php endforeach;?>
+			</SELECT>
+		</td>
+		<td><SELECT id='coupongoodsliststatus' onchange="coupongoodslistsearch();" class="textbox-text validatebox-text">
+				<OPTION value="0">发布状态</OPTION>
+				<OPTION value="0" disabled="disabled"> -------- </OPTION>
+				<OPTION value="1">置顶</OPTION>
+				<OPTION value="2">热卖</OPTION>
+				<OPTION value="3">上架</OPTION>
+				<OPTION value="4">下架</OPTION>
+				<OPTION value="5">精品</OPTION>
+			</SELECT>
+		</td>
+		<td>&nbsp;&nbsp;<input  id="coupongoodslistkeywords"  style="width:160px" type="text" placeholder="商品ID|商品名称|标题" class= "easyui-input textbox" > </input></td>
+		<td><span><a href="javascript:void(0)" class="easyui-linkbutton" plain="true" iconCls="icon-search" onclick="coupongoodslistsearch()">查询</a></span>	</td>
+		</tr></tbody></table>
+</div>
+<div class="con" onselectstart="return false;" style="-moz-user-select:none;">
+    <table id="coupongoodslist"></table>
+</div>
+
+<script>
+var coupongoodslistdelete=function(){
+				var row = $('#coupongoodslist').datagrid('getSelections');
+				var item= [];
+				for(var i=0;i<row.length;i++){
+					item.push(row[i].id);
+				}
+				if (row.length>0) {
+					$.messager.confirm('提示', '确定批量删除优惠券适用商品吗？', function (r) {
+						if (r == true) {				
+							$.messager.progress();
+							$.post('/admin/coupon/goodslistdelete', {id: '<?php echo $id;?>', goods_id:item}, function (data) {
+								$.messager.progress('close');
+								if (data.ret==0) {
+									$.messager.show({
+										title: '提示',
+										msg: data.msg,
+										timeout: 3000,
+										showType: 'slide'
+									});
+									coupongoodslistreload();
+								} else {
+									$.messager.alert('提示', data.msg, 'warning');
+								}
+							}, 'json');					
+						}
+					});
+				} else {
+					$.messager.alert('提示', '请选择要操作的行！', 'warning');
+				}				
+}
+var coupongoodslistreload=function(){
+        $("#coupongoodslist").datagrid('reload');
+}
+var coupongoodslistsearch=function(){
+		var height = $("#coupondlg").height() - $(".top").height()-8;
+        $("#coupongoodslist").datagrid({
+            height: height,
+            singleSelect:false,//如果为true，则只允许选择一行
+            striped:true,//是否显示斑马线效果。
+            rownumbers:false,//如果为true，则显示一个行号列。
+            pagination:true,//是否显示分页
+            pageSize:10,
+            pageList:[10,15,20,25],
+            method:'post',
+            sortName:'id',
+            sortOrder:'desc',
+            url:'/admin/coupon/goodslistGet/?id='+<?php echo $id;?>,
+			queryParams : {keywords:$('#coupongoodslistkeywords').val(), fields:'name,title',status:$('#coupongoodsliststatus').val(),label_id:$('#coupongoodslistlabel_id').val()},
+            fitColumns:true,//真正的自动展开/收缩列的大小，以适应网格的宽度，防止水平滚动。
+            nowrap:true,//如果为true，则在同一行中显示数据。设置为true可以提高加载性能。 是否换行
+            selectOnCheck: true,
+            checkOnSelect: true,
+			toolbar: '#tb<?php echo $uniqid;?>',
+			rowStyler: function(index,row){
+			},
+            columns:[[			
+				{field:'id',title:'ID',checkbox:'true', width:'3%'},
+                {field:'name',title:'名称',width:'36%'},
+				{field:'currentprice',title:'葡团价',width:'10%',sortable:true},
+				{field:'price',title:'市场价',width:'10%',sortable:true},
+                {field:'stock',title:'库存',width:'6%',sortable:true},
+				{field:'salenum',title:'销量',width:'6%',sortable:true},
+				{field:'rank_money',title:'佣金',width:'8%',sortable:true,formatter:function (value,rowData,rowIndex){
+					  	return value>0 ? value+'元' : rowData.rank+'%';
+				}}
+            ]],
+			onDblClickRow : function(index,field){					
+				coupongoodslistedit();
+			} 
+    	});
+}
+coupongoodslistsearch();
+</script>

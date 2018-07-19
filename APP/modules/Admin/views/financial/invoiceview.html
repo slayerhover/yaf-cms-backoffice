@@ -1,0 +1,82 @@
+<form id="invoiceeditfm" method="post">
+<table border="0" width="100%" cellspacing="1" cellpadding="5" bgcolor="#c4d3e1" style="text-align:left; line-height:18px;">
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">发票类别：</td>
+			<td width="80%">
+				<label style="margin-right:20px;"><input type="radio" v-model="dataset.type" value=1>普通发票</label>
+				<label><input type="radio" v-model="dataset.type" value=2>专用发票</label>
+			</td>
+		</tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">发票台头：</td>
+			<td width="80%"><input type="text" style="width:400px;" v-model="dataset.title" class="textbox-text validatebox-text textbox-prompt easyui-validatebox" placeholder="请输入标题.."  required="true"></td>
+		</tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">发票内容：</td>
+			<td width="80%"><input type="text" style="width:400px;"  v-model="dataset.content"   class="textbox-text validatebox-text textbox-prompt easyui-validatebox"></td>
+		</tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">统一社会信用代码：</td>
+			<td width="80%"><input type="text" style="width:400px;"  v-model="dataset.credit_code"   class="textbox-text validatebox-text textbox-prompt easyui-validatebox"></td>
+		</tr>
+		<tr bgcolor="#FFFFFF" v-if="dataset.type==2"> 
+			<td style="line-height:30px;"  width="20%">注册地址：</td>
+			<td width="80%"><input type="text" style="width:400px;"  v-model="dataset.reg_addr"   class="textbox-text validatebox-text textbox-prompt easyui-validatebox"></td>
+		</tr>
+		<tr bgcolor="#FFFFFF" v-if="dataset.type==2"> 
+			<td style="line-height:30px;"  width="20%">注册电话：</td>
+			<td width="80%"><input type="text" v-model="dataset.reg_tel"   class="textbox-text validatebox-text textbox-prompt easyui-validatebox"></td>
+		</tr>
+		<tr bgcolor="#FFFFFF" v-if="dataset.type==2"> 
+			<td style="line-height:30px;"  width="20%">开户行：</td>
+			<td width="80%"><input type="text" v-model="dataset.bank"   class="textbox-text validatebox-text textbox-prompt easyui-validatebox"></td>
+		</tr>
+		<tr bgcolor="#FFFFFF" v-if="dataset.type==2"> 
+			<td style="line-height:30px;"  width="20%">银行账户：</td>
+			<td width="80%"><input type="text" style="width:400px;"  v-model="dataset.bank_account"   class="textbox-text validatebox-text textbox-prompt easyui-validatebox"></td>
+		</tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">邮件：</td>
+			<td width="80%"><input type="text" style="width:400px;"  v-model="dataset.email"   class="textbox-text validatebox-text textbox-prompt easyui-validatebox"></td>
+		</tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">开具状态：</td>
+			<td width="80%">
+				<label style="margin-right:20px;"><input type="radio" v-model="dataset.status" value=1>已开具发票</label>
+				<label><input type="radio" v-model="dataset.status" value=0>未开具发票</label>
+			</td>
+		</tr>
+</table>
+</form>
+
+<script>
+$(function(){
+		$('#invoiceeditsubmit').click(function(data){			
+				vm.invoiceupdate();
+		})	
+});
+
+var vm = new Vue({
+	el: '#invoiceeditfm',
+	data: {		
+		dataset: <?php echo json_encode($dataset, JSON_UNESCAPED_UNICODE);?>
+	},
+	methods: {	
+		invoiceupdate: function(){
+			$.post('/admin/financial/invoiceupdate', {dataset:vm.dataset}, function(data){
+					if(data.ret==0){
+							$.messager.show({
+									title:'提示',
+									msg:data.msg,
+									timeout:3000,
+									showType:'slide'
+							});
+							$("#invoice").datagrid('reload');
+					}else{
+							$.messager.alert('提示',data.msg,'warning');
+					}
+			});
+		}
+	}	
+});
+</script>

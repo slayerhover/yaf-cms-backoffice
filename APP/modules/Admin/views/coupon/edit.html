@@ -1,0 +1,56 @@
+<form id="couponeditfm" method="post">
+<input type="hidden" name="id" value="<?php echo $dataset['id'];?>" />
+<table border="0" width="100%" cellspacing="1" cellpadding="5" bgcolor="#c4d3e1" style="text-align:left; line-height:18px;">
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">标题：</td>
+			<td width="80%"><input name="name" type="text" style="width:400px;" value="<?php echo $dataset['name'];?>" class="textbox-text validatebox-text textbox-prompt easyui-validatebox" placeholder="请输入标题.."  required="true"></td>
+		</tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">金额：</td>
+			<td width="80%"><input name="value" type="number" value="<?php echo $dataset['value'];?>" class="textbox-text validatebox-text textbox-prompt easyui-validatebox" value="0.00" placeholder="请输入排序.."></td>
+		</tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">最低订单可用金额：</td>
+			<td width="80%"><input name="min_amount" type="number" value="<?php echo $dataset['min_amount'];?>"  class="textbox-text validatebox-text textbox-prompt easyui-validatebox" value="0.00" placeholder="请输入排序.."></td>
+		</tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">排序：</td>
+			<td width="80%"><input name="sortorder" type="number"  value="<?php echo $dataset['sortorder'];?>"  class="textbox-text validatebox-text textbox-prompt easyui-validatebox"></td>
+		</tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">开始日期：</td>
+			<td width="80%"><input name="start_on" type="text"  style="width:200px;"  value="<?php echo $dataset['start_on'];?>"  class="textbox-text validatebox-text textbox-prompt easyui-validatebox easyui-datetimebox"></td>
+		</tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">结束日期：</td>
+			<td width="80%"><input name="end_on" type="text"  style="width:200px;"  value="<?php echo $dataset['end_on'];?>"  class="textbox-text validatebox-text textbox-prompt easyui-validatebox easyui-datetimebox"></td>
+		</tr>		
+</table>
+</form>
+
+<script>
+$(function(){
+		$('#couponeditsubmit').click(function(data){			
+				$('#couponeditfm').form('submit', {    
+					url:'/admin/coupon/update',    
+					success: function(data){    
+						var data = eval('(' + data + ')');
+						
+						if(data.ret==0){
+								$.messager.show({
+										title:'提示',
+										msg:data.msg,
+										timeout:3000,
+										showType:'slide'
+								});				
+								$('#couponeditfm').form('clear');
+								$("#coupondlg").dialog('close');
+								$("#coupon").datagrid('reload');
+						}else{
+								$.messager.alert('提示',data.msg,'warning');
+						}
+					}    
+				});
+		})	
+});
+</script>

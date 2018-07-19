@@ -1,0 +1,85 @@
+<form id="authsaddfm" method="post">
+<table border="0" width="100%" cellspacing="1" cellpadding="5" bgcolor="#c4d3e1" style="text-align:left; line-height:18px;">
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">所属权限组：</td>
+			<td width="80%">
+			<select name="up">
+			<option value=0>--根权限--</option>
+			<option disabled>----------</option>
+			<?php foreach($rootlevel as $v): ?>
+			<option value="<?php echo $v['id'];?>"><?php echo $v['authname'];?></option>
+			<?php endforeach; ?>
+			</select>
+			</td>
+		</tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">权限名称：</td>
+			<td width="80%"><input name="authname" type="text" style="width:400px;" class="textbox-text validatebox-text textbox-prompt easyui-validatebox" placeholder="自定义权限名称.."  required="true"></td></tr>		
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">控制器：</td>
+			<td width="80%">
+			<select name="controller" onchange="getAct(this.value);">
+			<option value=''>--根权限不用选择控制器--</option>
+			<?php foreach($controllers as $v): ?>
+			<option value="<?php echo $v;?>"><?php echo $v;?></option>
+			<?php endforeach; ?>
+			</select>
+			</td>
+		</tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">方法：</td>
+			<td width="80%">
+			<div id="action"></div>
+			</td>
+		</tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">排序：</td>
+			<td width="80%">
+			<input type="text" name="sortorder" value="500" />
+			</td>
+		</tr>
+</table>
+</form>
+
+<script>
+var getAct=function(ctl){
+	$.get('/admin/system/getacts?controller='+ctl, function(data){
+		var act='';
+		$.each(data.data, function(key, value){
+			act+="<label style='width:160px;float:left;display:block;font-weight:100;'><input type='checkbox' name='action[]' value='"+value+"'>"+value+"</label>";
+		})
+		$('#action').html(act);
+	},'json');
+}
+$(function(){
+		$('#authsaddsubmit').click(function(data){			
+				$('#authsaddfm').form('submit', {    
+					url:'/admin/system/authsincrease',    
+					success: function(data){    
+						var data = eval('(' + data + ')');
+						
+						if(data.code=='200'){
+								$.messager.show({
+										title:'提示',
+										msg:data.msg,
+										timeout:3000,
+										showType:'slide'
+								});				
+								$('#authsaddfm').form('clear');
+								$("#authsdlg").dialog('close');
+								$("#auths").treegrid('reload');
+						}else{
+								$.messager.alert('提示',data.msg,'warning');
+						}
+					}    
+				});
+		})	
+});
+</script>
+
+
+
+				
+
+
+

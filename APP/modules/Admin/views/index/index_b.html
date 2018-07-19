@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title><?php echo $appTitle;?></title>	
+	<link rel="stylesheet" type="text/css" href="/static/Easyui/themes/insdep/easyui.css">
+	<link type="text/css" rel="stylesheet" href="/static/Easyui/themes/insdep/master.css">
+	<link rel="stylesheet" type="text/css" href="/static/Easyui/themes/insdep/icon.css">    	
+    <script type="text/javascript" src="/static/Easyui/jquery.min.js"></script>
+    <script type="text/javascript" src="/static/Easyui/jquery.easyui.min.js"></script>
+	<script type="text/javascript" src="/static/Easyui/jquery.insdep-extend.min.js"></script>	
+    <script type="text/javascript" src="/static/Js/tools.js"></script>
+    <script type="text/javascript" src="/static/Js/easyui-lang-zh_CN.js"></script>
+	<script language="javascript"  src="/static/Js/jquery.base64.js"></script>
+    <!-- 编辑器源码文件 -->
+	<link href="/ueditor/themes/default/css/umeditor.css" type="text/css" rel="stylesheet">
+    <script type="text/javascript" src="/ueditor/third-party/template.min.js"></script>
+	<script type="text/javascript" src="/ueditor/umeditor.config.js"></script>
+    <script type="text/javascript" src="/ueditor/umeditor.min.js"></script>
+	
+	<script type="text/javascript" src="/static/Js/plupload/moxie.js"></script>
+	<script type="text/javascript" src="/static/Js/plupload/plupload.dev.js"></script>
+	<script type="text/javascript" src="/static/Js/plupload/i18n/zh_CN.js"></script>
+	<script type="text/javascript" src="/static/Js/qiniu.js"></script>
+	<script type="text/javascript" src="/static/Js/ui.js"></script>
+</head>
+<body class="easyui-layout">
+<div class="top" id="topBg" data-options="region:'north',border:false">
+    <div class="logo"><h1 style="margin:0px; padding:0px; font-style:italic;"><?php echo $appTitle;?></h1></div>
+    <div class="show">
+        <div class="l2">
+            <span id="localtime" style="margin-right:18px"></span>
+            <a style="margin-right:2px;" href="#" id="chgSkin" title="切换皮肤"><img src="/static/Skin/skin.png" /></a>
+            <span class="hi">您好：<strong><?php echo $username;?></strong> 您有<span id="smsid" class="margin_lr bgcolor_bolck bgcolor_cs" style="cursor:pointer;" onClick="toShowSms()"></span>条通知
+                [<a  onclick="addTab('修改密码', '/admin/index/changepwd');" href="javascript:;">修改密码</a>] [<a target="_top" href="/admin/index/logout">注销</a>]</span>
+        </div>
+    </div>
+</div>
+<div data-options="region:'west',title:'工作菜单',hideCollapsedContent:false" style="width:165px;">
+    <div id="leftMenu" data-options="fit:true,border:true" class="easyui-accordion">
+        <?php foreach($menus as $k=>$v):?>
+		<div title="<?php echo $v['title'];?>"  data-options="iconCls:'<?php echo $v['icon'];?>'" style="overflow:auto;">
+			<ul>
+			<?php foreach($v['submenu'] as $k1=>$v1):?>
+				<li><div><span class="icon <?php echo $v1['icon'];?>" >&nbsp;</span> <a href="<?php echo $v1['href'];?>"><?php echo $v1['title'];?></a></div></li>
+			<?php endforeach;?>
+			</ul>
+        </div>
+		<?php endforeach;?>        
+    </div>
+</div>
+<div data-options="region:'center',split:true" class="center-wd">
+    <div id="rightTabs" class="easyui-tabs" data-options="fit:true,border:false">
+        <div title="首页" data-options="closable:false,border:true,href:'/admin/index/main/'"></div>
+    </div>
+</div>
+<div data-options="region:'south',split:false"
+     class="footer"
+     style="height:30px;background-color: #D2E0F2;text-align:center;color:#15428B; margin:0px; padding:0px;line-height:23px; font-weight:bold;">
+    Copyright © 2017 www.changpei.com</div>
+<div id="repwd"></div>
+<div id="setpwd"></div>
+<div id="mm" class="easyui-menu" style="width:150px;">
+    <div id="mm-tabclose">关闭</div>
+    <div id="mm-tabcloseall">全部关闭</div>
+    <div id="mm-tabcloseother">除此之外全部关闭</div>
+    <div class="menu-sep"></div>
+    <div id="mm-tabcloseright">当前页右侧全部关闭</div>
+    <div id="mm-tabcloseleft">当前页左侧全部关闭</div>
+    <div class="menu-sep"></div>
+    <div id="mm-exit">退出</div>
+</div>
+</body>
+</html>

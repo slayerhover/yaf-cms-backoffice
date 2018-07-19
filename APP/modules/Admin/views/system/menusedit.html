@@ -1,0 +1,68 @@
+<form id="menuseditfm" method="post">
+<input type="hidden" name="id" value="<?php echo $dataset['id'];?>" />
+<table border="0" width="100%" cellspacing="1" cellpadding="5" bgcolor="#c4d3e1" style="text-align:left; line-height:18px;">
+
+		<tr bgcolor="#FFFFFF">
+			<td style="line-height:30px;"  width="20%">所属菜单组：</td>
+			<td width="80%">
+				<select name="up">
+					<option value=0>--主菜单--</option>
+					<option disabled>----------</option>
+					<?php foreach($rootlevel as $v): ?>
+					<option <?php if($v['id']==$dataset['up']){echo 'selected';}?> value="<?php echo $v['id'];?>"><?php echo $v['title'];?></option>
+					<?php endforeach; ?>
+				</select>
+			</td>
+		</tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">菜单名称：</td>
+			<td width="80%"><input name="title" type="text" style="width:400px;" class="textbox-text validatebox-text textbox-prompt easyui-validatebox" placeholder="自定义菜单名称.."  required="true" value="<?php echo $dataset['title'];?>"></td></tr>
+		<tr bgcolor="#FFFFFF">
+			<td style="line-height:30px;"  width="20%">菜单链接：</td>
+			<td width="80%">
+				<input type="text" name="href" value="<?php echo $dataset['href'];?>"  style="width:400px;"  class="textbox-text"/>
+			</td>
+		</tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">排序：</td>
+			<td width="80%">
+				<input type="text" name="sortorder" value="<?php echo $dataset['sortorder'];?>" class="textbox-text" />
+			</td>
+		</tr>
+</table>
+</form>
+
+<script>
+$(function(){
+		$('#menusupdatesubmit').click(function(data){			
+				$('#menuseditfm').form('submit', {    
+					url:'/admin/system/menusupdate',    
+					success: function(data){    
+						var data = eval('(' + data + ')');
+						
+						if(data.code=='200'){
+								$.messager.show({
+										title:'提示',
+										msg:data.msg,
+										timeout:3000,
+										showType:'slide'
+								});				
+								$('#menuseditfm').form('clear');
+								$("#menusdlg").dialog('close');
+								$("#menus").treegrid('reload');
+						}else{
+								var msginfo = '';								
+								if(data.data!=''){
+									var n=1;
+									$.each(data.data, function(k,v){
+										msginfo	+=	n+'.'+v+'<br>';
+										n++;
+									});									
+								}
+								$.messager.alert('提示',data.msg+'<br>'+msginfo,'warning');
+						}
+					}    
+				});
+		})	
+});
+</script>

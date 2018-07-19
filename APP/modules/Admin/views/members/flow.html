@@ -1,0 +1,155 @@
+<div id="tb<?php echo $uniqid;?>" style="padding:5px">
+		<table cellspacing="0" cellpadding="0"><tbody><tr>
+		<td><div class="datagrid-btn-separator"></div></td>
+		<td><a href="javascript:;" onclick="flowreload();"  class="l-btn l-btn-small l-btn-plain" group="" id=""><span class="l-btn-left l-btn-icon-left"><span class="l-btn-text">重载</span><span class="l-btn-icon icon-reload">&nbsp;</span></span></a></td>	
+		<td>&nbsp;&nbsp;订单号：<input  id="flowkeywords"  style="width:100px" type="text" class= "easyui-input textbox" > </input></td>
+		<td><span><a href="javascript:void(0)" class="easyui-linkbutton" plain="true" iconCls="icon-search" onclick="flowsearch()">查询</a></span>	</td>	
+		</tr></tbody></table>
+</div>
+
+<div class="con" onselectstart="return false;" style="-moz-user-select:none;">
+    <table id="flow"></table>
+</div>
+
+<div id="flowdlg" class="easyui-dialog" style="width:720px; height:460px;" title="信息框" closed="true"></div>
+
+<script>
+var flowview=function(){
+				var row = $('#flow').datagrid('getSelected');
+				if (row){
+						$("#flowdlg").dialog({    
+							title: '编辑信息',      
+							closed: false,
+							width: 700,
+							height:520,    
+							cache: false,    
+							href: '/admin/members/flowview?id='+row.id,
+							modal: true,
+							buttons:[{
+								text:'关闭',
+								iconCls:'icon-no',
+								handler:function(){$("#flowdlg").dialog('close');}
+							}]  
+						});				
+				}else{
+						$.messager.alert('提示','请先选择要编辑的行！','warning');
+				}
+}
+
+var flowrecycle=function(){
+				var row = $('#flow').datagrid('getSelected');
+				if (row){
+					if(row.deleted_at!='0000-00-00 00:00:00'){
+							$.messager.confirm('提示','确定还原吗？',function(r){
+								if(r==true){
+									$.messager.progress();
+									$.post('/admin/members/flowrecycle', {id:row.id}, function(data){
+										$.messager.progress('close');
+										if(data.code=='200'){
+												$.messager.show({
+														title:'提示',
+														msg:data.msg,
+														timeout:3000,
+														showType:'slide'
+												});
+												flowreload();
+										}else{
+												$.messager.alert('提示',data.msg,'warning');
+										}								
+									},'json');
+								}
+							});
+					}else{
+							$.messager.confirm('提示','确定放回收站吗？',function(r){
+								if(r==true){
+									$.messager.progress();
+									$.post('/admin/members/flowrecycle', {id:row.id}, function(data){
+										$.messager.progress('close');
+										if(data.code=='200'){
+												$.messager.show({
+														title:'提示',
+														msg:data.msg,
+														timeout:3000,
+														showType:'slide'
+												});
+												flowreload();
+										}else{
+												$.messager.alert('提示',data.msg,'warning');
+										}								
+									},'json');
+								}
+							});
+					}
+                }else{
+						$.messager.alert('提示','请先选择要扔回收站的行！','warning');
+				}
+}
+var flowdelete=function(){
+				var row = $('#flow').datagrid('getSelected');
+				if (row){
+                    $.messager.confirm('提示','确定删除吗？',function(r){
+                        if(r==true){
+                            $.messager.progress();
+                            $.post('/admin/members/flowdelete', {id:row.id}, function(data){
+                                $.messager.progress('close');
+								if(data.code=='200'){
+										$.messager.show({
+												title:'提示',
+												msg:data.msg,
+												timeout:3000,
+												showType:'slide'
+										});
+										flowreload();
+								}else{
+										$.messager.alert('提示',data.msg,'warning');
+								}								
+                            },'json');
+                        }
+                    });
+                }else{
+						$.messager.alert('提示','请先选择要删除的行！','warning');
+				}
+}
+var flowreload=function(){
+                $("#flow").datagrid('reload');
+}
+var flowsearch=function(){
+		var wh = $(window).height()-$(".top").height()-70;//表格高度
+        $("#flow").datagrid({
+            title:'支付流水',
+            height:wh,//高度
+            singleSelect:true,//如果为true，则只允许选择一行
+            striped:true,//是否显示斑马线效果。
+            rownumbers:true,//如果为true，则显示一个行号列。
+            pagination:true,//是否显示分页
+            pageSize:10,
+            pageList:[10,15,20,25],
+            method:'post',
+            sortName:'id',
+            sortOrder:'desc',
+            url:'/admin/members/flowGet',
+			queryParams : {keywords:$('#flowkeywords').val()},
+            fitColumns:true,//真正的自动展开/收缩列的大小，以适应网格的宽度，防止水平滚动。
+            nowrap:true,//如果为true，则在同一行中显示数据。设置为true可以提高加载性能。 是否换行
+            selectOnCheck:false,
+            checkOnSelect:true,
+			toolbar: '#tb<?php echo $uniqid;?>',
+			rowStyler: function(index,row){
+					if (row.status!='激活'){
+						//return 'color:#F00;font-style:italic;';
+					}
+			},
+            columns:[[
+				{field:'order_no',title:'订单编号',width:'20%'},
+                {field:'fee',title:'支付金额',width:'10%'},
+                {field:'remark',title:'备注',width:'30%'},
+				{field:'created_at',title:'创建时间',width:'20%',sortable:true},
+				{field:'updated_at',title:'更新时间',width:'20%',sortable:true},
+            ]],
+			onDblClickRow : function(index,field){					
+				flowview('查看订单');
+			} 
+    	});
+}
+flowsearch();
+</script>

@@ -1,5 +1,4 @@
 <?php
-error_reporting(7);
 header('content-type:text/html;charset=utf-8');
 date_default_timezone_set('PRC');
 define('APP_PATH', dirname(__FILE__).'/..');

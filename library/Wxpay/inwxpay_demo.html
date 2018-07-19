@@ -1,0 +1,38 @@
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html;charset=utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/> 
+    <title>微信内支付</title>    
+	<link rel="stylesheet" href="/wxpay/h5/public/css/weui.min.css">
+    <link rel="stylesheet" href="/wxpay/h5/public/css/jquery-weui.css">
+    <link rel="stylesheet" type="text/css" href="/wxpay/h5/public/css/reset.css">    
+    <link rel="stylesheet" type="text/css" href="/wxpay/h5/static/css/ensureMoney.css">
+</head>
+<body>
+</head>
+<body>
+    <div class="container">
+        <!-- 头部 -->
+        <header style="position:relative;">
+            <span>微信内支付</span>
+        </header>
+        <div class="main">
+		<form action="inwxpay_common.php" method="get">
+            <p><label>subject:</label>  <input type="text" name="subject"		value="保证金" /></p>
+			<p><label>total_fee:</label> <input type="text" name="total_fee"	value="0.01" /></p>
+			<p><label>order_no:</label> <input type="text" name="orders_no"	value="20171125141930845125" /></p>
+			<p><label>return_url:</label><input type="text" name="return_url"	value="http://h5.scsj.net.cn/wxpay/inwxpay_demo.html" /></p>
+			<p><label>notify_url:</label> <input type="text" name="notify_url"	value="http://h5.scsj.net.cn/wxpay/notify_url.php" /></p>
+			
+            <div class="infor">
+                <span class="fl">收款方</span>
+                <span class="fr">商超世界电子商务有限公司</span>
+            </div>            
+            <a class="confirm" >
+                <input type="submit" value="支付" id="btn" />
+            </a>
+		</form>
+        </div>		
+    </div>
+</body>
+</html>

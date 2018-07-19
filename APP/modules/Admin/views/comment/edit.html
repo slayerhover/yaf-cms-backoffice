@@ -1,0 +1,79 @@
+<form id="commenteditfm" method="post">
+<table border="0" width="100%" cellspacing="1" cellpadding="5" bgcolor="#c4d3e1" style="text-align:left; line-height:18px;">
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">订单编号：</td>
+			<td width="80%">{{dataset.order_no}}</td>
+		</tr>
+		<tr bgcolor="#FFFFFF" v-if="goods"> 
+			<td style="line-height:30px;"  width="20%">商品名：</td>
+			<td width="80%" >{{goods.name}}</td>
+		</tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">商品ID：</td>
+			<td width="80%"><input type="number" v-model="dataset.goods_id"   class="textbox-text validatebox-text textbox-prompt easyui-validatebox"></td>
+		</tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">评分：</td>
+			<td width="80%"><input type="number" v-model="dataset.rank"   class="textbox-text validatebox-text textbox-prompt easyui-validatebox"></td>
+		</tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">评论内容：</td>
+			<td width="80%"><textarea type="text" style="width:400px; height:80px;"  v-model="dataset.content"   class="textbox-text validatebox-text textbox-prompt easyui-validatebox"></textarea></td>
+		</tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">回复：</td>
+			<td width="80%"><textarea type="text" style="width:400px; height:80px;"  v-model="dataset.reply"   class="textbox-text validatebox-text textbox-prompt easyui-validatebox"></textarea></td>
+		</tr>		
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">显示状态：</td>
+			<td width="80%">
+				<label style="margin-right:20px;"><input type="radio" v-model="dataset.status" value=1>显示</label>
+				<label><input type="radio" v-model="dataset.status" value=0>隐藏</label>
+			</td>
+		</tr>	
+		<tr bgcolor="#FFFFFF" v-if="photos.length>0"> 
+			<td style="line-height:30px;"  width="20%">图片：</td>
+			<td width="80%" style="display:flex">
+				<div v-for="vo in photos" style="flex:1" >
+					<a :href="vo" target="_blank"><img :src="vo" style="max-width:100px;" /></a>
+				</div>
+			</td>
+		</tr>
+</table>
+</form>
+
+<script>
+$(function(){
+		$('#commenteditsubmit').click(function(data){			
+				vm.commentupdate();
+		})	
+});
+
+var vm = new Vue({
+	el: '#commenteditfm',
+	data: {		
+		dataset: <?php echo json_encode($dataset, JSON_UNESCAPED_UNICODE);?>,
+		photos:   <?php echo json_encode($photos, JSON_UNESCAPED_UNICODE);?>,
+		goods:   <?php echo json_encode($goods, JSON_UNESCAPED_UNICODE);?>,
+	},
+	methods: {	
+		commentupdate: function(){
+			$.post('/admin/comment/update', {dataset:vm.dataset}, function(data){
+					if(data.ret==0){
+							$.messager.show({
+									title:'提示',
+									msg:data.msg,
+									timeout:3000,
+									showType:'slide'
+							});
+							$('#commenteditfm').form('clear');
+							$("#commentdlg").dialog('close');
+							$("#comment").datagrid('reload');
+					}else{
+							$.messager.alert('提示',data.msg,'warning');
+					}
+			});
+		}
+	}	
+});
+</script>

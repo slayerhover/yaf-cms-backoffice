@@ -1,0 +1,92 @@
+<form id="carmodeleditfm" method="post">
+<input type="hidden" name="id" value="<{$dataset.id}>" />
+<table border="0" width="100%" cellspacing="1" cellpadding="5" bgcolor="#c4d3e1" style="text-align:left; line-height:18px;">
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">名称：</td>
+			<td width="80%"><input name="model" type="text" style="width:400px;" class="textbox-text validatebox-text textbox-prompt easyui-validatebox" placeholder="请输入名称.."  required="true"  value="<{$dataset.model}>" ></td>
+		</tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">品牌：</td>
+			<td width="80%">
+			<select id="brand_id" onchange="getFactory(this.value);">
+				<{section name=sec loop=$carbrand}>
+				<option <{if $carbrand[sec].id eq $carbrand_id}>selected="selected"<{/if}> value="<{$carbrand[sec].id}>"><{$carbrand[sec].letter}> <{$carbrand[sec].brand}></option>
+				<{/section}>
+			</select></td>
+		</tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">厂家：</td>
+			<td width="80%">
+			<select id="factory_id">
+				<{section name=sec loop=$carfactory}>
+					<option <{if $carfactory[sec].id eq $factory_id}>selected="selected"<{/if}>  value="<{$carfactory[sec].id}>"><{$carfactory[sec].factory}></option>
+				<{/section}>
+			</select></td>
+		</tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">系列：</td>
+			<td width="80%">
+			<select name="series_id" id="series_id">
+				<{section name=sec loop=$carseries}>
+					<option <{if $carseries[sec].id eq $series_id}>selected="selected"<{/if}>  value="<{$carseries[sec].id}>"><{$carseries[sec].series}></option>
+				<{/section}>
+			</select></td>
+		</tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">排序：</td>
+			<td width="80%"><input name="sortorder" type="text" class="textbox-text validatebox-text textbox-prompt easyui-validatebox" placeholder="请输入排序.." value="<{$dataset.sortorder}>" ></td>
+		</tr>
+</table>
+</form>
+
+<script>
+var getFactory=function(brand_id){
+	if(brand_id<=0) return false;
+	$.get('/index/carfactory?brand_id='+brand_id, function(data){
+		var factory='';
+		$.each(data.data, function(key, value){
+			if(key==0){ getSeries(value.id); }
+			factory+="<option value='"+value.id+"'>"+value.factory+"</option>";
+		})
+		$('#factory_id').empty();
+		$('#factory_id').append(factory);
+	},'json');
+
+}
+var getSeries=function(factory_id){
+	if(factory_id<=0) return false;
+	$.get('/index/carseries?factory_id='+factory_id, function(data){
+		var series='';
+		$.each(data.data, function(key, value){
+			series+="<option value='"+value.id+"'>"+value.series+"</option>";
+		})
+		$('#series_id').empty();
+		$('#series_id').append(series);
+	},'json');
+}
+$(function(){
+		$('#carmodelupdatesubmit').click(function(data){			
+				$('#carmodeleditfm').form('submit', {    
+					url:'/products/carmodelupdate',										
+					success: function(data){    
+						var data = eval('(' + data + ')');
+						
+						
+						if(data.code=='200'){
+								$.messager.show({
+										title:'提示',
+										msg:data.msg,
+										timeout:3000,
+										showType:'slide'
+								});				
+								$('#carmodeleditfm').form('clear');
+								$("#carmodeldlg").dialog('close');
+								$("#carmodel").datagrid('reload');
+						}else{
+								$.messager.alert('提示',data.msg,'warning');
+						}
+					}    
+				});
+		})
+});
+</script>

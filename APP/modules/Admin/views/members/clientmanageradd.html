@@ -1,0 +1,154 @@
+<form id="clientmanageraddfm" method="post">
+<input type="hidden" name="id" value="<{$dataset.id}>" />
+<table border="0" width="100%" cellspacing="1" cellpadding="5" bgcolor="#c4d3e1" style="text-align:left; line-height:18px;">
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">电话：</td>
+			<td width="80%"><input name="phone" type="text" style="width:400px;"  class="textbox-text validatebox-text textbox-prompt easyui-validatebox" placeholder="请输入电话.." value="" ></td>
+		</tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">姓名：</td>
+			<td width="80%"><input name="name" type="text" style="width:400px;"  class="textbox-text validatebox-text textbox-prompt easyui-validatebox" placeholder="请输入姓名.." value="" ></td>
+		</tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">登陆密码：</td>
+			<td width="80%"><input name="password" type="text" style="width:400px;"  class="textbox-text validatebox-text textbox-prompt easyui-validatebox" placeholder="请输入密码.." ></td>
+		</tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">职位：</td>
+			<td width="80%"><input name="position" type="text" class="textbox-text validatebox-text textbox-prompt easyui-validatebox" placeholder="请输入职位.." value="" ></td>
+		</tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">排序：</td>
+			<td width="80%"><input name="sortorder" type="text" class="textbox-text validatebox-text textbox-prompt easyui-validatebox" placeholder="请输入排序.." value="500" ></td>
+		</tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">状态：</td>
+			<td width="80%"><input name="status" type="checkbox" class="textbox-prompt" value="1">激活</td>
+		</tr>	
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">图片：</td>
+			<td width="80%">
+			<div title="上传图片">
+				<div class="col-md-12">
+					<div id="container" style="background-color:#F9F9F4">
+						<a class="btn btn-default btn-lg" id="clientmanageraddpickfiles" href="#" >
+							<i class="glyphicon glyphicon-plus"></i>
+							<div style="padding:20px;">点击上传图片，或者将图片拖至此处。</div>
+						</a>
+					</div>
+				</div>
+				<div style="display:none" id="success" class="col-md-12">
+					<div class="alert-success">
+						队列全部文件处理完毕
+					</div>
+				</div>
+				<div class="col-md-12">
+					<table id="uploadtable" class="table table-striped table-hover text-left" id="fsUploadProgressTable1"  style="margin-top:10px;">
+						<thead>
+						  <tr>
+							<th width="20%"  class="col-md-4">图片</th>
+							<th width="10%"  class="col-md-2">字节</th>
+							<th width="70%"  class="col-md-6">网络文件</th>
+						  </tr>
+						</thead>
+						<tbody id="fsUploadProgress">									
+						</tbody>
+					</table>
+				</div>
+			</div>	
+			</td>
+		</tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">简介：</td>
+			<td width="80%">
+			<script id="clientmanagerIntroduceEditor" name="introduce" type="text/plain"></script>
+			</td>
+		</tr>
+</table>
+</form>
+
+<script>
+/***关闭umeditor BOF***/
+if(typeof(clientmanagerIntroduceaddum)!='undefined'){
+		 clientmanagerIntroduceaddum.destroy();
+}
+/***关闭umeditor EOF***/
+var clientmanagerIntroduceaddum = UM.getEditor('clientmanagerIntroduceEditor');
+
+
+$(function(){
+		$('#clientmanageraddsubmit').click(function(data){
+			$('#clientmanageraddfm').form('submit', {    
+					url:'/admin/members/clientmanagerincrease',    
+					success: function(data){    
+						var data = eval('(' + data + ')');						
+						if(data.code=='200'){
+								$.messager.show({
+										title:'提示',
+										msg:data.msg,
+										timeout:3000,
+										showType:'slide'
+								});				
+								$('#clientmanageraddfm').form('clear');
+								$("#clientmanagerdlg").dialog('close');
+								$("#clientmanager").datagrid('reload');
+						}else{
+								$.messager.alert('提示',data.msg,'warning');
+						}
+					}
+			});
+		})
+		Qiniu.uploader({
+				runtimes: 'html5,flash,html4', //上传模式,依次退化
+				browse_button: 'clientmanageraddpickfiles', //上传选择的点选按钮，**必需**
+				uptoken_url: '/admin/index/uptoken', //Ajax请求upToken的Url，**强烈建议设置**（服务端提供）
+				domain: 'http://oseihxzg8.bkt.clouddn.com/', //bucket 域名，下载资源时用到，**必需**
+				container: 'container', //上传区域DOM ID，默认是browser_button的父元素，
+				max_file_size: '5mb', //最大文件体积限制
+				flash_swf_url: '/static/Js/plupload/Moxie.swf', //引入flash,相对路径
+				max_retries: 3, //上传失败最大重试次数
+				dragdrop: true, //开启可拖曳上传
+				drop_element: 'container', //拖曳上传区域元素的ID，拖曳文件或文件夹后可触发上传
+				chunk_size: '2mb', //分块上传时，每片的体积
+				auto_start: true, //选择文件后自动上传，若关闭需要自己绑定事件触发上传
+				unique_names: true,
+				init: {
+						'FilesAdded': function(up, files) {
+							$('#uploadtable').show();
+							$('#success').hide();
+							plupload.each(files, function(file) {
+								var progress = new FileProgress(file, 'fsUploadProgress');
+								progress.setStatus("等待...");
+								progress.bindUploadCancel(up);
+							});
+						},
+						'BeforeUpload': function(up, file) {
+							$('#fsUploadProgress').empty();
+							var progress = new FileProgress(file, 'fsUploadProgress');
+							var chunk_size = plupload.parseSize(this.getOption('chunk_size'));
+							if (up.runtime === 'html5' && chunk_size) {
+								progress.setChunkProgess(chunk_size);
+							}
+						},
+						'UploadProgress': function(up, file) {
+							var progress = new FileProgress(file, 'fsUploadProgress');
+							var chunk_size = plupload.parseSize(this.getOption('chunk_size'));
+							progress.setProgress(file.percent + "%", file.speed, chunk_size);
+						},
+						'UploadComplete': function() {
+							$('#success').hide();
+						},
+						'FileUploaded': function(up, file, info) {
+							var progress = new FileProgress(file, 'fsUploadProgress');
+							progress.setComplete(up, info, 1);
+						},
+						'Error': function(up, err, errTip) {
+							$('#uploadtable').show();
+							var progress = new FileProgress(err.file, 'fsUploadProgress');
+							progress.setError();
+							progress.setStatus(errTip);
+						}
+				}
+		})		
+});
+</script>

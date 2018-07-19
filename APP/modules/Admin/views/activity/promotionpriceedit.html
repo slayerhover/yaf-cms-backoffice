@@ -1,0 +1,52 @@
+<form id="activitygoodseditfm" method="post">
+<input type="hidden" name="promotion_id" value="<?php echo $promotion_id;?>">
+<table border="0" width="100%" cellspacing="1" cellpadding="5" bgcolor="#c4d3e1" style="text-align:left; line-height:18px;">
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">商品名称：</td>
+			<td width="80%"><input type="text" style="width:400px;" readonly class="textbox-text validatebox-text textbox-prompt easyui-validatebox" value="<?php echo $goods['name'];?>"></td>
+		</tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">参加活动：</td>
+			<td width="80%"><input type="text" style="width:400px;" readonly class="textbox-text validatebox-text textbox-prompt easyui-validatebox" value="<?php echo $activity['name'];?>"></td>
+		</tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">市场价格：</td>
+			<td width="80%"><input value="<?php echo $goods['price'];?>" style="width:200px;" readonly type="text" class="textbox-text validatebox-text textbox-prompt easyui-validatebox"></td>
+		</tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">葡团价格：</td>
+			<td width="80%"><input value="<?php echo $goods['currentprice'];?>" style="width:200px;" readonly  required="true"  type="text" class="textbox-text validatebox-text textbox-prompt easyui-validatebox"></td>
+		</tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">促销价格：</td>
+			<td width="80%"><input name="promotionprice" value="<?php echo $promotionprice;?>" style="width:200px;" required="true" type="number"  type="text" class="textbox-text validatebox-text textbox-prompt easyui-validatebox"></td>
+		</tr>
+</table>
+</form>
+
+<script>
+$(function(){
+		$('#activitygoodseditsubmit').click(function(data){			
+				$('#activitygoodseditfm').form('submit', {    
+					url:'/admin/activity/goodsListUpdate',    
+					success: function(data){    
+						var data = eval('(' + data + ')');
+						
+						if(data.ret==0){
+								$.messager.show({
+										title:'提示',
+										msg:data.msg,
+										timeout:3000,
+										showType:'slide'
+								});				
+								$('#activitygoodseditfm').form('clear');								
+								$("#activitygoodslist").datagrid('reload');
+								$("#activitygoodsdlg").dialog('close');
+						}else{
+								$.messager.alert('提示',data.msg,'warning');
+						}
+					}    
+				});
+		})	
+});
+</script>

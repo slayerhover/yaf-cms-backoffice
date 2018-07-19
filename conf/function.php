@@ -1,4 +1,5 @@
 <?php
+use Illuminate\Database\Capsule\Manager as DB;
 define('_RBACCookieKey_', 'RBACUser');
 define('_EXPIRETIME_', 86000);
  
@@ -9,6 +10,33 @@ define('APP_KEY', '');
 define('APP_SECRET', '');
 
 define('LOG_DIR', APP_PATH . '/log/');
+define('CERT_DIR',APP_PATH . '/cert/');
+
+#捕获Warring错误
+set_error_handler('displayErrorHandler');
+function displayErrorHandler($errno, $errstr, $filename, $line)
+{
+	$error_no_arr = array(
+			1=>'ERROR', 
+			2=>'WARNING', 
+			4=>'PARSE', 
+			8=>'NOTICE', 
+			16=>'CORE_ERROR',
+			32=>'CORE_WARNING', 
+			64=>'COMPILE_ERROR', 
+			128=>'COMPILE_WARNING', 
+			256=>'USER_ERROR', 
+			512=>'USER_WARNING', 
+			1024=>'USER_NOTICE', 
+			2047=>'ALL', 
+			2048=>'STRICT'
+	);
+
+	if(in_array($errno,[1,2,4])){
+			Log::out('sysError', 'I', "File:{$filename} on Line:{$line} \n" . $error_no_arr[$errno] . ":". $errstr."\n");
+			#throw new \Exception($error_no_arr[$errno] . ":". $errstr, $errno);
+	}
+}
 /**
  * 输出变量的内容，通常用于调试
  *
@@ -40,22 +68,22 @@ function json($vars, $format='json', $callback='callback')
 	header("Access-Control-Allow-Methods", "PUT,POST,GET,OPTIONS,DELETE");
 	header("Access-Control-Allow-Headders", "content-type");
 	if($format=='json'){
-		header("Content-type: application/json");		
+		header("Content-type: application/json;charset=utf-8");		
 		$data = updateNull($vars);	
-		exit(json_encode($data));
+		die(json_encode($data, JSON_UNESCAPED_UNICODE));
 	}else{
-		header("Content-type: text/javascript");		
+		header("Content-type: text/javascript;charset=utf-8");		
 		$data = updateNull($vars);	
-		exit("{$callback}(".json_encode($data).")");
+		die("{$callback}(".json_encode($data, JSON_UNESCAPED_UNICODE).")");
 	}
 }
-function ret($ret=0, $data=[], $msg='ok')
+function ret($ret=0, $msg='ok', $data=[])
 {	
 	$ret  = array(
 		'ret'	=>	$ret,
 		'msg'	=>	$msg,		
 	);
-	if($data){ $ret['data']	=$data; }
+	if(!empty($data)){ $ret['data']	=$data; }
 	json($ret);	
 }
 function updateNull(& $onearr){
@@ -71,10 +99,11 @@ function updateNull(& $onearr){
 	}}
 	return $onearr;
 }
-function remember($key, $ttl, callable $func){	
-		$cache_enable =	Yaf_Registry::get('config')->cache->object_cache_enable;				
-		if( $cache_enable && Cache::getInstance()->exists($key) ){			
-				Cache::getInstance()->expire($key, $ttl);
+
+/***保存SQL记录到redis***/
+function remember($key, $ttl, callable $func){
+		$cache_enable =	Yaf_Registry::get('config')->cache->redis->enable;
+		if( $cache_enable && Cache::getInstance()->exists($key) ){		
 				return Cache::getInstance()->get($key);
 		}
 		$rows	= call_user_func($func);			
@@ -83,23 +112,59 @@ function remember($key, $ttl, callable $func){
 		}
 		return $rows;	
 }
+
+/***PHP上传文件到七牛cdn***/
+function uploadToCDN($filePath, $cdnfileName){
+		// 需要填写你的 Access Key 和 Secret Key
+		$accessKey = Yaf_Registry::get('config')->application->cdn->accessKey;
+		$secretKey = Yaf_Registry::get('config')->application->cdn->secretKey;
+
+		// 构建鉴权对象
+		$auth = new \Qiniu\Auth($accessKey, $secretKey);
+		// 要上传的空间
+		$bucket = Yaf_Registry::get('config')->application->cdn->bucket;
+		
+		// 生成上传 Token
+		$token = $auth->uploadToken($bucket);
+
+		// 上传到七牛后保存的文件名
+		$key = $cdnfileName;
+
+		// 初始化 UploadManager 对象并进行文件的上传
+		$uploadMgr = new \Qiniu\Storage\UploadManager;
+
+		// 调用 UploadManager 的 putFile 方法进行文件的上传
+		list($ret, $err) = $uploadMgr->putFile($token, $key, $filePath);
+		if ($err !== null) {
+			return false;
+		} else {
+			return Yaf_Registry::get('config')->application->cdn->url . $ret['key'];
+		}
+}
+
 function getIp(){
-	if(!empty($_SERVER['HTTP_CLIENT_IP'])){
-	   return $_SERVER['HTTP_CLIENT_IP']; 
-	}elseif(!empty($_SERVER['HTTP_X_FORVARDED_FOR'])){
-	   return $_SERVER['HTTP_X_FORVARDED_FOR'];
-	}elseif(!empty($_SERVER['REMOTE_ADDR'])){
-	   return $_SERVER['REMOTE_ADDR'];
-	}else{
-	   return "unknow";
-	}
+    if (@$_SERVER["HTTP_X_FORWARDED_FOR"])
+        $ip = $_SERVER["HTTP_X_FORWARDED_FOR"];
+    else if (@$_SERVER["HTTP_CLIENT_IP"])
+        $ip = $_SERVER["HTTP_CLIENT_IP"];
+    else if (@$_SERVER["REMOTE_ADDR"])
+        $ip = $_SERVER["REMOTE_ADDR"];
+    else if (@getenv("HTTP_X_FORWARDED_FOR"))
+        $ip = getenv("HTTP_X_FORWARDED_FOR");
+    else if (@getenv("HTTP_CLIENT_IP"))
+        $ip = getenv("HTTP_CLIENT_IP");
+    else if (@getenv("REMOTE_ADDR"))
+        $ip = getenv("REMOTE_ADDR");
+    else
+        $ip = "Unknown";
+    return $ip;
 }
 
 function getLang($code){
-	return Illuminate\Database\Capsule\Manager::table('scsj_language')->where('code','=',$code)->first()['string'];
+	return DB::table('scsj_language')->where('code','=',$code)->first()['string'];
 }
 
-function url($controller='index', $action='index', $args=array()){
+function page_url($controller='index', $action='index', $args=array()){
 	$router = Yaf_Dispatcher::getInstance()->getRouter();
 	$urls	= array(
 						':c'=>$controller,
@@ -127,8 +192,35 @@ function url($controller='index', $action='index', $args=array()){
 	}	
 	return $url;
 }
-
-
+/**
+	* PHP生成随机字符串
+	* @param	Int		$length			字符串长度
+	* @weburl	url						学习地址：http://www.ijquery.cn/?p=1027
+*/
+function randStr($length = 10){
+	$characters = '23456789abcdefghijkmnpqrstuvwxyzABCDEFGHIJKLMNPQRSTUVWXYZ';
+	$randomString = ''; 
+	for ($i = 0; $i < $length; $i++) { 
+		$randomString .= $characters[rand(0, strlen($characters) - 1)]; 
+	} 
+	return $randomString; 
+}	
+#发消息
+function send($uid, $content, $type=1){
+	switch($type){
+		case 1:
+			#发站内信
+			DB::table('notice')->insert(['user_id'=>$uid, 'content'=>$content, 'created_at'=>date('Y-m-d H:i:s')]);
+			break;
+	}
+}
+#按钮菜单权限验证函数
+function checkAuth($title){
+	$auth	= new Auth(_RBACCookieKey_);
+	if(!$auth->isLogin())	return FALSE;		
+	$auths = explode(',', DB::table('roles')->find($auth->role)['auth_names']);			
+	return in_array($title, $auths);				
+}
 /**
  * 跳转
  *
@@ -154,7 +246,7 @@ function redirect($url) {
 	} */
 }
 
-function postSMS($url, $postData='')
+function pick($url, $postData='')
 {
 	$row = parse_url($url);
 	$host = $row['host'];
@@ -225,6 +317,7 @@ function curl_data($url,$postdata='',$pre_url='http://www.baidu.com',$proxyip=fa
 function http_post_json($url, $jsonStr)
 {
 	$ch = curl_init();
+	curl_setopt($ch, CURLOPT_TIMEOUT,5);
 	curl_setopt($ch, CURLOPT_POST, 1);
 	curl_setopt($ch, CURLOPT_URL, $url);
 	curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonStr);
@@ -238,38 +331,6 @@ function http_post_json($url, $jsonStr)
 	#$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 	return $response;
 }
-
-/***上传文件到七牛cdn***/
-function uploadToCDN($filePath, $cdnfileName){
-		require_once  APPLICATION_PATH . '/library/Qiniu/functions.php';
-    			
-		// 需要填写你的 Access Key 和 Secret Key
-		$accessKey = 'jHYFRjlEXA_iiuLrBXZyr7dD2FMyy6Nfo20PKBlc';
-		$secretKey = 'sLkQV3m7UHNlFU-7gEmezvg4N0WZUtcbOkVK5uV3';
-
-		// 构建鉴权对象
-		$auth = new Qiniu_Auth($accessKey, $secretKey);
-		// 要上传的空间
-		$bucket = 'cnwhy';
-
-		// 生成上传 Token
-		$token = $auth->uploadToken($bucket);
-
-		// 上传到七牛后保存的文件名
-		$key = $cdnfileName;
-
-		// 初始化 UploadManager 对象并进行文件的上传
-		$uploadMgr = new Qiniu_Storage_UploadManager();
-
-		// 调用 UploadManager 的 putFile 方法进行文件的上传
-		list($ret, $err) = $uploadMgr->putFile($token, $key, $filePath);
-		if ($err !== null) {
-			return false;
-		} else {
-			return 'http://o748t1241.bkt.clouddn.com/' . $ret['key'];
-		}
-}
-
 
 /**
  * 加密/解密字符串

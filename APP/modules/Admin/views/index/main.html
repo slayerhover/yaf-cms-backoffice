@@ -1,0 +1,160 @@
+<script language="javascript">
+var se = Array();
+$(function(){
+    var th = $(".top").height();
+    th = 111-th
+    var wh = $(window).height()-th;
+    var cw = $(window).width()-177;
+    $("#maininfo").panel({
+        title:'系统公告',
+        doSize:true,
+        height:135,
+        collapsible:true
+    });
+    whs = (wh-200);
+    $("#taskUserTabs").height(whs);
+});
+
+$(function(){
+    var $this = $(".renav");
+    var scrollTimer;
+    $this.hover(function(){
+        clearInterval(scrollTimer);
+    },function(){
+        scrollTimer = setInterval(function(){
+            scrollNews( $this );
+        }, 3800 );
+    }).trigger("mouseout");
+});
+function scrollNews(obj){
+    var $self = obj.find("ul:first");
+    var lineHeight = $self.find("li:first").height();
+    $self.animate({ "margin-top" : -lineHeight +"px" },600 , function(){
+        $self.css({"margin-top":"0px"}).find("li:first").appendTo($self);
+    });
+}
+function toShowNotice(id){
+    var has = $("#detailFormNotice").length;
+    if(!has){
+        $("<div/>").dialog({
+            title:'公告详情',
+            resizable:true,
+            width:720,
+            height:480,
+            href:'/EasyWork/index.php?s=/Notice/detail/id/'+id,
+            onOpen:function(){
+                cancel['NoticeDetail'] = $(this);
+            },
+            onClose:function(){
+                $(this).dialog('destroy');
+                cancel['NoticeDetail'] = null;
+            }
+        });
+    }
+}
+</script>
+<div class="con" id="TaskIndexCon">
+    <div id="maininfo" style="margin-bottom:5px; padding:3px; height: 90px;">
+    <table class="infobox table-border linebox" width="100%" border="0" cellspacing="0" cellpadding="0">
+        <tr style="height:25px;">
+            <td><span class="vol up-font-over"><div class="renav_tit">公告：</div>
+            <div class="renav">
+                <ul style="margin-top: 0px;">
+                <li><a href="javascript:toShowNotice('2')">新的订单已支付，请及时发货&nbsp;&nbsp;2018-05-13</a></li>
+                <li><a href="javascript:toShowNotice('1')">又有新的订单喽&nbsp;&nbsp;2018-05-14</a></li>
+            </ul>
+            </div></span>
+            </td>
+        </tr>
+        <tr style="height:23px; line-height:23px;"><td height="28" class="rebg" style="border-bottom: #F1F1F1 1px solid; border-top:#f1f1f1 1px solid;"><label>项目统计</label></td></tr>
+        <tr style="height:35px; line-height:35px;"><td>
+				<span style="margin-right:25px;">订单总数：<span class="up-font-over" style="font-weight:bold;"><?php echo $systemMsg['artclenum'];?></span></span>
+				<span style="margin-right:25px;">客户总数：<span class="up-font-over" style="font-weight:bold;"><?php echo $systemMsg['artclenum'];?></span></span>
+				<span style="margin-right:25px;">新闻总数：<span class="up-font-over" style="font-weight:bold;"><?php echo $systemMsg['artclenum'];?></span></span>
+                <span style="margin-right:25px;">待审文章：<span class="up-font-over" style="font-weight:bold;"><?php echo $systemMsg['uartclenum'];?></span></span>
+				<span style="margin-right:25px;">评论总数：<span class="up-font-over" style="font-weight:bold;"><?php echo $systemMsg['commentnum'];?></span></span>                
+                <span style="margin-right:25px;">待审评论：<span class="up-font-over" style="font-weight:bold;"><?php echo $systemMsg['ucommentnum'];?></span></span>
+                <span style="margin-right:25px;">产品总数：<span class="up-font-over" style="font-weight:bold;">0</span></span>
+                <span style="margin-right:25px;">产品留言：<span class="up-font-over" style="font-weight:bold;">0</span></span>
+                <span style="margin-right:25px;">字符集：<span class="up-font-over" style="font-weight:bold;">utf-8</span></span>				
+				<span style="margin-right:25px;">管理员：<span class="up-font-over" style="font-weight:bold;"><?php echo $systemMsg['administrator'];?></span></span>
+        </td></tr>        
+    </table>
+    </div>
+    <div id="taskUserTabs" class="easyui-tabs">
+    <div title="服务器信息" style="padding:5px;" >
+			<table border="0" width="100%" cellspacing="1" cellpadding="5" bgcolor="#c4d3e1" style="text-align:left; line-height:18px;">							  
+							  <tr bgcolor="#FFFFFF"> 
+								<td style="line-height:30px;"  width="10%">服务端信息：</td><td width="50%"><?php echo $systemMsg['SERVER_SOFTWARE'];?></td>
+								<td style="line-height:30px;"  width="15%">邮件模式：</td><td width="25%"><?php echo $systemMsg['sys_mail'];?></td>
+							  </tr>
+							  <tr bgcolor="#FFFFFF"> 
+								<td style="line-height:30px;"  width="10%">PHP版本：</td><td width="50%"><?php echo $systemMsg['sysversion'];?></td>
+								<td style="line-height:30px;"  width="10%">服务器IP：</td><td width="30%"><?php echo $systemMsg['SERVER_ADDR'];?></td>
+							  </tr>
+							  <tr bgcolor="#FFFFFF"> 
+								<td style="line-height:30px;"  width="10%">MYSQL版本：</td><td width="50%"><?php echo $systemMsg['mysqlVersion'];?></td>
+								<td style="line-height:30px;"  width="10%">服务器端口：</td><td width="30%"><?php echo $systemMsg['SERVER_PORT'];?></td>
+							  </tr>
+								<tr bgcolor="#FFFFFF"> 
+								<td style="line-height:30px;"  width="10%">是否允许文件上传：</td><td width="50%"><?php echo $systemMsg['file_uploads'];?><span help="1">(如果不允许可把php.ini里的file_uploads=Off改成On，重启服务器即可)</span></td>
+								<td style="line-height:30px;"  width="10%">上传文件存放的临时目录：</td><td width="30%"><?php echo $systemMsg['upload_tmp_dir'];?></td>
+							  </tr>
+							  <tr bgcolor="#FFFFFF"> 
+								<td style="line-height:30px;"  width="10%">最大上传限制：</td><td width="40%"><?php echo $systemMsg['max_upload'];?><span help="1">(需更大可修改php.ini里的upload_max_filesize值，重启服务器即可)</span></td>
+								<td style="line-height:30px;"  width="10%">服务器所在时间：</td><td width="40%"><?php echo $systemMsg['systemtime'];?></td>
+							  </tr>
+							  <tr bgcolor="#FFFFFF"> 
+								<td style="line-height:30px;"  width="10%">最大执行时间：</td><td width="40%"><?php echo $systemMsg['max_ex_time'];?><span help="1">(需更大可修改php.ini里的max_execution_time值，重启服务器即可)</span></td>
+								<td style="line-height:30px;"  width="10%">网站所在磁盘物理位置：</td><td width="40%"><?php echo $systemMsg['DOCUMENT_ROOT'];?></td>
+							  </tr>
+							   <tr bgcolor="#FFFFFF"> 
+								<td style="line-height:30px;"  width="10%">空间限制内存：</td><td width="40%"><?php echo $systemMsg['memory_user_limit'];?><span help="1">(需更大可修改php.ini里的memory_limit值，重启服务器即可)</span></td>
+								<td style="line-height:30px;"  width="10%">当前文件路径：</td><td width="40%"><?php echo $systemMsg['SCRIPT_FILENAME'];?></td>  
+							  </tr>
+							  <tr bgcolor="#FFFFFF"> 
+								<td style="line-height:30px;"  width="10%">是否支持采集：</td><td width="40%"><?php echo $systemMsg['allow_url_fopen'];?><span help="1">(若不支持可把php.ini里的allow_url_fopen=Off改成On，重启服务器即可)</span></td>
+								 <td style="line-height:30px;"  width="10%">Zend Optimizer版本：</td><td width="40%"><?php echo $systemMsg['zendVersion'];?></td>
+							  
+							  </tr>
+							  <tr bgcolor="#FFFFFF"> 
+								<td style="line-height:30px;"  width="10%">是否支持GD2库：</td><td width="40%"><?php echo $systemMsg['gdpic'];?><span help="1">(若不支持可把php.ini中;extension=php_gd2.dll前面的;去掉，重启服务器即可)</span></td>
+								<td style="line-height:30px;"  width="10%">当前登陆IP：</td><td width="40%"><?php echo $systemMsg['onlineip'];?></td>
+							  </tr>
+							   <tr bgcolor="#FFFFFF"> 
+								<td style="line-height:30px;"  width="10%">是否允许Cookie：</td><td width="40%"><?php echo $systemMsg['ifcookie'];?><span help="1">(若不允许可在Windows控制面板 ,"Internet选项" ,隐私设置中调整)</span></td>
+								<td style="line-height:30px;"  width="10%">当前域名：</td><td width="40%"><?php echo $systemMsg['SERVER_NAME'];?></td>
+							  </tr>
+			</table>
+	</div></div>
+</div>
+
+<style>
+.vol .renav_tit{
+	background-image: url(/static/Skin/Img/volume_lvl_3.png);
+	background-repeat: no-repeat;
+	background-position: left center;
+	padding-left: 22px;
+	line-height: 25px;
+	font-size:12px;
+	font-weight:bold;
+	height: 25px;
+	width: 40px;
+	float:left;
+}
+.vol .renav{
+	height: 25px;
+	width: 80%;
+	float:left;
+	overflow: hidden;
+}
+.vol .renav ul{
+	margin: 0px;
+	padding: 0px;
+	list-style-type: none;
+}
+.vol .renav ul li{
+	height:25px;
+	line-height: 25px;
+}
+</style>

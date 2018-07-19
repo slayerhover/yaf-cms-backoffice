@@ -1,0 +1,365 @@
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>礼物领取</title>
+	<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+	<script src="https://cdn.jsdelivr.net/npm/vue"></script>
+	<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+	<script typet="text/javascript" src="https://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
+	<script src="/Js/mobileSelect.min.js"></script>
+	<link rel="stylesheet" type="text/css" href="http://putuan.zy52.cn/web/front/static/css/style.css" />
+	<link rel="stylesheet" type="text/css" href="/css/mobileSelect.css" />
+	<style>
+		[v-cloak]{display: none;}
+	</style>
+</head>
+<body>
+
+<div id="wrap" v-cloak>
+	<div class="center">
+
+		<div id="header"><img src="/images/libao_top.png"></div>
+
+			<div class="main-content" style="margin:0;padding:0;padding-bottom:40px;">
+			<div>
+
+
+
+				<div class="" style="background: url(/images/libao_top_bg.png) center top repeat-y;background-size: contain">
+					<span style="padding-left:30px;padding-right:30px;">{{orders.kuizeng_remark}}</span>
+
+				</div>
+				<div class="" style="background: url(/images/libao_top_bg.png) center top repeat-y;background-size: contain;text-align:right;">
+					<span style="padding-left:30px;padding-right:30px;">--来自{{orders.members.name==''?orders.members.phone:orders.members.name}}的礼物</span>
+
+				</div>
+
+				<div class="libao_top_end">
+					<img src="/images/libao_top_end.png">
+				</div>
+
+				<div class="libao_title">
+					<img src="/images/libao_title.png">
+				</div>
+
+
+				<ul>
+					<li v-for="item in goods"  class="padding-top-1" style=" padding-bottom: 1rem; border-bottom: #f2f2f2 1px solid;">
+						<dl style=" display: flex; padding: 0 1rem;">
+							<dt style=" flex: 1;">
+								<a :href="'/web/front/#/detail/'+item.goods_id">
+									<img :src="item.logo" style="border: #f2f2f2 1px solid; border-radius: 4px;" />
+								</a>
+							</dt>
+							<dd style=" flex: 3; padding-left: 1rem;">
+								<h3 v-text="item.goodsname"></h3>
+								<template v-if="item.minquantity>1">
+									<h4 class="padding-top-1">整箱{{item.minquantity}}支装 * {{item.number}}</h4>
+								</template>
+								<template v-else>
+									<h4 v-text="item.number+'支'"  class="padding-top-1"></h4>
+								</template>
+							</dd>
+						</dl>
+					</li>
+				</ul>
+
+
+
+
+
+
+				<ul class="table-view ticket" v-show="isVisible">
+					<li class="table-view-cell">
+						提货人：
+						<input :readonly="readonly" required type="text" v-model="shipping_name" style=" width: 80%; border: none; outline: none; text-align: left;" placeholder="提货人" />
+					</li>
+					<li class="table-view-cell">
+						手机号码：
+						<input :readonly="readonly"  required  type="tel" maxlength="11" v-model="shipping_phone" style=" width: 80%; border: none; outline: none; text-align: left;" placeholder="手机号" />
+					</li>
+					<li class="table-view-cell">
+						省市区：
+						<input :readonly="readonly"  required  id="address" readonly="" v-model="shipping_zone" type="text" style=" width: 80%; border: none; outline: none; text-align: left;" placeholder="省市区" />
+					</li>
+					<li class="table-view-cell">
+						详细地址：
+						<input :readonly="readonly"  required  v-model="shipping_address" type="text" style=" width: 80%; border: none; outline: none; text-align: left;" placeholder="详细地址" />
+					</li>
+
+
+
+					<li class="table-view-cell" v-if="readonly">
+						发货状态：
+						<input :readonly="readonly"  required  type="text" v-model="order_status" style=" width: 80%; border: none; outline: none; text-align: left;" placeholder="发货状态" />
+					</li>
+					<li style=" background: url('static/images/bg.png') repeat-x; height: 3px; width: 100%;"></li>
+				</ul>
+				<div class="padding-top-1 padding-left-1 padding-right-1" v-if="readonly==false">
+					<span @click="submitOrder" class="ui-btn" style=" background: rgb(221,12,34); border: none; color: #fff; border-radius: 4px;">立即领取</span>
+				</div>
+
+				<mt-datetime-picker type="date" :startDate="startDate" ref="picker1" @confirm="handleChange" v-model="value"></mt-datetime-picker>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script>
+    function getUrlParam(name) {
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+        var r = window.location.search.substr(1).match(reg);
+        if (r != null) return unescape(r[2]);
+        return null;
+    }
+    var vm = new Vue({
+        el: '#wrap',
+        data: {
+            orders: {},
+            goods:[],
+            shipping_type: 0,
+            remark: '',
+            station: [],
+            station_id: '',
+            startDate: new Date(),
+            station_at:'',
+            value: null,
+            isVisible:true,
+            shipping_address: '',
+            shipping_name: '',
+            shipping_phone: '',
+			shipping_zone: '',
+            order_no: '<?php echo $order_no;?>',
+			order_status: '',
+			readonly:true,
+        },
+        mounted:function () {
+            this.order_no = '<?php echo $order_no;?>';
+            this.getOrderDetail(this.order_no);
+            this.select()
+        },
+        methods: {
+            getOrderDetail (id) {
+                var _this = this;
+                $.ajax({
+                    url: 'http://putuan.zy52.cn/index/ordersdetail',
+                    type: 'post',
+                    data: {
+                        order_no :id
+                    },
+                    success: function(data){
+                        console.log(JSON.stringify(data))
+                        if(data.ret == 0) {
+                            _this.orders= data.data;
+                            _this.goods = data.data.goods;
+                            _this.shipping_name = data.data.shipping_name;
+                            _this.shipping_phone = data.data.shipping_phone;
+                            _this.shipping_zone = data.data.shipping_province+' '+data.data.shipping_city+' '+data.data.shipping_area;
+                            _this.shipping_address= data.data.shipping_address;
+                            _this.order_status= _this.orderStatus(data.data.status);
+							if(data.data.shipping_phone==''){
+                                _this.readonly = false;
+							}
+                        }
+                    }
+                })
+            },
+            shippingType (type) {
+                this.shipping_type = type
+                if(type != 0) {
+                    this.getZiTi();
+                    this.isVisible = false;
+                }else {
+                    this.isVisible = true;
+                }
+
+            },
+            getZiTi () {
+                let _this = this
+                $.ajax({
+                    url: 'http://putuan.zy52.cn/index/station',
+                    type: 'post',
+                    success: function(data){
+                        if(data.ret == 0) {
+                            for(var i in data.data) {
+                                data.data[i].selected = false
+                            }
+                            _this.station = data.data
+                        }
+                    }
+                })
+            },
+            selectStation(item,index){
+                for(var i in this.station) {
+                    this.station[i].selected = false
+                }
+                this.station[index].selected = true
+                this.station_id = item.id
+            },
+            select() {
+                let _this = this
+                $.ajax({
+                    url: 'http://putuan.zy52.cn/index/selectprovince',
+                    type: 'post',
+                    success: function(data) {
+                        console.log(data)
+                        if(data.ret == 0) {
+                            var UplinkData = data.data
+                            var mobileSelect1 = new MobileSelect({
+                                trigger: '#address',
+                                wheels: [{
+                                    data: UplinkData
+                                }],
+                                transitionEnd: function(indexArr, data) {
+                                    //				        console.log(data)
+                                },
+                                callback: function(indexArr, data) {
+                                    console.log(data);
+                                    _this.shipping_zone = data[0].value+' '+ data[1].value+' '+ data[2].value;
+                                }
+                            });
+                        }
+                    }
+                })
+
+            },
+            orderStatus (status) {
+                switch(parseInt(status)) {
+                    case 100:
+                        return '未完成支付';
+                        break;
+                    case 200:
+                        return '待发货';
+                        break;
+                    case 300:
+                        return '订单已取消';
+                        break;
+                    case 400:
+                        return '待收货';
+                        break;
+                    case 500:
+                        return '待评价';
+                        break;
+                    case 600:
+                        return '退款中';
+                        break;
+                    case 700:
+                        return '已退款';
+                        break;
+                    case 800:
+                        return '已完成';
+                        break;
+                }
+            },
+            open(picker) {
+                this.$refs[picker].open();
+            },
+            handleChange(value) {
+                this.station_at = value.getFullYear() + '-' + (value.getMonth() + 1) + '-' + value.getDate()
+            },
+            submitOrder() {
+                var _this = this;
+                $.ajax({
+                    type:"post",
+                    url:"http://putuan.zy52.cn/index/receiveGift",
+                    data:{
+                        order_no: _this.order_no,
+                        shipping_name: _this.shipping_name,
+                        shipping_phone: _this.shipping_phone,
+                        shipping_zone: _this.shipping_zone,
+                        shipping_address: _this.shipping_address
+                    },
+                    success: function(data){
+                        alert(data.msg);
+                        if(data.ret == 0) {
+                            _this.readonly = true;
+                        }
+                        window.location.reload();
+                    }
+                });
+            }
+        }
+    })
+</script>
+<style scoped>
+	.title {
+		display: flex;
+		line-height: 3rem;
+		margin: 1rem;
+		font-size: 1.2rem;
+		text-align: center;
+		border: rgb(102, 102, 102) 1px solid;
+		border-radius: 4px;
+	}
+	.title li {
+		flex: 1;
+	}
+	.title li.active {
+		background: rgb(102,102,102);
+		color: #fff;
+	}
+
+	.buy-count {
+		display: flex; position: relative; padding: 1rem; margin-top: 1rem;
+	}
+	.buy-count:before,.buy-count:after {
+		position: absolute;
+		left: 0;
+		right: 0;
+		height: 1px;
+		background: #f2f2f2;
+		content: '';
+	}
+	.buy-count:before {
+		top: 0;
+	}
+	.buy-count:after {
+		bottom: 0;
+	}
+
+	.input-order {
+		width: 78%;
+		border: none;
+		outline: none;
+		text-align: right;
+	}
+	.counter {
+		display: flex;
+		position: absolute;
+		top: -.6rem;
+		width: 8rem;
+		right: 0;
+		height: 2.5rem;
+		line-height: 2rem;
+		text-align: center;
+		border: #e3e3e3 1px solid;
+		border-radius: 4px;
+	}
+
+	.counter input {
+		width: 3rem;
+		text-align: center;
+		border: none;
+		border-left: #e3e3e3 1px solid;
+		border-right: #e3e3e3 1px solid;
+		outline: none;
+	}
+
+	.counter span {
+		flex-basis: 3rem;
+	}
+	.ticket {
+		position: relative;
+		padding-top: 1rem;
+	}
+	.ticket:before {
+		position: absolute;
+		left: 0;
+		right: 0;
+		top: 0;
+		height: 10px;
+		background: #f2f2f2;
+		content: '';
+	}
+
+	#header img{width:100%;max-width:100%}
+</style>
+</body></html>

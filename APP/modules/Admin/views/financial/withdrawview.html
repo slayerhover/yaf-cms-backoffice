@@ -1,0 +1,69 @@
+<form id="withdraweditfm" method="post">
+<table border="0" width="100%" cellspacing="1" cellpadding="5" bgcolor="#c4d3e1" style="text-align:left; line-height:18px;">		
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">提现用户：</td>
+			<td width="80%">{{members.phone}} {{members.name}}</td>
+		</tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">客服经理：</td>
+			<td width="80%">{{members.consultant.name}}</td>
+		</tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">银行：</td>
+			<td width="80%"><input type="text" style="width:400px;"  v-model="dataset.bank"   class="textbox-text validatebox-text textbox-prompt easyui-validatebox"></td>
+		</tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">姓名：</td>
+			<td width="80%"><input type="text" style="width:400px;"  v-model="dataset.name"   class="textbox-text validatebox-text textbox-prompt easyui-validatebox"></td>
+		</tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">卡号：</td>
+			<td width="80%"><input type="text" style="width:400px;"  v-model="dataset.card"   class="textbox-text validatebox-text textbox-prompt easyui-validatebox"></td>
+		</tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">提现金额：</td>
+			<td width="80%"><input type="number" step="0.01" v-model="dataset.amount"   class="textbox-text validatebox-text textbox-prompt easyui-validatebox"></td>
+		</tr>
+		
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">处理状态：</td>
+			<td width="80%">
+				<label style="margin-right:20px;"><input type="radio" v-model="dataset.status" value=1>已处理</label>
+				<label><input type="radio" v-model="dataset.status" value=0>待处理</label>
+			</td>
+		</tr>
+</table>
+</form>
+
+<script>
+$(function(){
+		$('#withdraweditsubmit').click(function(data){			
+				vm.withdrawupdate();
+		})	
+});
+
+var vm = new Vue({
+	el: '#withdraweditfm',
+	data: {		
+		dataset: <?php echo json_encode($dataset, JSON_UNESCAPED_UNICODE);?>,
+		members: <?php echo json_encode($members, JSON_UNESCAPED_UNICODE);?>
+	},
+	methods: {	
+		withdrawupdate: function(){
+			$.post('/admin/financial/withdrawupdate', {dataset:vm.dataset}, function(data){
+					if(data.ret==0){
+							$.messager.show({
+									title:'提示',
+									msg:data.msg,
+									timeout:3000,
+									showType:'slide'
+							});
+							$("#withdraw").datagrid('reload');
+					}else{
+							$.messager.alert('提示',data.msg,'warning');
+					}
+			});
+		}
+	}	
+});
+</script>

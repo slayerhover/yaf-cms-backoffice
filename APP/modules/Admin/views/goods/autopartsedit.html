@@ -1,0 +1,62 @@
+<form id="autopartseditfm" method="post">
+<input type="hidden" name="id" value="<{$mymenu.id}>" />
+<table border="0" width="100%" cellspacing="1" cellpadding="5" bgcolor="#c4d3e1" style="text-align:left; line-height:18px;">
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">上级配件：</td>
+			<td width="80%">
+			<SELECT name='up' style="width:153px; height:25px;" size='1'>
+				<OPTION value="0">根目录 </OPTION>
+				<OPTION value="0" disabled="disabled"> ----------------- </OPTION>
+				<{section name=sec1 loop=$dataset}>
+				<OPTION  <{if $dataset[sec1].id eq $mymenu.up}>selected="selected"<{/if}> value="<{$dataset[sec1].id}>"><{$dataset[sec1].title}></OPTION>
+				<{/section}>
+			</SELECT>
+			</td>
+		</tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">标题：</td>
+			<td width="80%"><input name="title" type="text" style="width:400px;" class="textbox-text validatebox-text textbox-prompt easyui-validatebox" placeholder="请输入标题.."  required="true"  value="<{$mymenu.title}>" ></td>
+		</tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">说明：</td>
+			<td width="80%"><input name="description" type="text" style="width:400px;"  class="textbox-text validatebox-text textbox-prompt easyui-validatebox" placeholder="请输入说明.." value="<{$mymenu.description}>" ></td>
+		</tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">是否推荐显示：</td>
+			<td width="80%"><input name="recommend" type="checkbox" class="textbox-prompt" value="1" <{if $mymenu.recommend eq 1}>checked="checked"<{/if}> >是</td>
+		</tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">排序：</td>
+			<td width="80%"><input name="sortorder" type="text" class="textbox-text validatebox-text textbox-prompt easyui-validatebox" placeholder="请输入排序.." value="<{$mymenu.sortorder}>" ></td>
+		</tr>
+				
+</table>
+</form>
+
+<script>
+$(function(){
+		$('#autopartsupdatesubmit').click(function(data){			
+				$('#autopartseditfm').form('submit', {    
+					url:'/products/autopartsupdate',    
+					success: function(data){    
+						var data = eval('(' + data + ')');
+						
+						
+						if(data.code=='200'){
+								$.messager.show({
+										title:'提示',
+										msg:data.msg,
+										timeout:3000,
+										showType:'slide'
+								});				
+								$('#autopartseditfm').form('clear');
+								$("#autopartsdlg").dialog('close');
+								$("#autoparts").treegrid('reload');
+						}else{
+								$.messager.alert('提示',data.msg,'warning');
+						}
+					}    
+				});
+		})	
+});
+</script>

@@ -32,8 +32,8 @@ class ErrorController extends Yaf_Controller_Abstract {
                     }else{						$result	= array(							'ret'	=>	1,							'msg'	=>	$exception->getMessage(),						);					}					break;
                 default:
                     //记录错误日志
-					Log::out('error', 'I', $exception->getMessage() . ' IN FILE ' . $exception->getFile() . ' ON LINE ' . $exception->getLine());                    					$result	= array(							'ret'	=>	'1',							'msg'	=>	$exception->getMessage(),					);			
-            }
+					Log::out('error', 'I', $exception->getMessage() . ' IN FILE ' . $exception->getFile() . ' ON LINE ' . $exception->getLine());                    					$result	= array(							'ret'	=>	'1',							'msg'	=>	$exception->getMessage(),					);
+            }			#debug模式，添加错误代码、文件、及行号			$result['data']	= array(				'code'	=>$exception->getCode(),				'file'	=>$exception->getFile(),				'line'	=>$exception->getLine(),			);			if( NULL!==$exception->getPrevious() ){				$result['data']['file'] = $exception->getPrevious()->getFile();				$result['data']['line'] = $exception->getPrevious()->getLine();				$result['data']['msg']  = $exception->getPrevious()->getMessage();			}
         } else {
             //禁止输出视图内容
             switch ($exception->getCode()) {
@@ -53,7 +53,7 @@ class ErrorController extends Yaf_Controller_Abstract {
 					Log::out('error', 'I', $exception->getMessage() . ' IN FILE ' . $exception->getFile() . ' ON LINE ' . $exception->getLine());					$result	= array(							'ret'	=>	'500',							'msg'	=>	'500 Internal Server Error',						);
                 break;
             }
-        }				$result	= ['ret'	=>	$exception->getCode(), 'errmsg'=>$exception->getMessage()];				if($exception->getPrevious()){			$result['file']	=	$exception->getPrevious()->getFile();			$result['line']	=	$exception->getPrevious()->getLine();			$result['msg']	=	$exception->getPrevious()->getMessage();		}		json($result);		
+        }				json($result);		
     }
 	
 	public function renderSourceCode($file, $errorLine, $maxLines)

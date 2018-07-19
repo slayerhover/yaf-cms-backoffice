@@ -1,0 +1,57 @@
+<form id="menusaddfm" method="post">
+<table border="0" width="100%" cellspacing="1" cellpadding="5" bgcolor="#c4d3e1" style="text-align:left; line-height:18px;">
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">所属菜单组：</td>
+			<td width="80%">
+			<select name="up">
+			<option value=0>--主菜单--</option>
+			<option disabled>----------</option>
+			<?php foreach($rootlevel as $v): ?>
+				<option value="<?php echo $v['id'];?>"><?php echo $v['title'];?></option>
+			<?php endforeach; ?>
+			</select>
+			</td>
+		</tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">菜单名称：</td>
+			<td width="80%"><input name="title" type="text" style="width:400px;" class="textbox-text validatebox-text textbox-prompt easyui-validatebox" placeholder="自定义菜单名称.."  required="true"></td></tr>
+		<tr bgcolor="#FFFFFF">
+			<td style="line-height:30px;"  width="20%">菜单链接：</td>
+			<td width="80%">
+				<input type="text" name="href" value=""  style="width:400px;"  class="textbox-text"/>
+			</td>
+		</tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">排序：</td>
+			<td width="80%">
+			<input type="text" name="sortorder" value="500" class="textbox-text" />
+			</td>
+		</tr>
+</table>
+</form>
+
+<script>
+$(function(){
+		$('#menusaddsubmit').click(function(data){			
+				$('#menusaddfm').form('submit', {    
+					url:'/admin/system/menusincrease',    
+					success: function(data){    
+						var data = eval('(' + data + ')');
+						if(data.code=='200'){
+								$.messager.show({
+										title:'提示',
+										msg:data.msg,
+										timeout:3000,
+										showType:'slide'
+								});				
+								$('#menusaddfm').form('clear');
+								$("#menusdlg").dialog('close');
+								$("#menus").treegrid('reload');
+						}else{
+								$.messager.alert('提示',data.msg,'warning');
+						}
+					}    
+				});
+		})	
+});
+</script>

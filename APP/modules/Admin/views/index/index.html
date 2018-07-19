@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title><?php echo $appTitle;?></title>	
+	<link rel="stylesheet" type="text/css" href="/static/Easyui/themes/insdep/easyui.css">
+	<link type="text/css" rel="stylesheet" href="/static/Easyui/themes/insdep/master.css">
+	<link rel="stylesheet" type="text/css" href="/static/Easyui/themes/insdep/icon.css">    	
+	
+    <script type="text/javascript" src="/static/Easyui/jquery.min.js"></script>
+    <script type="text/javascript" src="/static/Easyui/jquery.easyui.min.js"></script>
+	<script type="text/javascript" src="/static/Easyui/jquery.insdep-extend.min.js"></script>	
+    <script type="text/javascript" src="/static/Js/tools.js"></script>
+    <script type="text/javascript" src="/static/Js/easyui-lang-zh_CN.js"></script>
+	<script language="javascript"  src="/static/Js/jquery.base64.js"></script>
+	<script type="text/javascript" src="/Js/vue.min.js"></script>
+
+    <!-- 编辑器源码文件 -->
+	<link href="/ueditor/themes/default/css/umeditor.css" type="text/css" rel="stylesheet">
+    <script type="text/javascript" src="/ueditor/third-party/template.min.js"></script>
+	<script type="text/javascript" src="/ueditor/umeditor.config.js"></script>
+    <script type="text/javascript" src="/ueditor/umeditor.min.js"></script>
+	
+	<script type="text/javascript" src="/static/Js/plupload/moxie.js"></script>
+	<script type="text/javascript" src="/static/Js/plupload/plupload.dev.js"></script>
+	<script type="text/javascript" src="/static/Js/plupload/i18n/zh_CN.js"></script>
+	<script type="text/javascript" src="/static/Js/qiniu.js"></script>
+	<script type="text/javascript" src="/static/Js/ui.js"></script>
+	<style>
+	.navMenu li{
+	width:100%;height:40px;line-height:30px;display:block; background:#fff;border-bottom:1px solid #F1F1F1; FONT-SIZE:13PX; text-align:center;
+	color:#444;padding:5px;box-sizing:border-box
+	}
+	
+	.navMenu .hover{
+	background:#f7f7f7;
+	color:#333;
+	font-weight:bold
+	}
+	.navMenu .active{
+	background:#f7f7f7;
+	color:#cc0000;
+	font-weight:bold
+	}	
+	.navMenu .active a{color:#533}
+	</style>
+</head>
+<body>
+<div id="master-layout">
+	<div data-options="region:'north',border:false,bodyCls:'master-header-layout'">
+		<div class="navigate">
+			<div class="left" style="margin-right:100px;">
+				<h1 style="margin:0px; color:orange; font-size:1.5rem; padding:0px; line-height:39px; cursor:pointer;"><?php echo $appTitle;?></h1>
+			</div>
+			<div class="left">					
+				<a href="#" class="easyui-menubutton" style="background-color:#555" data-options="menu:'#mm1',hasDownArrow:false">文件</a>
+				<a href="#" class="easyui-menubutton" data-options="menu:'#mm2',hasDownArrow:false">编辑</a>
+				
+				<div id="mm1" class="navigate-menu-panel">
+                    	<div>新建</div>
+                        <div>打开</div>
+                        <div>
+                        	<span>打开最近文件</span>
+                            <div>
+                                <div>1 index.html</div>
+                                <div>2 custom.html</div>
+                                <div>3 animation.html</div>
+                                <div class="menu-sep"></div>
+                                <div>启动时重新打开文件</div>
+                            </div>
+                        </div>
+                        <div>关闭</div>
+                        <div>全部关闭</div>
+                        <div class="menu-sep"></div>
+                        <div data-options="disabled:true,iconCls:'icon-save'">保存</div>
+                        <div>另存为</div>
+                        <div data-options="disabled:true">保存为全部</div>
+                        <div class="menu-sep"></div>
+                        <div>退出</div>
+                    </div>
+                    
+                    <div id="mm2" class="navigate-menu-panel">
+                        <div>撤销</div>
+                        <div data-options="disabled:true">重做</div>
+                        <div class="menu-sep"></div>
+                        <div>剪切</div>
+                        <div>复制</div>                        
+                        <div class="menu-sep"></div>                        
+                        <div class="menu-sep"></div>
+                        <div>快捷键</div>
+                        <div>首选项</div>
+                    </div>                                        
+			</div>
+			<div class="right">
+				<a href="#" class="easyui-menubutton navigate-user-button" data-options="menu:'.navigate-user-panel'"><?php echo $username;?></a>				
+				<a href="#" class="easyui-menubutton"><span id="localtime" style="margin-right:18px"></span></a>
+				<a href="#" class="easyui-menubutton" data-options="menu:'#mm3',hasDownArrow:false">消息<span class="badge color-default">15</span></a>
+				<div id="mm3" class="navigate-menu-panel" style="width:180px;">
+                        <div>产品消息<span class="badge color-success">5</span></div>
+                        <div>订单消息<span class="badge color-important">10</span></div>
+                        <div>服务消息</div>
+                        <div class="menu-sep"></div>
+                        <div>查看历史消息</div>
+                        <div class="menu-sep"></div>
+                        <div>清除消息提示</div>
+                </div>
+				<a href="#" class="easyui-menubutton navigate-more-button" data-options="menu:'#more',hasDownArrow:false"></a>
+				<div id="more" class="theme-navigate-more-panel">
+					<div>联系我们</div>
+					<div>意见反馈</div>
+					<div>关于我们</div>
+				</div>
+				<div class="navigate-user-panel">
+				   <dl>
+						<dd>
+							<img src="/images/mman.png" width="86" height="86">
+							<b class="badge-prompt"><?php echo $username;?><i class="badge color-important">10</i></b>
+							<span>slayer.hover@gmail.com</span>
+							<p>安全等级：<i class="text-success">极高</i></p>
+						</dd>
+						<dt>
+							<a class="navigate-user-modify" onclick="addTab('修改密码', '/admin/index/changepwd');" href="javascript:;">修改资料</a>
+							<a class="navigate-user-logout" target="_top" href="/admin/index/logout">注销</a>
+						</dt>
+				   </dl>
+				</div>				
+			</div>
+			
+		</div>
+	</div>		
+	<div data-options="region:'west',split:true,border:false" style="width:220px; padding:0;">
+		<div id="leftMenu" data-options="fit:true,border:true" class="easyui-accordion">
+			<?php foreach($menus as $k=>$v):?>
+			<div title="<?php echo $v['title'];?>"  data-options="iconCls:'<?php echo $v['icon'];?>'" style="overflow:auto;">
+				<ul class="navMenu">
+				<?php foreach($v['submenu'] as $k1=>$v1):?>
+					<li><a href="<?php echo $v1['href'];?>"><?php echo $v1['title'];?></a></li>
+				<?php endforeach;?>
+				</ul>
+			</div>
+			<?php endforeach;?>        
+		</div>
+	</div>
+	<div data-options="region:'center',border:false">
+		<div id="rightTabs" class="easyui-tabs" data-options="fit:true,border:false" style="padding-right:5px;">
+			<div title="首页" data-options="closable:false,border:true,href:'/admin/index/main/'"></div>
+		</div>
+	</div>
+	<div data-options="region:'south',split:false" class="footer"
+     style="height:30px;background-color: #D2E0F2;text-align:center;color:#15428B; margin:0px; padding:0px;line-height:23px; font-weight:bold;">
+    Copyright © 2018 www.putuan.com</div>
+	<div id="repwd"></div>
+	<div id="setpwd"></div>
+	<div id="mm" class="easyui-menu" style="width:150px;">
+		<div id="mm-tabclose">关闭</div>
+		<div id="mm-tabcloseall">全部关闭</div>
+		<div id="mm-tabcloseother">除此之外全部关闭</div>
+		<div class="menu-sep"></div>
+		<div id="mm-tabcloseright">当前页右侧全部关闭</div>
+		<div id="mm-tabcloseleft">当前页左侧全部关闭</div>
+		<div class="menu-sep"></div>
+		<div id="mm-exit">退出</div>
+	</div>
+</div>
+<script>
+	$(function(){
+		
+		/*布局部分*/
+		$('#master-layout').layout({
+			fit:true/*布局框架全屏*/
+		});   		
+	});			
+</script>
+</body>
+</html>

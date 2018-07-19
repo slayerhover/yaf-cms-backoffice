@@ -4,9 +4,9 @@ local mysql = require "resty.mysql"
 local config = {
     host = "127.0.0.1",
     port = 3306,
-    database = "mysql",
-    user = "root",
-    password = "qwerqwer",
+    database = "changpei",
+    user = "uu235",
+    password = "yZJYj3Ns32WDnRCL",
 	charset = "utf8",
     max_packet_size = 1024 * 1024,
 }
@@ -25,7 +25,7 @@ function _M.new(self)
     if not ok then
 		return nil
     end
-    db:query("set names utf8")
+	db:query("set names utf8")
     db.close = close
     return db
 end

@@ -317,6 +317,20 @@ option.disabled {
 table label{
 	font-weight: bold;
 }
+fieldset {
+    display: block;
+    -webkit-margin-start: 2px;
+    -webkit-margin-end: 2px;
+    -webkit-padding-before: 0.35em;
+    -webkit-padding-start: 0.75em;
+    -webkit-padding-end: 0.75em;
+    -webkit-padding-after: 0.625em;
+    min-width: -webkit-min-content;
+    border-width: 1px;
+    border-style: dotted;
+    border-color: threedface;
+    border-image: initial;
+}
 .easyui-form{ padding:4px 5px;}
 .textbox-text{ height:18px; line-height:18px; padding:4px; }
 .infobox{

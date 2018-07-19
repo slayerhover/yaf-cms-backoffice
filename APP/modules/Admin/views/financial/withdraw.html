@@ -1,0 +1,125 @@
+<div id="tb<?php echo $uniqid;?>" style="padding:5px">
+		<table cellspacing="0" cellpadding="0"><tbody><tr>		
+		<td><SELECT id='withdrawstatus' onchange="withdrawsearch();" class="textbox-text validatebox-text">
+				<OPTION value="-1">所有状态</OPTION>
+				<OPTION value="-1" disabled="disabled"> -------- </OPTION>				
+				<OPTION value="1">已处理</OPTION>
+				<OPTION value="0">待处理</OPTION>
+			</SELECT>
+		</td>
+		<td><SELECT id='withdrawclientmanager' onchange="withdrawsearch();" class="textbox-text validatebox-text">
+				<OPTION value="0">所有客户经理</OPTION>
+				<OPTION value="0" disabled="disabled"> -------- </OPTION>
+				<?php foreach($clientmanager as $k=>$v):?>
+				<OPTION value="<?php echo $v['id'];?>"><?php echo $v['name'];?></OPTION>					
+				<?php endforeach;?>
+			</SELECT>
+		</td>
+		<td><div class="datagrid-btn-separator"></div></td>
+		<td><a href="javascript:;" onclick="withdrawview();"  class="l-btn l-btn-small l-btn-plain" group="" id=""><span class="l-btn-left l-btn-icon-left"><span class="l-btn-text">查看</span><span class="l-btn-icon icon-edit">&nbsp;</span></span></a></td>
+		<td><div class="datagrid-btn-separator"></div></td>		
+		<td><a href="javascript:;" onclick="withdrawreload();"  class="l-btn l-btn-small l-btn-plain" group="" id=""><span class="l-btn-left l-btn-icon-left"><span class="l-btn-text">重载</span><span class="l-btn-icon icon-reload">&nbsp;</span></span></a></td>
+		<td><div class="datagrid-btn-separator"></div></td>		
+		<td><span style="line-height:30px;">提现日期</span>
+                <input name="start_on" style="width:110px" type="text" class="easyui-datebox"> </input>至
+                <input name="end_on" style="width:110px" type="text" class="easyui-datebox"> </input>
+        </td>
+		<td>&nbsp;&nbsp;<input  id="withdrawkeywords"  style="width:200px" placeholder="手机号、账号" type="text" class= "easyui-input textbox" > </input></td>
+		<td><span><a href="javascript:void(0)" class="easyui-linkbutton" plain="true" iconCls="icon-search" onclick="withdrawsearch()">查询</a></span>	</td>
+		</tr></tbody></table>
+</div>
+
+<div class="con" onselectstart="return false;" style="-moz-user-select:none;">
+    <table id="withdraw"></table>
+</div>
+
+<div id="withdrawdlg" class="easyui-dialog" style="width:720px; height:460px;" title="信息框" closed="true"></div>
+
+<script>
+var withdrawview = function(){
+	var row = $('#withdraw').datagrid('getSelected');
+	if (row){
+			$("#withdrawdlg").dialog({    
+				title: '查看提现',      
+				closed: false,
+				width: 720,
+				height:460,    
+				cache: false,    
+				href: '/admin/financial/withdrawview?id='+row.id,
+				modal: true,
+				buttons:[{
+					text:'保存',
+					id:'withdraweditsubmit',
+					iconCls:'icon-ok',
+				},{
+					text:'关闭',
+					iconCls:'icon-no',
+					handler:function(){$("#withdrawdlg").dialog('close');}
+				}]  
+			});				
+	}else{
+			$.messager.alert('提示','请先选择要查看的记录！','warning');
+	}
+}
+var withdrawreload=function(){
+    $("#withdraw").datagrid('reload');
+}
+var withdrawsearch=function(){
+		var height=	$(window).height()-$(".top").height()-125;//表格高度
+		var width = $(window).width()-$("#leftMenu").width()-13;//表格高度
+        $("#withdraw").datagrid({
+            title:'提现管理',
+            width:width,
+            height:height,//高度
+            singleSelect:true,//如果为true，则只允许选择一行
+            striped:true,//是否显示斑马线效果。
+            rownumbers:true,//如果为true，则显示一个行号列。
+            pagination:true,//是否显示分页
+            pageSize:10,
+            pageList:[10,15,20,25],
+            method:'post',
+            sortName:'created_at',
+            sortOrder:'desc',
+            url:'/admin/financial/withdrawGet',
+			queryParams : {keywords:$('#withdrawkeywords').val(),status:$('#withdrawstatus').val(),clientmanager:$('#withdrawclientmanager').val(),start_on:$("input[name='start_on']").val(),end_on:$("input[name='end_on']").val()},
+            fitColumns:true,//真正的自动展开/收缩列的大小，以适应网格的宽度，防止水平滚动。
+            nowrap:true,//如果为true，则在同一行中显示数据。设置为true可以提高加载性能。 是否换行
+            selectOnCheck:false,
+            checkOnSelect:true,
+			toolbar: '#tb<?php echo $uniqid;?>',
+			rowStyler: function(index,row){
+					if (row.status=='0'){
+						return 'color:#dc324d;';
+					}else{
+						return 'color:green;';
+					}
+			},
+            columns:[[
+				{field:'members.phone',title:'会员账号',width:'10%',formatter:function (value,rowData,rowIndex){
+					if(rowData.members){
+						  	return rowData.members.phone;
+					}
+				}},
+				{field:'members',title:'客户经理',width:'5%',formatter:function (value,rowData,rowIndex){
+					if(rowData.members){
+						  	return rowData.members.consultant.name;
+					}
+				}},
+				{field:'amount',title:'提现金额',width:'5%',sortable:true},				
+				{field:'bank',title:'银行',width:'10%'},				
+				{field:'name',title:'姓名',width:'5%'},								
+				{field:'card',title:'卡号',width:'15%'},								
+				
+				{field:'status',title:'状态',width:'5%',formatter:function (value,rowData,rowIndex){					
+						return value==1 ? '已处理' : '未处理';					
+				}},
+				{field:'created_at',title:'申请提现时间',width:'10%',sortable:true},
+				{field:'updated_at',title:'提现处理时间',width:'10%',sortable:true},
+            ]],
+			onDblClickRow : function(index,field){					
+				withdrawview();
+			} 
+    	});
+}
+withdrawsearch();
+</script>

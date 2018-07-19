@@ -2,7 +2,7 @@
 <html lang="zh-CN"><head>
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 	<meta charset="UTF-8">
-	<title><{$title}></title>
+	<title><?php echo $title;?></title>
 	<link rel="stylesheet" href="/css/QapTcha.jquery.css" type="text/css" />
 	<link rel="stylesheet" type="text/css" href="/css/main.css" media="screen">
 	<script type="text/javascript" src="/Js/jquery-1.10.2.min.js"></script>
@@ -21,7 +21,7 @@
 	<div style="position: absolute; top: 0px; left: 0px; width: 100%; height: 100%; z-index: -1; overflow: hidden;" id="bg"><img style="display: block; opacity: 1; width: 1600px; height: 983px; margin-left: 0px; margin-top: -110px;" src="/images/bg.jpg"></div>
 	
 	<div class="login">
-		<h1><{$title}></h1>
+		<h1><?php echo $title;?></h1>
 		<form>
 		<div class="form-send clearfix">
 			<p class="bot">
@@ -41,7 +41,7 @@
 	</div>
 	
 	<div class="footer">
-		<p>Copyleft © 2017 <{$title}></p>
+		<p>Copyleft © 2017 <?php echo $title;?></p>
 	</div>
 	
 <script type="text/javascript">
@@ -158,7 +158,7 @@ $(function(){
 			return false;
 		}		
 		$('.submit').attr('disabled','disabled');
-		$.post('<{url c=public a=checklogin}>', {'username':username,'password':userpass}, function(data){
+		$.post('/public/checklogin', {'username':username,'password':userpass}, function(data){
 			switch(data.code){
 				case '200':							
 			        window.location.href = '/admin';
@@ -183,7 +183,7 @@ $(function(){
 })
 function fleshVerify(name){ //重载验证码
 	var timenow = new Date().getTime();
-	$("#"+name).attr("src", '<{url c=public a=yzcode}>?'+timenow);
+	$("#"+name).attr("src", '/public/yzcode?'+timenow);
 }
 </script>
 

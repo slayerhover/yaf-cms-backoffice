@@ -32,10 +32,9 @@ abstract class Cache {
 			{
 				Yaf_Loader::import(dirname(__FILE__) . '/' . $caching_system . '.php');
 				self::$instance = new $caching_system();
-				self::$instance->blacklist = Yaf_Registry::get('cache_exclude_table');
 				if (!defined('CACHE_KEY_PREFIX'))
 				{
-					define('CACHE_KEY_PREFIX', 'cye_');
+					define('CACHE_KEY_PREFIX', 'go_');
 				}
 			}
 		}
@@ -91,6 +90,43 @@ abstract class Cache {
 		$key = CACHE_KEY_PREFIX . $key;
 		if (strlen($key) <= 250)			
 			return $this->_delete($key);
+		
+		return false;
+	}
+	
+	public function lpush($key, $value) {
+		$key = CACHE_KEY_PREFIX . $key;
+		if (strlen($key) <= 250)			
+			return $this->_lpush($key, $value);
+		
+		return false;
+	}
+	public function rpop($key) {
+		$key = CACHE_KEY_PREFIX . $key;
+		if (strlen($key) <= 250)			
+			return $this->_rpop($key);
+		
+		return false;
+	}
+	
+	public function sadd($key, $value) {
+		$key = CACHE_KEY_PREFIX . $key;
+		if (strlen($key) <= 250)			
+			return $this->_sadd($key, $value);
+		
+		return false;
+	}
+	public function smembers($key) {
+		$key = CACHE_KEY_PREFIX . $key;
+		if (strlen($key) <= 250)			
+			return $this->_smembers($key);
+		
+		return false;
+	}
+	public function srem($key, $value) {
+		$key = CACHE_KEY_PREFIX . $key;
+		if (strlen($key) <= 250)			
+			return $this->_srem($key, $value);
 		
 		return false;
 	}

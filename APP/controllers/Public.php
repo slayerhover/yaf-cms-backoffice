@@ -1,111 +1,4 @@
-<?php
-use Illuminate\Database\Capsule\Manager as DB;
-
-class PublicController extends CoreController
-{	
-	public function loginAction(){		
-		$this->_view->assign('title', DB::table('info')->find(1)['value']);
-	}
-	
-	public function huadongyzAction(){
-		$qaptcha_key	=	$this->getPost('qaptcha_key', NULL);
-		if($qaptcha_key!=NULL){
-			$this->session->qaptcha_key	=	$qaptcha_key;
-			die('100');
-		}
-	}
-	
-	public function logoutAction(){
-		global $auth;		
-		$auth->logout();
-		redirect(url('public', 'login'));
-	}
-	
-	public function checkloginAction(){
-		$lockFlag= $this->getCookie('lockFlag', 0);
-		if($lockFlag==1){
-						$result	=	array(
-												'code'		=>	'800',
-												'message'	=>	'重试次数过多了， 20分钟后再重试吧.',
-									);
-						$this->session->del('try_times');
-		}else{			
-			if(!empty($_POST)){	
-				do {	
-					$qaptcha_key = $this->session->qaptcha_key;
-					if( empty($qaptcha_key) ) {	
-						$result	=	array(
-										'code'		=>	'300',
-										'message'	=>	'滑动验证失败.',
-									);
-						break;
-					}
-					
-					$username = $this->getPost('username', NULL);
-					$password = $this->getPost('password', NULL);
-					if( $username==NULL || $password==NULL ){
-						$result	=	array(
-										'code'		=>	'400',
-										'message'	=>	'用户名或者密码为空.',
-									);
-						break;
-					}			
-					$sysusers =new adminModel();
-					if ($sysusers->checkUsername($username)==FALSE) {
-						$result	=	array(
-										'code'		=>	'500',
-										'message'	=>	'未找到匹配用户名.',
-									);
-						break;
-					}		
-					if ($sysusers->checkPassword($username, $password)==FALSE){						
-						if(!isset($this->session->try_times)){$this->session->try_times=0;}
-						$this->session->try_times++;
-						if($this->session->try_times>10){
-							$result	  = array(
-										'code'		=>	'800',
-										'message'	=>	'重试次数过多了， 20分钟后再重试吧.',
-									);
-							setcookie('lockFlag', 1, time()+60*20);
-							$this->session->del('try_times');
-						}else{
-							$result	  = array(
-										'code'		=>	'600',
-										'message'	=>	'密码有误.',
-									);
-						}
-						break;
-					}							
-					if( $sysusers->setUserLogin($username, $password) ){					
-						$this->session->del('qaptcha_key');
-						$this->session->del('try_times');
-						$result	=	array(
-										'code'		=>	'200',
-										'message'	=>	'登陆成功.',
-									);					
-						break;					
-					}else{
-						$result	=	array(
-										'code'		=>	'100',
-										'message'	=>	'登陆失败.',
-									);
-						break;
-					}								
-				}while(FALSE);
-			}else{
-				$this->session->del('qaptcha_key');
-				$result	=	array(
-										'code'		=>	'700',
-										'message'	=>	'登陆方式失效.',
-									);
-			}	
-		}
-		
-		die(json_encode($result));
-	}
-	
-	public function yzcodeAction(){
-		Captcha::generate(3);
-	}
-	
+<?phpuse Illuminate\Database\Capsule\Manager as DB;class PublicController extends CoreController{		public function init(){        parent::init();        Yaf_Dispatcher::getInstance()->disableView();	}		/**	 *接口名称	APP登陆	 *接口地址	http://api.com/public/login/	 *接口说明	生成token，用户登陆	 **/	public function loginAction(){			$username  	= $this->get('username', '');			$password	= $this->get('password', '');			/***验证参数BOF***/			$inputs		= array(								['name'=>'username','value'=>$username,'role'=>'required|exists:admin.username','fun'=>'isUsername', 'msg'=>'用户名有误'],								['name'=>'password','value'=>$password,	'role'=>'min:6|max:32|required', 'msg'=>'密码长度有误'],			);			$result		= Validate::check($inputs);			if(	!empty($result) ){ret(1, '输入参数有误.', $result);}			/***检测手机号BOF***/			$user= DB::table('admin')->where('username','=',$username)->first();			$now= time();			$ip	= getIp();			if($now<$user['lockuntil']){				ret(2, '该用户当前处于锁定状态.', ['lockuntil'=>date('Y-m-d H:i:s', $user['lockuntil'])]);			}			/***检测用户密码BOF***/			if( $user['password']!=md5($password) ){				$failedTimes = Cache::getInstance()->incr('loginFailTimes_'.$username);				if($failedTimes>=5){					DB::table('admin')->where('username','=',$username)->update(['lockuntil'=>time()+20*60]);				}				ret(3, '密码有误,登陆失败.', ['failedTimes'=>$failedTimes]);			}			/***更新tokenBOF***/			$rows = array(					'id'			=>	$user['id'],					'username'		=>	$user['username'],					'lastlogintime'	=>	date('Y-m-d H:i:s', $now),					'lastloginip'	=>	$ip,					'updated_at'	=>	date('Y-m-d H:i:s', $now),			);			$token	= empty($user['token']) ? md5($user['username'].$now.$ip) : $user['token'];			$rows['token']	=	$token;			$tokenuser	=	array(				'id'			=> $user['id'],				'username'		=> $user['username'],						'roles_id'		=> $user['roles_id'],				'lastlogintime'	=> date('Y-m-d H:i:s', $now),				'lastloginip'	=> $ip,			);						Cache::getInstance()->set('auth_'.$token, $tokenuser, -1);			if(Cache::getInstance()->exists('loginFailTimes_'.$username)){				Cache::getInstance()->delete('loginFailTimes_'.$username);			}			/***更新用户登陆信息BOF***/			if(DB::table('admin')->where('id','=',$user['id'])->update($rows)!==FALSE){								$result	= array(								'id'			=>	$user['id'],								'username'		=>	$user['username'],								'token'			=>	$token,																'lastloginip'	=>	$ip,								'lastlogintime'	=>	date('Y-m-d H:i:s', $now),					);					ret(0, '登陆成功', $result);			}						ret(4, '登陆失败.');	}
+		/**     * @api 验证登陆标记token是否合法     */	public function checkTokenAction($token=''){		$inputs	= array(							['name'=>'token',  'value'=>$token,	 'role'=>'required', 'msg'=>'登陆标识为空.'],		);		$result		= Validate::check($inputs);					if(	!empty($result) ){				ret(1, '输入参数有误.', $result);		}				$user	= DB::table('admin')->where('token','=',$token)->select('id','username','roles_id','token','lastlogintime','lastloginip')->first();		if(empty($user)){ret(1, 'token无效.');}				if(!Cache::getInstance()->exists('auth_'.$token)){			$tokenuser	=	array(				'id'			=> $user['id'],				'username'		=> $user['username'],					'roles_id'		=> $user['roles_id'],								'lastlogintime'	=> date('Y-m-d H:i:s', time()),				'lastloginip'	=> getIp(),			);			Cache::getInstance()->set('auth_'.$token, $tokenuser, -1);					}		ret(0, 'token有效.');	}	/**     * @api 验证登陆标记token是否合法     */	private function checkTokenValid(){		$token=$this->get('token','');		$inputs	= array(							['name'=>'token',  'value'=>$token,	 'role'=>'required', 'msg'=>'登陆标识为空.'],		);		$result	= Validate::check($inputs);					if(	!empty($result) ){return FALSE;}				if(Cache::getInstance()->exists('auth_'.$token)){ return TRUE;}				$user	= DB::table('admin')->where('token','=',$token)->select('id','username','roles_id','token','lastlogintime','lastloginip')->first();		if(empty($user)){return FALSE;}				$tokenuser	=	array(			'id'			=> $user['id'],			'username'		=> $user['username'],					'roles_id'		=> $user['roles_id'],			'lastlogintime'	=> date('Y-m-d H:i:s', time()),			'lastloginip'	=> getIp(),		);		Cache::getInstance()->set('auth_'.$token, $tokenuser, -1);		return TRUE;	}	
+	/**	 *接口名称	退出登陆	 *接口地址	http://api.com/public/logout/	 *接口说明	清除token，退出登陆	 *参数 @param无	 *返回 @return无	 **/	public function logoutAction(){			do{						$token=$this->get('token','');			/***参数验证BOF***/			$inputs	= array(								['name'=>'token',  'value'=>$token,	 'role'=>'required', 'msg'=>'登陆标识为空.'],			);			$result		= Validate::check($inputs);			if(	!empty($result) ){					$result	= array(							'ret'	=>	'1',							'msg'	=>	'输入参数有误.',							'data'	=>	$result,					);					break;			}			/***参数验证EOF***/			$myuser	= $this->checkTokenValid($token);			if(!$myuser){					$result	= array(							'ret'	=>	'1',							'msg'	=>	'不在登陆状态.'					);					break;			}			if( Cache::getInstance()->exists('auth_'.$token) ){					DB::table('admin')->where('token','=',$token)->update(['token'=>'']);					Cache::getInstance()->delete('auth_'.$token);					$result	= array(							'ret'	=>	'0',							'msg'	=>	'退出成功.',					);					break;			}			$result	= array(							'ret'	=>	'1',							'msg'	=>	'已经退出.'			);		}while(FALSE);				json($result);	}		
 }

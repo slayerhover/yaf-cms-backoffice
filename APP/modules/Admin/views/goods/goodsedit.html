@@ -1,0 +1,379 @@
+<div id="tb<?php echo uniquid;?>" style="padding:5px" xmlns="http://www.w3.org/1999/html">
+<form id="productseditfm" method="post" enctype="multipart/form-data">
+<input type="hidden" name="id" value="<?php echo $dataset['id'];?>" />
+
+<div class="easyui-tabs">
+    <div title="基本资料" style="padding:0px;height:600px;">
+	<table width="100%" cellspacing="1" cellpadding="5" bgcolor="#c4d3e1" style="text-align:left; line-height:18px;">
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="10%">商品名：</td>
+			<td><input name="name" type="text" style="width:400px;"  value="<?php echo $dataset['name'];?>" class="textbox-text validatebox-text textbox-prompt easyui-validatebox" placeholder="请输入标题."  required="true"></td>
+			<td class="main" >商品编号:</td>
+			<td  colspan="3">
+				<input name="itemno" type="text"  value="<?php echo $dataset['itemno'];?>"  class="textbox-text validatebox-text textbox-prompt easyui-validatebox" placeholder="请输入商品编号">
+			</td>
+		</tr>
+		<tr bgcolor="#FFFFFF">
+			<td style="line-height:30px;"  width="10%">商品英文名：</td>
+			<td ><input name="englishname" type="text" style="width:400px;"  value="<?php echo $dataset['englishname'];?>" class="textbox-text validatebox-text textbox-prompt easyui-validatebox" placeholder="please enter english name."></td>
+			<td class="main" >商品分类:</td>
+			<td class="main" colspan="3">
+				<SELECT id='goodsedit_cat_id' name="cat_id" class="textbox-text validatebox-text">
+					<OPTION value="0">选择分类</OPTION>
+					<OPTION value="0" disabled="disabled"> -------- </OPTION>
+					<?php foreach($goods_cat as $k=>$v):?>
+					<OPTION <?php if($v['id']==$dataset['cat_id']){echo 'selected="selected"';}?> value="<?php echo $v['id'];?>"><?php echo $v['title'];?></OPTION>
+					<?php endforeach;?>
+				</SELECT>
+				<span><a href="javascript:void(0)" class="easyui-linkbutton" plain="true" iconCls="icon-set" onclick="goodsAttrEdit()">设置商品属性</a></span>
+			</td>
+		</tr>
+		<tr bgcolor="#FFFFFF">
+		<td class="main" >标签:</td>
+		<td class="main" colspan="5">
+			<?php foreach($dataset['label'] as $k=>$v):?>
+			<label style="margin-right: 20px;"><input type="checkbox" name="label_ids[]" <?php echo $v['flag']==1? 'checked':'';?> value="<?php echo $v['id'];?>"><?php echo $v['name'];?></label>
+			<?php endforeach;?>
+		</td></tr>
+
+		<tr bgcolor="#FFFFFF">
+		<td class="main" >关键词:</td>
+		<td colspan="5">
+			<input name="keywords" type="text" style="width:400px;"  value="<?php echo $dataset['keywords'];?>"  class="textbox-text validatebox-text textbox-prompt easyui-validatebox" placeholder="请输入关键词">
+		</td></tr>
+		<tr bgcolor="#FFFFFF">
+		<td class="main" >标题:</td>
+			<td colspan="5">
+			<input name="title" type="text" style="width:400px;"  value="<?php echo $dataset['title'];?>"  class="textbox-text validatebox-text textbox-prompt easyui-validatebox" placeholder="请输入标题">
+		</td></tr>
+		<tr bgcolor="#FFFFFF">
+		<td class="main" >描述:</td>
+		<td colspan="5">
+			<textarea style="width: 600px;" class="textbox-text validatebox-text textbox-prompt easyui-validatebox" name="description"><?php echo $dataset['keywords'];?></textarea>
+		</td></tr>
+		<tr bgcolor="#FFFFFF">
+			<td class="main" >简介:</td>
+			<td colspan="5">
+				<textarea style="width: 600px;" class="textbox-text validatebox-text textbox-prompt easyui-validatebox" name="introduce"><?php echo $dataset['introduce'];?></textarea>
+			</td></tr>
+		<tr bgcolor="#FFFFFF">
+		<td class="main" >葡团价:</td>
+		<td>
+			<input name="currentprice" type="number" value="<?php echo $dataset['currentprice'];?>"  class="textbox-text validatebox-text textbox-prompt easyui-validatebox" placeholder="请输入葡团价">
+		</td>
+		<td class="main" >市场价:</td>
+		<td colspan="3">
+			<input name="price" type="number"  value="<?php echo $dataset['price'];?>"  class="textbox-text validatebox-text textbox-prompt easyui-validatebox" placeholder="请输入市场价">
+		</td>
+		</tr>
+
+		<tr bgcolor="#FFFFFF">
+			<td class="main">起订量：</td>
+			<td class="main"><input type="number" name="minquantity" size="20"  class="textbox-text validatebox-text textbox-prompt easyui-validatebox"   value="<?php echo $dataset['minquantity'];?>" /></td>
+			<td class="main">订单限购：</td>
+			<td class="main"><input type="number" name="maxordersquantity" size="20"  class="textbox-text validatebox-text textbox-prompt easyui-validatebox"   value="<?php echo $dataset['maxordersquantity'];?>" /></td>
+			<td class="main">用户限购：</td>
+			<td class="main"><input type="number" name="maxpurchase" size="20"  class="textbox-text validatebox-text textbox-prompt easyui-validatebox"   value="<?php echo $dataset['maxpurchase'];?>" /></td>
+		</tr>
+		<tr bgcolor="#FFFFFF">
+			<td class="main">佣金：</td>
+			<td class="main">
+				<select name="rankType" class="textbox-text validatebox-text">
+					<option value="0" <?php if($dataset['rank_money']>0):echo 'selected';endif;?>  >比例</option>
+					<OPTION value="1" <?php if($dataset['rank_money']==0):echo 'selected';endif;?> >金额</OPTION>
+				</SELECT>
+				<input type="number" name="rankValue" size="20"  class="textbox-text validatebox-text textbox-prompt easyui-validatebox"   value="<?php echo ($dataset['rank_money']>0)?$dataset['rank_money']:$dataset['rank'];?>" />
+			</td>
+			<td class="main">计量单位：</td>
+			<td class="main"><input type="text" name="unit" size="20"  class="textbox-text validatebox-text textbox-prompt easyui-validatebox"   value="<?php echo $dataset['unit'];?>" /></td>
+			<td class="main">库存：</td>
+			<td class="main"><input type="number" name="stock" size="20"  class="textbox-text validatebox-text textbox-prompt easyui-validatebox"   value="<?php echo $dataset['stock'];?>" /></td>
+		</tr>
+		<tr bgcolor="#FFFFFF">
+			<td class="main">排序：</td>
+			<td class="main"><input type="number" name="sortorder" size="20"  class="textbox-text validatebox-text textbox-prompt easyui-validatebox"   value="<?php echo $dataset['sortorder'];?>" /></td>
+			<td class="main">状态：</td>
+			<td class="main" colspan="3">
+				<label style="margin-right: 20px;"><input type="checkbox" name="status" class="textbox-prompt" <?php echo $dataset['status']==1?'checked="checked"':'';?> value="1"/>上架</label>
+				<label style="margin-right: 20px;"><input type="checkbox" name="istop" class="textbox-prompt"  <?php echo $dataset['istop']==1?'checked="checked"':'';?> value="1" />置顶</label>
+				<label style="margin-right: 20px;"><input type="checkbox" name="ishot" class="textbox-prompt"  <?php echo $dataset['ishot']==1?'checked="checked"':'';?> value="1" />热卖</label>
+				<label style="margin-right: 20px;"><input type="checkbox" name="isnew" class="textbox-prompt"  <?php echo $dataset['isnew']==1?'checked="checked"':'';?> value="1" />精品</label>
+			</td>
+		</tr>		
+</table>
+	</div>
+	<div title="商品图片" style="padding:0px;display:none;height:600px;">
+	<table border="0" width="100%" cellspacing="1" cellpadding="5" bgcolor="#c4d3e1" style="text-align:left; line-height:18px;">
+		<tr bgcolor="#FFFFFF"> 
+			<td class="main">缩略图:</td>
+			<td class="main" colspan="5">			
+			<span id="goodseditlogo">
+			<?php if(!empty($dataset['logo'])):?>
+			<a target="_blank" href="<?php echo $dataset['logo'];?>"><img style="max-height:80px;" src="<?php echo $dataset['logo'];?>?imageView2/1" onerror="this.src='/images/none.jpg'" /></a>
+			<?php endif;?></span>
+			<a href="javascript:;" class="a-upload l-btn"><input type="file" id="goodseditupfile" name="upfile" accept="image/gif,image/jpeg,image/jpg,image/png,image/svg" onchange="html5ReaderGoodsEdit()">点击这里上传缩略图</a>
+			<script>
+			function html5ReaderGoodsEdit() {
+				var simpleFile = document.getElementById("goodseditupfile").files[0];
+				if(!/image\/\w+/.test(simpleFile.type)) {
+					alert("请确保文件类型为图像类型");
+					return false;
+				}
+				var reader = new FileReader();
+				reader.readAsBinaryString(simpleFile);
+				reader.onload = function(f){
+					var result = document.getElementById("goodseditlogo");
+					var src = "data:" + simpleFile.type + ";base64," + window.btoa(this.result);
+					result.innerHTML = '<img style= "max-height:80px" src ="'+src+'"/>';
+				}
+			}
+			</script>
+			</td>
+		</tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td class="main">滚动图:</td>
+			<td class="main" colspan="5">
+			<div title="上传图片">
+				<div class="col-md-12">
+					<div id="container" style="background-color:#F9F9F4">
+						<a class="btn btn-default btn-lg" id="goodsEditPickFiles" href="#" >
+							<i class="glyphicon glyphicon-plus"></i>
+							<div style="padding:20px;">点击上传图片，或者将图片拖至此处。</div>
+						</a>
+					</div>
+				</div>
+				<div style="display:none" id="success" class="col-md-12">
+					<div class="alert-success">
+						队列全部文件处理完毕
+					</div>
+				</div>
+				<div class="col-md-12 ">
+					<table id="uploadtable" class="table table-striped table-hover text-left" id="fsUploadProgressTable1"  style="margin-top:10px;">
+						<thead>
+						  <tr>
+							<th width="20%"  class="col-md-4">图片</th>
+							<th width="10%"  class="col-md-2">字节</th>
+							<th width="70%"  class="col-md-6">网络文件</th>
+						  </tr>
+						</thead>
+						<tbody id="fsUploadProgress">
+						<?php foreach($dataset['images'] as $k=>$v):?>
+						<tr id="o_1bdj<?php echo $k;?>" class="progressContainer" style="opacity: 1;"><td class="progressName">
+						<div class="Wrapper"><div class="imgWrapper col-md-3"><a class="linkWrapper" target="_blank" href="<?php echo $v;?>" title="查看原图"><img src="<?php echo $v;?>?imageView2/1/w/100/h/100"></a></div></div></td>
+						<td class="progressFileSize"></td><td><div><div class=""><div><span><?php echo $v;?></span><br><br>
+						<input name="images[]" value="<?php echo $v;?>" type="hidden">
+						<input class='l-btn l-btn-small' style="font-size:12px; padding:5px;" onclick="$.messager.confirm('确认对话框', '您确认删除么？', function(r){	if (r){ $('#o_1bdj<?php echo $k;?>').remove();}});" value="删除图片" type="button"></div></div></div></td></tr>
+						<?php endforeach;?>
+						</tbody>
+					</table>
+				</div>
+			</div>			
+			</td>
+		</tr>
+	</table>
+    </div>
+	<div title="详细内容" style="padding:0px;display:none;height:600px;">
+	<table border="0" width="100%" cellspacing="1" cellpadding="5" bgcolor="#c4d3e1" style="text-align:left; line-height:18px;">
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;">内容：</td>
+			<td colspan="5">
+			<script id="productseditEditor" name="producthtml" type="text/plain" style="width:100%;height:500px;">
+	        <?php echo $dataset['producthtml'];?>
+		    </script>
+			</td>
+		</tr>	
+	</table>
+    </div>	
+    <div title="属性设置" style="padding:0px;display:none;height:600px;">
+	<table id="goodseditattrwrap" border="0" width="100%" cellspacing="1" cellpadding="5" bgcolor="#c4d3e1" style="text-align:left; line-height:18px;">
+		<input type="hidden" name="attr" id="attr" />
+		<tr bgcolor="#FFFFFF" v-for="(vo, index) in attr"> 
+			<td style="line-height:30px;"  width="20%">{{vo.name}}：</td>
+			<td width="80%">
+			<template v-if="vo.input_type==1">
+			<input type="text" style="width:400px;" v-model="vo.attr_value" value="vo.attr_value" class="textbox-text validatebox-text textbox-prompt easyui-validatebox" placeholder="请输入..">
+			</template>
+			<template v-else-if="vo.input_type==2">
+			<SELECT v-model="vo.attr_value" style="width:153px; height:25px;" size='1'>
+				<OPTION v-for="vp in vo.valueList" :value="vp.name">{{vp.name}}</OPTION>
+			</SELECT>
+			</template>
+			<template v-else-if="vo.input_type==3">						
+			<label v-for="vp in vo.valueList"><input v-model="vo.attr_value"  type="radio" :value="vp.name" />{{vp.name}}</label>
+			</template>
+			<template v-else>			
+			<label v-for="vp in vo.valueList" ><input v-model="vo.attr_value"  type="checkbox" :value="vp.name" />{{vp.name}}</label>
+			</template>
+			</td>
+		</tr>
+	
+	</table>
+    </div>
+</div>
+	
+<div style="position:absolute; bottom:0px;width:100%; text-align:right; background-color:#F1f1f1; border:#ccc 1px solid;">
+	<div style="padding:2px 15px 2px 10px; float:right;">
+	<a href="javascript:;" class="l-btn l-btn-small" onclick="productseditsubmitForm()"><span class="l-btn-left l-btn-icon-left"><span class="l-btn-text">保存</span><span class="l-btn-icon icon-ok">&nbsp;</span></span></a>
+	<a href="javascript:;" class="l-btn l-btn-small" onclick="productseditclearForm()"><span class="l-btn-left l-btn-icon-left"><span class="l-btn-text">关闭</span><span class="l-btn-icon icon-no">&nbsp;</span></span></a>
+	<div>
+</div>
+</form>
+
+<div id="goodsattrdlg" class="easyui-dialog" style="width:720px; height:520px;" title="信息框" closed="true"></div>
+<style>
+#fsUploadProgress img{ width:80px;}
+label{margin-right:20px}
+.a-upload {
+    position: relative;
+    display: inline-block;
+    background: #D0EEFF;
+    border: 1px solid #99D3F5;
+    border-radius: 4px;
+    padding: 4px 12px;
+    overflow: hidden;
+    color: #1E88C7;
+    text-decoration: none;
+    text-indent: 0;
+    line-height: 20px;
+	cursor:pointer;
+}
+.a-upload input {
+    position: absolute;
+    font-size: 100px;
+    right: 0;
+    top: 0;
+    opacity: 0;
+	cursor:pointer;	
+}
+.a-upload:hover {
+    background: #AADFFD;
+    border-color: #78C3F3;
+    color: #004974;
+    text-decoration: none;
+	cursor:pointer;	
+}
+</style>
+<script>
+var goodsAttrEdit= function(){
+	if($('#goodsedit_cat_id').val()==0){
+		$.messager.alert('提示','请先选择商品分类！','warning');
+		return false;
+	}
+	$("#goodsattrdlg").dialog({    
+		title: '设置商品属性',      
+		closed: false,    
+		width: 720,
+		height:520,
+		cache: false,    
+		href: "/admin/goods/goodsattredit?id=<?php echo $dataset['id'];?>",    
+		modal: true,
+		buttons:[{
+			text:'保存',
+			id:'goodsattrsubmit',
+			iconCls:'icon-ok',
+		},{
+			text:'关闭',
+			iconCls:'icon-no',
+			handler:function(){$("#goodsattrdlg").dialog('close');}
+		}]  
+	});	
+}
+/***关闭umeditor BOF***/
+if(typeof(productseditum)!='undefined'){
+	productseditum.destroy();
+}
+/***关闭umeditor EOF***/
+var productseditum = UM.getEditor('productseditEditor', { initialFrameHeight: 540 , autoHeightEnabled: false});
+var productseditclearForm=function(){
+	$('#productseditfm').form('clear');
+	$('#rightTabs').tabs('close','编辑产品');
+}
+var productseditsubmitForm=function(){
+	vm.encoder();
+	$('#productseditfm').form('submit', {    
+			url:'/admin/goods/goodsupdate',
+			success: function(data){    
+				var data = eval('(' + data + ')');
+				
+				if(parseInt(data.ret)==200){
+						$.messager.show({
+								title:'提示',
+								msg:data.msg,
+								timeout:3000,
+								showType:'slide'
+						});						
+						if(typeof($("#goods"))!='undefined') $("#goods").datagrid('reload');
+				}else{
+						$.messager.alert('提示',data.msg,'warning');
+				}
+			}
+	});
+}
+$(function(){
+	Qiniu.uploader({
+				runtimes: 'html5,flash,html4', //上传模式,依次退化
+				browse_button: 'goodsEditPickFiles', //上传选择的点选按钮，**必需**
+				uptoken_url: '/admin/index/uptoken', //Ajax请求upToken的Url，**强烈建议设置**（服务端提供）
+				domain: 'http://oseihxzg8.bkt.clouddn.com/', //bucket 域名，下载资源时用到，**必需**
+				container: 'container', //上传区域DOM ID，默认是browser_button的父元素，
+				max_file_size: '5mb', //最大文件体积限制
+				flash_swf_url: '/static/Js/plupload/Moxie.swf', //引入flash,相对路径
+				max_retries: 3, //上传失败最大重试次数
+				dragdrop: true, //开启可拖曳上传
+				drop_element: 'container', //拖曳上传区域元素的ID，拖曳文件或文件夹后可触发上传
+				chunk_size: '2mb', //分块上传时，每片的体积
+				auto_start: true, //选择文件后自动上传，若关闭需要自己绑定事件触发上传
+				unique_names: true,
+				init: {
+						'FilesAdded': function(up, files) {
+							$('#uploadtable').show();
+							$('#success').hide();
+							plupload.each(files, function(file) {
+								var progress = new FileProgress(file, 'fsUploadProgress');
+								progress.setStatus("等待...");
+								progress.bindUploadCancel(up);
+							});
+						},
+						'BeforeUpload': function(up, file) {
+							var progress = new FileProgress(file, 'fsUploadProgress');
+							var chunk_size = plupload.parseSize(this.getOption('chunk_size'));
+							if (up.runtime === 'html5' && chunk_size) {
+								progress.setChunkProgess(chunk_size);
+							}
+						},
+						'UploadProgress': function(up, file) {
+							var progress = new FileProgress(file, 'fsUploadProgress');
+							var chunk_size = plupload.parseSize(this.getOption('chunk_size'));
+							progress.setProgress(file.percent + "%", file.speed, chunk_size);
+						},
+						'UploadComplete': function() {
+							$('#success').hide();
+						},
+						'FileUploaded': function(up, file, info) {
+							var progress = new FileProgress(file, 'fsUploadProgress');
+							progress.setComplete(up, info, 1);
+						},
+						'Error': function(up, err, errTip) {
+							$('#uploadtable').show();
+							var progress = new FileProgress(err.file, 'fsUploadProgress');
+							progress.setError();
+							progress.setStatus(errTip);
+						}
+				}
+		})
+})
+
+
+var vm = new Vue({
+	el: '#goodseditattrwrap',
+	data: {
+		attr: <?php echo json_encode($dataset['attr'], JSON_UNESCAPED_UNICODE);?>,
+	},
+	methods: {
+		encoder(){
+			$('#attr').val(JSON.stringify(vm.attr));
+		}
+	}
+});
+</script>
+

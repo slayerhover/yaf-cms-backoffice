@@ -1,0 +1,190 @@
+<form id="refundviewfm" method="post">
+<div id="tb<{$uniqid}>" style="padding:5px">
+<table border="0" width="100%" cellspacing="1" cellpadding="5" bgcolor="#c4d3e1" style="text-align:left; line-height:18px;">
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="15%">订单编号：</td>
+			<td  width="35%">{{dataset.order_no}}</td>
+			<td style="line-height:30px;"  width="15%">会员：</td>
+			<td  width="35%">{{dataset.members.phone}}  {{dataset.members.name}}</td>
+		</tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;">下单时间：</td>
+			<td>{{dataset.created_at}}</td>
+			<td style="line-height:30px;">客户经理：</td>
+			<td>{{dataset.members.clientmanager}}</td>
+		</tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;">订单金额：</td>
+			<td>{{dataset.amount}}</td>
+			<td style="line-height:30px;">订单类型：</td>
+			<td>{{dataset.shipping_type_name}}单</td>
+		</tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;">订单状态：</td>
+			<td colspan="3">
+			<span>当前状态：【{{dataset.status_name}}】</span>
+			<template v-if="dataset.shipping_type!=3&&dataset.status==600">
+			<a href="javascript:;" class="l-btn l-btn-small" onclick="refundupdate()"><span class="l-btn-left l-btn-icon-left"><span class="l-btn-text">确认退款</span><span class="l-btn-icon icon-ok">&nbsp;</span></span></a>
+			</template>
+			</td>
+		</tr>
+		<tr bgcolor="#FFFFFF" v-if="dataset.shipping_type!=3"> 
+			<td style="line-height:30px;">商品信息：</td>
+			<td colspan=3>
+			<table width=100%>
+			<tr bgcolor="#FFFFFF" v-for="goods in dataset.goods"> 
+				<td width="20%" style="line-height:30px; border-bottom:#f1f1f1 1px solid;">
+				<img :src="goods.logo" height="100px" /></td>
+				<td width="80%" style="line-height:30px; border-bottom:#f1f1f1 1px solid;">
+				<p>{{goods.goodsname}}</p>
+				<p>单价:{{goods.price}}</p>
+				<p>每箱{{goods.minquantity}}支  * {{goods.number}}</p>				
+				<p>小计:{{goods.price * goods.minquantity * goods.number}}</p>
+				</td>
+			</tr>			
+			</table>
+			</td>
+		</tr>		
+		<tr bgcolor="#FFFFFF" v-if="dataset.shipping_type!=3"> 
+			<td style="line-height:30px;">收件地址：</td>
+			<td colspan=3>
+			<table width=100%>
+			<tr bgcolor="#FFFFFF" v-if="dataset.shipping_type==1"> 
+				<td style="line-height:30px;">自提点：</td>
+				<td>				
+				<select  v-model="dataset.station_id" class="textbox-text validatebox-text">					
+					<option v-for="st in station" :value='st.id'>{{st.name}}_{{st.phone}}_{{st.address}}</option>
+				</select>			
+				</td>
+			</tr>
+			<tr bgcolor="#FFFFFF"> 
+				<td width="20%" style="line-height:30px;">姓名：</td>
+				<td width="80%">{{dataset.shipping_name}}</td>
+			</tr>
+			<tr bgcolor="#FFFFFF"> 
+				<td style="line-height:30px;">电话：</td>
+				<td>{{dataset.shipping_phone}}</td>
+			</tr>
+			<tr bgcolor="#FFFFFF" v-if="dataset.shipping_type==0||dataset.shipping_type==2"> 
+				<td style="line-height:30px;">省、市、区：</td>
+				<td>{{dataset.shipping_province}} {{dataset.shipping_city}} {{dataset.shipping_area}}</td>
+			</tr>
+			<tr bgcolor="#FFFFFF" v-if="dataset.shipping_type==0||dataset.shipping_type==2"> 
+				<td style="line-height:30px;">地址：</td>
+				<td>{{dataset.shipping_address}}</td>
+			</tr>
+			</table>
+			</td>
+		</tr>	
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;">支付信息：</td>
+			<td colspan=3>
+			<table width=100%>
+			<tr bgcolor="#FFFFFF"> 
+				<td width="20%" style="line-height:30px;">支付状态：</td>
+				<td width="80%">
+				<p v-if="dataset.status==300">已取消</p>
+				<p v-else-if="dataset.status==100">未支付</p>
+				<p v-else-if="dataset.status==700">已退款</p>
+				<p v-else>已支付</p></td>
+			</tr>
+			<tr bgcolor="#FFFFFF"> 
+				<td style="line-height:30px;">支付时间：</td>
+				<td>{{dataset.paid_at}}</td>
+			</tr>
+			<tr bgcolor="#FFFFFF"> 
+				<td style="line-height:30px;">支付金额：</td>
+				<td>{{dataset.amount}}</td>
+			</tr>
+			<tr bgcolor="#FFFFFF"> 
+				<td style="line-height:30px;">支付方式：</td>
+				<td>
+				<p v-if="dataset.paid_type==1">支付宝支付</p>
+				<p v-else-if="dataset.paid_type==2">微信支付</p>
+				<p v-else-if="dataset.paid_type==3">余额支付</p>
+				<p v-else>银联支付</p>
+				</td>
+			</tr>
+			<tr bgcolor="#FFFFFF"  v-if="dataset.transactionno"> 
+				<td style="line-height:30px;">流水号：</td>
+				<td>{{dataset.transactionno}}</td>
+			</tr>
+			<tr bgcolor="#FFFFFF"  v-if="dataset.coupon_id"> 
+				<td style="line-height:30px;">优惠券：</td>
+				<td>{{dataset.coupon.name}}</td>
+			</tr>
+			</table>
+			</td>
+		</tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;">其它：</td>
+			<td colspan=3>
+			<table width=100%>			
+			<tr bgcolor="#FFFFFF" class="pipeicontent" v-if="dataset.remark">  
+				<td width="20%" style="line-height:30px;">备注：</td>
+				<td width="80%"><div>{{dataset.remark}}</div></td>
+			</tr>
+			<tr bgcolor="#FFFFFF" class="pipeicontent" v-if="dataset.kuizeng_remark">  
+				<td width="20%"  style="line-height:30px;">馈赠留言：</td>
+				<td><div>{{dataset.kuizeng_remark}}</div></td>
+			</tr>
+			<tr bgcolor="#FFFFFF" class="pipeicontent" v-if="dataset.reason">  
+				<td width="20%"  style="line-height:30px;">退款原因：</td>
+				<td><div>{{dataset.reason}}</div></td>
+			</tr>
+			</table>
+			</td>
+		</tr>
+		
+		<tr> 
+			<td colspan="6" bgcolor="#F4F4F4" style="border-top:#ddd 1px solid;text-align:right; padding-right:25px;">			
+			<div>
+			<a href="javascript:;" class="l-btn l-btn-small" onclick="refundeditclearForm()"><span class="l-btn-left l-btn-icon-left"><span class="l-btn-text">关闭</span><span class="l-btn-icon icon-no">&nbsp;</span></span></a>
+			</div>
+			</td>			
+		</tr>
+</table>
+</div>
+</form>
+<script>
+var refundeditclearForm=function(){
+	$('#refundviewfm').form('clear');
+	$('#rightTabs').tabs('close','查看订单');
+}
+var refundupdate=function(statusCode){
+	$.messager.confirm('提示','确定退款吗？',function(r){
+	if(r){
+		$.post('/admin/financial/refundupdate', {order_no:vm.dataset.order_no}, function(data){
+			if(data.ret==0){
+					vm.dataset.status = statusCode;
+					vm.dataset.status_name = data.data.status_name;
+					$.messager.show({
+							title:'提示',
+							msg:data.msg,
+							timeout:3000,
+							showType:'slide'
+					});				
+					if(typeof($("#refund"))!='undefined') $("#refund").datagrid('reload');
+			}else{
+					$.messager.alert('提示',data.msg,'warning');
+			}
+		});
+	}});
+}
+var vm = new Vue({
+	el: '#refundviewfm',
+	data: {		
+		dataset: <?php echo json_encode($dataset, JSON_UNESCAPED_UNICODE);?>,
+		province: <?php echo json_encode($province, JSON_UNESCAPED_UNICODE);?>,
+		city: <?php echo json_encode($city, JSON_UNESCAPED_UNICODE);?>,
+		area: <?php echo json_encode($area, JSON_UNESCAPED_UNICODE);?>,
+		station:<?php echo json_encode($station, JSON_UNESCAPED_UNICODE);?>,
+	},
+	methods: {	
+	}
+});
+</script>
+<style>
+.textbox{
+	margin: 0px; padding-top: 0px; padding-bottom: 0px; height: 30px; line-height: 30px; width: 128px;
+}

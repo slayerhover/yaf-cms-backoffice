@@ -16,7 +16,7 @@ jQuery.QapTcha = {
 			txtUnlock : '已解锁,可以登陆了.',
 			disabledSubmit : true,
 			autoRevert : true,
-			PHPfile : '/public/huadongyz.html',
+			PHPfile : '/office/huadongyz',
 			autoSubmit : false
         };
 

@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+	<meta charset="UTF-8">
+	<title><{$title}></title>
+	<link rel="stylesheet" href="/css/QapTcha.jquery.css" type="text/css" />
+	<link rel="stylesheet" type="text/css" href="/css/main.css" media="screen">
+	<script type="text/javascript" src="/Js/jquery-1.10.2.min.js"></script>
+	<script type="text/javascript" src="/Js/browser.js"></script>
+	<script src="/Js/artDialog.js"></script>
+	<script src="/Js/artDialog/artDialog.js?skin=opera"></script>
+	
+
+	<script type="text/javascript" src="/Js/jquery-ui.js"></script>
+	<script type="text/javascript" src="/Js/jquery.ui.touch.js"></script>
+	<script type="text/javascript" src="/Js/QapTcha.jquery.js"></script>
+</head>
+<body>
+
+	<div style="display: none;" class="loading"><img src="/images/loading.gif" height="10" width="58"></div>
+	<div style="position: absolute; top: 0px; left: 0px; width: 100%; height: 100%; z-index: -1; overflow: hidden;" id="bg"><img style="display: block; opacity: 1; width: 1600px; height: 983px; margin-left: 0px; margin-top: -110px;" src="/images/bg.jpg"></div>
+	
+	<div class="login">
+		<h1><{$title}></h1>
+		<form>
+		<div class="form-send clearfix">
+			<p class="bot">
+				<label style="display: block;" for="user">用户</label>
+				<input class="text" name="user-name" id="user" autocomplete="off" required="required" type="text">
+			</p>
+			<p>
+				<label style="display: block;" for="pass">密码</label>
+				<input class="text" name="user-pass" id="pass" autocomplete="off" required="required" type="password">
+			</p>
+		</div>
+		<div class="clr"></div>
+		<div class="QapTcha"></div>
+		<div class="clr"></div>
+		<input name="send" class="submit" value="划动解锁" type="button" style="background-color:#A0A0A0; display:none;">
+		</form>
+	</div>
+	
+	<div class="footer">
+		<p>Copyleft © 2017 <{$title}></p>
+	</div>
+	
+<script type="text/javascript">
+$('.QapTcha').QapTcha({disabledSubmit:true,autoRevert:true,autoSubmit:true});
+		
+$('.loading').fadeOut();
+$('.form-send input').focus(function(){
+	if ( $(this).val() == '' ){
+		$(this).prev('label').fadeOut();
+	}
+});
+$('.form-send input').blur(function(){
+	if ( $(this).val() == '' ){
+		$(this).prev('label').fadeIn();
+	}
+});
+
+$('#bg').children('img').attr('src', '/images/bg.jpg').load(function(){
+	resizeImage('bg');
+	$(window).bind("resize", function() { resizeImage('bg'); });
+});
+		
+function resizeImage( id ){
+	$('#'+id).css({
+		'position':'absolute',
+		'top':'0px',
+		'left':'0px',
+		'width':'100%',
+		'height':'100%',
+		'z-index': -1,
+		'overflow':'hidden'
+	});
+	
+	var w = $(window).width(),
+		h = $(window).height(),
+		o = $('#'+id).children('img'),
+		iW = o.width(),
+		iH = o.height();
+	
+	o.css({ 'display':'block', 'opacity':0 });
+	
+	//首先判断窗口的大小比例 
+	if ( w > h ){
+		
+		//判断图片大小比例
+		if ( iW > iH ){			
+			
+			//当图片宽度大于图片高度的时候 设置图片宽为窗口的宽度
+			o.css({ 'width': w });
+
+			//则图片的高度 等于 (当前图片的高度 / 当前图片的高度) * 当前窗口的宽度
+			//这个比例怎么算的，就拿屏幕分辨率来说吧。 1024 * 768 的分辨率
+			//当我已知 1024 宽的时候，我要求出 768 怎么求呢，则这相当于高 = 比例 ( 768 / 1024 ) * 1024
+			//这里的图片高度就相当于，我当前的图片的  比例( 图片的高度 / 图片的宽度 ) * 窗口的宽度 其实也就是图片的宽度，因为我们这里把图片的宽度设置成和窗口一样宽了
+			o.css({ 'height': Math.round( (iH / iW)*w ) })
+			
+			var newIh = Math.round( (iH / iW)*w );
+			//这里还要判断算出来的 新图片高度 如果没有当前窗口高度高还要处理 原理和上面一样， 
+			//因为没有当前窗口高，则我们用图片高的比例来控制宽度  公示要是晕的，就用分辨率的例子 就好理解了
+
+			//console.log( newIh );
+			
+			if ( newIh < h ){
+				o.css({ 'height' : h });
+				o.css({ 'width' : Math.round( ( iW / iH )*h ) });
+			}
+		
+		} else {
+			//其实这里跟上面的新高度判断是一样的，因为图片宽度没有高度大
+			o.css({ 'height' : h });
+			o.css({ 'width' : Math.round( ( iW / iH )*h ) });
+		}
+
+	} else {
+		//这里也是一样，窗口的宽高没有高度大。则设置宽度，高度等于窗口的高度
+		o.css({ 'height' : h });
+		o.css({ 'width' : Math.round( ( iW / iH )*h ) });
+	}
+	
+	//这里将图片以中间显示 需要重新获取设置过的图片的 宽度和高度 然后将其于游览器宽高 对比
+	//如果还是大于窗口的宽或者高，则将其设置负边距来将设置成中间显示
+	var newIW = o.width(),
+		newIH = o.height();
+	
+	//console.log( newIW, newIH );
+	
+	if ( newIW > w ){
+		var l = ( newIW - w ) / 2;
+		o.css( 'margin-left', -l );
+	} else {
+		o.css( 'margin-left', 0 );
+	}
+	
+	if ( newIH > h ){
+		var t = ( newIH - h ) / 2;
+		o.css( 'margin-top', -t );
+	} else {
+		o.css( 'margin-top', 0 );
+	}
+	
+	o.css({'opacity':'1'});
+}
+		
+$(function(){	
+	$('.submit').click(function(){
+		var username	=	$("input[name='user-name']").val();
+		var userpass	=	$("input[name='user-pass']").val();		
+		if( username=='' || userpass=='' ){
+			dialog = art.dialog({
+								lock: true,
+								icon: 'warning',
+								content: '用户名密码不能为空.'
+							},'ok');
+			return false;
+		}		
+		$('.submit').attr('disabled','disabled');
+		$.post('<{url c=public a=checklogin}>', {'username':username,'password':userpass}, function(data){
+			switch(data.code){
+				case '200':							
+			        window.location.href = '/admin';
+					break;
+				case '100':	
+			    case '300':
+				case '400':
+				case '500':
+				case '600':
+				case '700':
+				case '800':
+					dialog = art.dialog({
+								lock: true,
+								icon: 'error',
+								content: data.message
+							},'ok');
+					break;			            	
+			}
+			$('.submit').removeAttr('disabled');
+		}, 'json');		
+	})
+})
+function fleshVerify(name){ //重载验证码
+	var timenow = new Date().getTime();
+	$("#"+name).attr("src", '<{url c=public a=yzcode}>?'+timenow);
+}
+</script>
+
+</body></html>

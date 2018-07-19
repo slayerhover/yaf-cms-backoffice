@@ -1,0 +1,159 @@
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>下载葡团APP</title>
+	<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+	<script src="https://cdn.jsdelivr.net/npm/vue"></script>
+	<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+	<script typet="text/javascript" src="https://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
+	<script src="/Js/mobileSelect.min.js"></script>
+	<link rel="stylesheet" type="text/css" href="http://putuan.zy52.cn/web/front/static/css/style.css" />
+	<link rel="stylesheet" type="text/css" href="/css/mobileSelect.css" />
+</head>
+<body>
+
+<div id="wrap">
+	<div class="center">
+		<div class="main-content">
+			<div>
+				<ul>
+					<li class="padding-top-1" style=" padding-bottom: 1rem;">
+
+					</li>
+				</ul>
+
+
+				<div class="padding-top-1 padding-left-1 padding-right-1" style="margin-top: 220px;">
+					<span @click="submitOrder" class="ui-btn" style=" background: rgb(255,255,255); border: none; color: #333; border-radius: 4px;">IOS版本下载</span>
+				</div>
+				<div class="padding-top-1 padding-left-1 padding-right-1">
+					<span @click="submitOrder" class="ui-btn" style=" background: rgb(255,255,255); border: none; color: #333; border-radius: 4px;">安卓版本下载</span>
+				</div>
+				<div class="padding-top-1 padding-left-1 padding-right-1" style="text-align: center;">
+					<span><a style="line-height: 50px; color:#fff;" href="http://putuan.zy52.cn/web/front">进入网页版商城</a></span>
+				</div>
+
+
+			</div>
+		</div>
+	</div>
+</div>
+
+<script>
+    function getUrlParam(name) {
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+        var r = window.location.search.substr(1).match(reg);
+        if (r != null) return unescape(r[2]);
+        return null;
+    }
+    var vm = new Vue({
+        el: '#wrap',
+        data: {
+			phone:'',
+        },
+        mounted:function () {},
+        methods: {
+            submitOrder() {
+                var _this = this;
+                $.ajax({
+                    type:"post",
+                    url:"http://putuan.zy52.cn/index/inviterIntention",
+                    data:{
+                        phone: _this.phone,
+                        inviter_id: <?php echo $inviter;?>,
+                    },
+                    success: function(data){
+                        alert(data.msg);
+                        if(data.ret == 0) {
+                            window.location.href = "http://putuan.zy52.cn/index/downloadApp"
+                        }
+                    }
+                });
+            }
+        }
+    })
+</script>
+<style scoped>
+	body{
+		background: url('/images/downloadApp.jpg') center top no-repeat #d02135;
+		background-size: cover;
+	}
+	.title {
+		display: flex;
+		line-height: 3rem;
+		margin: 1rem;
+		font-size: 1.2rem;
+		text-align: center;
+		border: rgb(102, 102, 102) 1px solid;
+		border-radius: 4px;
+	}
+	.title li {
+		flex: 1;
+	}
+	.title li.active {
+		background: rgb(102,102,102);
+		color: #fff;
+	}
+
+	.buy-count {
+		display: flex; position: relative; padding: 1rem; margin-top: 1rem;
+	}
+	.buy-count:before,.buy-count:after {
+		position: absolute;
+		left: 0;
+		right: 0;
+		height: 1px;
+		background: #f2f2f2;
+		content: '';
+	}
+	.buy-count:before {
+		top: 0;
+	}
+	.buy-count:after {
+		bottom: 0;
+	}
+
+	.input-order {
+		width: 78%;
+		border: none;
+		outline: none;
+		text-align: right;
+	}
+	.counter {
+		display: flex;
+		position: absolute;
+		top: -.6rem;
+		width: 8rem;
+		right: 0;
+		height: 2.5rem;
+		line-height: 2rem;
+		text-align: center;
+		border: #e3e3e3 1px solid;
+		border-radius: 4px;
+	}
+
+	.counter input {
+		width: 3rem;
+		text-align: center;
+		border: none;
+		border-left: #e3e3e3 1px solid;
+		border-right: #e3e3e3 1px solid;
+		outline: none;
+	}
+
+	.counter span {
+		flex-basis: 3rem;
+	}
+	.ticket {
+		position: relative;
+		padding-top: 1rem;
+	}
+	.ticket:before {
+		position: absolute;
+		left: 0;
+		right: 0;
+		top: 0;
+		height: 10px;
+		background: #f2f2f2;
+		content: '';
+	}
+</style>
+</body></html>

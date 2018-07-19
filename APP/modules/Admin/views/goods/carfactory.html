@@ -1,0 +1,130 @@
+<div id="tb<{$uniqid}>" style="padding:5px">
+		<table cellspacing="0" cellpadding="0"><tbody><tr>
+		<td><a href="javascript:;" onclick="carfactoryadd();" class="l-btn l-btn-small l-btn-plain" group="" id=""><span class="l-btn-left l-btn-icon-left"><span class="l-btn-text">增加</span><span class="l-btn-icon icon-add">&nbsp;</span></span></a></td><td><div class="datagrid-btn-separator"></div></td>
+		<td><a href="javascript:;" onclick="carfactoryedit();"  class="l-btn l-btn-small l-btn-plain" group="" id=""><span class="l-btn-left l-btn-icon-left"><span class="l-btn-text">编辑</span><span class="l-btn-icon icon-edit">&nbsp;</span></span></a></td>
+		<td><div class="datagrid-btn-separator"></div></td>
+		<td><a href="javascript:;" onclick="carfactorydelete();"  class="l-btn l-btn-small l-btn-plain" group="" id=""><span class="l-btn-left l-btn-icon-left"><span class="l-btn-text">删除</span><span class="l-btn-icon icon-cancel">&nbsp;</span></span></a></td><td><div class="datagrid-btn-separator"></div></td>
+		<td><a href="javascript:;" onclick="carfactoryreload();"  class="l-btn l-btn-small l-btn-plain" group="" id=""><span class="l-btn-left l-btn-icon-left"><span class="l-btn-text">重载</span><span class="l-btn-icon icon-reload">&nbsp;</span></span></a></td>
+		<td>&nbsp;&nbsp;<input  id="carfactorykeywords"  style="width:100px" type="text" class= "easyui-input textbox" > </input></td>
+		<td><span><a href="javascript:void(0)" class="easyui-linkbutton" plain="true" iconCls="icon-search" onclick="carfactorysearch()">查询</a></span>	</td>
+		</tr></tbody></table>
+</div>
+
+<div class="con" onselectstart="return false;" style="-moz-user-select:none;">
+    <table id="carfactory"></table>
+</div>
+
+<div id="carfactorydlg" class="easyui-dialog" style="width:720px; height:460px;" title="信息框" closed="true"></div>
+
+<script>
+var carfactoryadd=function(){
+                $("#carfactorydlg").dialog({    
+					title: '新增信息',      
+					closed: false,    
+					width: 600,
+					height:240,
+					cache: false,    
+					href: '/products/carfactoryadd',    
+					modal: true,
+					buttons:[{
+						text:'保存',
+						id:'carfactoryaddsubmit',
+						iconCls:'icon-ok',
+					},{
+						text:'关闭',
+						iconCls:'icon-no',
+						handler:function(){$("#carfactorydlg").dialog('close');}
+					}]  
+				});
+}
+var carfactoryedit=function(){
+				var row = $('#carfactory').datagrid('getSelected');
+				if (row){
+						$("#carfactorydlg").dialog({    
+							title: '编辑信息',      
+							closed: false,
+							width: 600,
+							height:240,    
+							cache: false,    
+							href: '/products/carfactoryedit?id='+row.id,
+							modal: true,
+							buttons:[{
+								text:'保存',
+								id:'carfactoryupdatesubmit',
+								iconCls:'icon-ok',
+							},{
+								text:'关闭',
+								iconCls:'icon-no',
+								handler:function(){$("#carfactorydlg").dialog('close');}
+							}]  
+						});				
+				}else{
+						$.messager.alert('提示','请先选择要编辑的行！','warning');
+				}
+}
+var carfactorydelete=function(){
+				var row = $('#carfactory').datagrid('getSelected');
+				if (row){
+                    $.messager.confirm('提示','确定删除吗？',function(r){
+                        if(r==true){
+                            $.messager.progress();
+                            $.post('/products/carfactorydelete', {id:row.id}, function(data){
+                                $.messager.progress('close');
+								if(data.code=='200'){
+										$.messager.show({
+												title:'提示',
+												msg:data.msg,
+												timeout:3000,
+												showType:'slide'
+										});
+										carfactoryreload();
+								}else{
+										$.messager.alert('提示',data.msg,'warning');
+								}								
+                            },'json');
+                        }
+                    });
+                }else{
+						$.messager.alert('提示','请先选择要删除的行！','warning');
+				}
+}
+var carfactoryreload=function(){
+                $("#carfactory").datagrid('reload');
+}
+var carfactorysearch=function(){
+		var wh = $(window).height()-$(".top").height()-70;//表格高度
+        $("#carfactory").datagrid({
+            title:'友情链接',
+            height:wh,//高度
+            singleSelect:true,//如果为true，则只允许选择一行
+            striped:true,//是否显示斑马线效果。
+            rownumbers:true,//如果为true，则显示一个行号列。
+            pagination:true,//是否显示分页
+            pageSize:10,
+            pageList:[10,15,20,25],
+            method:'post',
+            sortName:'letter',
+            sortOrder:'asc',
+            url:'<{url c=products a=carfactoryGet}>',
+			queryParams : {keywords:$('#carfactorykeywords').val()},
+            fitColumns:true,//真正的自动展开/收缩列的大小，以适应网格的宽度，防止水平滚动。
+            nowrap:true,//如果为true，则在同一行中显示数据。设置为true可以提高加载性能。 是否换行
+            selectOnCheck:false,
+            checkOnSelect:true,
+			toolbar: '#tb<{$uniqid}>',
+			
+            columns:[[
+                {field:'factory',title:'厂家名称',width:'25%'},
+                {field:'brand',title:'品牌',width:'15%',sortable:true},
+				{field:'letter',title:'品牌首字母',width:'10%',sortable:true},
+				{field:'sortorder',title:'排序',width:'10%',sortable:true},
+				{field:'created_at',title:'创建时间',width:'20%'},
+				{field:'updated_at',title:'更新时间',width:'20%'},
+            ]],
+			onDblClickRow : function(index,field){					
+				carfactoryedit();
+			},
+    	});
+}
+carfactorysearch();
+</script>

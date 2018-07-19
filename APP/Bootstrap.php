@@ -1,22 +1,11 @@
-<?php
-use Illuminate\Database\Capsule\Manager as Capsule;
+<?phpuse Illuminate\Database\Capsule\Manager as Capsule;
 class Bootstrap extends Yaf_Bootstrap_Abstract {
 	protected $config;
 
 	public function _initConfig(Yaf_Dispatcher $dispatcher) {
 		$this->config = Yaf_Application::app()->getConfig();		
-		Yaf_Registry::set('config', $this->config);		
-		
-		Yaf_Loader::import(APP_PATH . "/vendor/autoload.php");		
-		Yaf_Loader::import(APP_PATH . '/conf/function.php');		
-		//判断请求方式，命令行请求应跳过一些HTTP请求使用的初始化操作，如模板引擎初始化		
-		if(!empty($this->config->application->suffix)) {
-			$requesturi     =       str_replace('.'.$this->config->application->suffix,'/',$_SERVER['REQUEST_URI']);
-			$requesturi     =       str_replace('?', '/', $requesturi);
-			$requesturi     =       str_replace('//', '/', $requesturi);
-            $dispatcher->getRequest()->setRequestUri($requesturi);						
-        }
-		$dispatcher->autoRender($this->config->application->autoRender);
+		Yaf_Registry::set('config', $this->config);						Yaf_Loader::import(APP_PATH . "/vendor/autoload.php");				Yaf_Loader::import(APP_PATH . '/conf/function.php');		
+		//判断请求方式，命令行请求应跳过一些HTTP请求使用的初始化操作，如模板引擎初始化				if(!empty($this->config->application->suffix) && !$dispatcher->getRequest()->isCli()) {			$requesturi	=str_replace('.'.$this->config->application->suffix,'/',$_SERVER['REQUEST_URI']);			$requesturi =str_replace('?', '/', $requesturi);			$requesturi =str_replace('//', '/', $requesturi);            $dispatcher->getRequest()->setRequestUri($requesturi);						        }		$dispatcher->autoRender($this->config->application->autoRender);
 	}
 
 	public function _initError(Yaf_Dispatcher $dispatcher) {
@@ -39,11 +28,8 @@ class Bootstrap extends Yaf_Bootstrap_Abstract {
 			$dispatcher->registerPlugin($benchmark);
 		}
 		//cookie涉及HTTP请求，命令行下应禁用
-		if (REQUEST_METHOD != 'CLI')
-		{			
-			$auth	= new AuthPlugin();
-			$dispatcher->registerPlugin($auth);
-			
+		if ($dispatcher->getRequest()->getMethod() != 'CLI')
+		{						
 			$antizy = new AntizyPlugin();
 			$dispatcher->registerPlugin($antizy);
 		}
@@ -59,49 +45,16 @@ class Bootstrap extends Yaf_Bootstrap_Abstract {
 	}
 
 	public function _initMemcache() {
-		if (!empty($this->config->cache->caching_system))
-		{
-			Yaf_Registry::set('cache_exclude_table', explode('|', $this->config->cache->cache_exclude_table));
+		if ($this->config->cache->redis->enable==TRUE){
 			Yaf_Loader::import(APP_PATH . '/library/Cache/Cache.php');
-			if (isset($this->config->cache->prefix))
-			{
-				define('CACHE_KEY_PREFIX', $this->config->cache->prefix);
-			}
-			if (isset($this->config->cache->object_cache_enable) && $this->config->cache->object_cache_enable)
-			{
-				define('OBJECT_CACHE_ENABLE', true);
-			}
-			else
-			{
-				define('OBJECT_CACHE_ENABLE', false);
-			}
-		}
-		else
-		{
-			define('OBJECT_CACHE_ENABLE', false);
+			define('CACHE_ENABLE', true);			define('CACHE_KEY_PREFIX', $this->config->cache->redis->prefix);
+		}else{
+			define('CACHE_ENABLE', false);
 		}
 	}
 
 	public function _initDatabase() {
-		$capsule = new Capsule;
-        // 创建默认链接
-        $capsule->addConnection(Yaf_Application::app()->getConfig()->database->toArray());
-        // biz业务链接
-        // $capsule->addConnection(Yaf_Application::app()->getConfig()->biz->toArray(), 'biz');
-        // 设置全局静态可访问
-        $capsule->setAsGlobal();
-        // 启动Eloquent
-        $capsule->bootEloquent();
-	}
-
-	public function _initView(Yaf_Dispatcher $dispatcher) {
-		//命令行下基本不需要使用smarty
-		if (REQUEST_METHOD != 'CLI')
-		{
-			$smarty = new Smarty_Adapter(null, $this->config->smarty);
-			$smarty->registerFunction('function', 'truncate', array('Tools', 'truncate'));
-			$dispatcher->setView($smarty);
-		}
+		$capsule = new Capsule;        // 创建默认链接        $capsule->addConnection(Yaf_Application::app()->getConfig()->database->toArray());        // biz业务链接        // $capsule->addConnection(Yaf_Application::app()->getConfig()->biz->toArray(), 'biz');        // 设置全局静态可访问        $capsule->setAsGlobal();        // 启动Eloquent        $capsule->bootEloquent();
 	}
 		
 }

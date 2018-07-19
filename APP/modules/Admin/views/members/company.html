@@ -1,0 +1,151 @@
+<div id="tb<{$uniqid}>" style="padding:5px">
+		<table cellspacing="0" cellpadding="0"><tbody><tr>
+		<td><SELECT id='companytype' size='1' onchange="companysearch();">
+				<OPTION value="0">所有类别</OPTION>
+				<OPTION value="0" disabled="disabled"> -------- </OPTION>
+				<OPTION value="1">修理厂  : <{$type1num}>家</OPTION>
+				<OPTION value="2">配件商  : <{$type2num}>家</OPTION>
+				<OPTION value="3">保险公司 : <{$type3num}>家</OPTION>
+			</SELECT>
+		</td>
+		<td><a href="javascript:;" onclick="companyedit();"  class="l-btn l-btn-small l-btn-plain" group="" id=""><span class="l-btn-left l-btn-icon-left"><span class="l-btn-text">审核/编辑</span><span class="l-btn-icon icon-edit">&nbsp;</span></span></a></td>
+		<td><div class="datagrid-btn-separator"></div></td>
+		<td><a href="javascript:;" onclick="brand2insure();"  class="l-btn l-btn-small l-btn-plain" group="" id=""><span class="l-btn-left l-btn-icon-left"><span class="l-btn-text">品牌/保险公司</span><span class="l-btn-icon icon-trash">&nbsp;</span></span></a></td><td><div class="datagrid-btn-separator"></div></td>
+		<td><a href="javascript:;" onclick="companydelete();"  class="l-btn l-btn-small l-btn-plain" group="" id=""><span class="l-btn-left l-btn-icon-left"><span class="l-btn-text">删除</span><span class="l-btn-icon icon-cancel">&nbsp;</span></span></a></td><td><div class="datagrid-btn-separator"></div></td>
+		<td><a href="javascript:;" onclick="companyreload();"  class="l-btn l-btn-small l-btn-plain" group="" id=""><span class="l-btn-left l-btn-icon-left"><span class="l-btn-text">重载</span><span class="l-btn-icon icon-reload">&nbsp;</span></span></a></td>
+		<td>&nbsp;&nbsp;<input  id="companykeywords"  style="width:100px" type="text" class= "easyui-input textbox" > </input></td>
+		<td><span><a href="javascript:void(0)" class="easyui-linkbutton" plain="true" iconCls="icon-search" onclick="companysearch()">查询</a></span>	</td>
+		</tr></tbody></table>
+</div>
+
+<div class="con" onselectstart="return false;" style="-moz-user-select:none;">
+    <table id="company"></table>
+</div>
+
+<div id="companydlg" class="easyui-dialog" style="width:740px; height:550px;" title="信息框" closed="true"></div>
+
+<script>
+var companyedit=function(){
+				var row = $('#company').datagrid('getSelected');
+				if (row){
+						$("#companydlg").dialog({    
+							title: '编辑信息',      
+							closed: false,
+							width: 700,
+							height:520,    
+							cache: false,    
+							href: '/members/companyedit?id='+row.id,
+							modal: true,
+							buttons:[{
+								text:'保存',
+								id:'companyupdatesubmit',
+								iconCls:'icon-ok',
+							},{
+								text:'关闭',
+								iconCls:'icon-no',
+								handler:function(){$("#companydlg").dialog('close');}
+							}]  
+						});				
+				}else{
+						$.messager.alert('提示','请先选择要编辑的行！','warning');
+				}
+}
+var brand2insure=function(){
+				var row = $('#company').datagrid('getSelected');
+				if (row){
+						if(row.type!=2){
+							$.messager.alert('提示','请选择配件商公司！','warning');
+						}else{
+							$("#companydlg").dialog({    							
+								closed: false,
+								cache: false,    
+								width: 700,
+								height:520,
+								href: '/members/brand2insure?id='+row.id,
+								buttons:[]
+							});				
+						}
+				}else{
+						$.messager.alert('提示','请先选择配件商！','warning');
+				}
+}
+var companydelete=function(){
+				var row = $('#company').datagrid('getSelected');
+				if (row){
+                    $.messager.confirm('提示','确定删除吗？',function(r){
+                        if(r==true){
+                            $.messager.progress();
+                            $.post('/members/companydelete', {id:row.id}, function(data){
+                                $.messager.progress('close');
+								if(data.code=='200'){
+										$.messager.show({
+												title:'提示',
+												msg:data.msg,
+												timeout:3000,
+												showType:'slide'
+										});
+										companyreload();
+								}else{
+										$.messager.alert('提示',data.msg,'warning');
+								}								
+                            },'json');
+                        }
+                    });
+                }else{
+						$.messager.alert('提示','请先选择要删除的行！','warning');
+				}
+}
+var companyreload=function(){
+                $("#company").datagrid('reload');
+}
+var companysearch=function(){
+		var wh = $(window).height()-$(".top").height()-70;//表格高度
+        $("#company").datagrid({
+            title:'会员管理',
+            height:wh,//高度
+            singleSelect:true,//如果为true，则只允许选择一行
+            striped:true,//是否显示斑马线效果。
+            rownumbers:true,//如果为true，则显示一个行号列。
+            pagination:true,//是否显示分页
+            pageSize:10,
+            pageList:[10,15,20,25],
+            method:'post',
+            sortName:'id',
+            sortOrder:'desc',
+            url:'<{url c=members a=companyGet}>',
+			queryParams : {keywords:$('#companykeywords').val(),type:$('#companytype').val()},
+            fitColumns:true,//真正的自动展开/收缩列的大小，以适应网格的宽度，防止水平滚动。
+            nowrap:true,//如果为true，则在同一行中显示数据。设置为true可以提高加载性能。 是否换行
+            selectOnCheck:false,
+            checkOnSelect:true,
+			toolbar: '#tb<{$uniqid}>',
+			rowStyler: function(index,row){
+					if (row.authstatus=='待认证'){
+						return 'color:#F00;font-style:italic;';
+					}
+			},
+            columns:[[
+                {field:'company',title:'名称',width:'20%'},
+				{field:'logo',title:'Logo',width:'10%',formatter:function (value,rowData,rowIndex){
+					if(value!=''){
+						  	return '<img src="'+value+'?imageView2/1/w/60/h/60" style="height:60px;width:60px;">';
+					}else{
+						  	return 'none';
+					}
+				}},
+				{field:'typename',title:'类别',width:'15%'},				
+				{field:'tel',title:'电话',width:'10%'},				
+				{field:'authstatus',title:'状态',width:'10%'},
+				{field:'account',title:'总资产',width:'5%'},
+				{field:'frozen',title:'冻结金额',width:'5%'},
+				{field:'usemoney',title:'可提现',width:'5%'},
+				{field:'created_at',title:'创建时间',width:'10%',sortable:true},
+				{field:'updated_at',title:'更新时间',width:'10%',sortable:true},
+            ]],
+			onDblClickRow : function(index,field){					
+				companyedit('编辑会员');
+			} 
+    	});
+}
+companysearch();
+</script>

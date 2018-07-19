@@ -1,0 +1,201 @@
+<div id="tb<?php echo $uniqid;?>" style="padding:5px">
+    <table cellspacing="0" cellpadding="0">
+        <tbody>
+        <tr>
+            <td><a href="javascript:;" onclick="membersedit();" class="l-btn l-btn-small l-btn-plain" group="" id=""><span class="l-btn-left l-btn-icon-left"><span class="l-btn-text">编辑</span><span class="l-btn-icon icon-edit">&nbsp;</span></span></a></td>
+            <td>
+                <div class="datagrid-btn-separator"></div>
+            </td>
+            <td><a href="javascript:;" onclick="membersdelete();" class="l-btn l-btn-small l-btn-plain" group="" id=""><span class="l-btn-left l-btn-icon-left"><span class="l-btn-text">删除</span><span class="l-btn-icon icon-cancel">&nbsp;</span></span></a></td>
+            <td>
+                <div class="datagrid-btn-separator"></div>
+            </td>
+            <td><a href="javascript:;" onclick="membersreload();" class="l-btn l-btn-small l-btn-plain" group="" id=""><span class="l-btn-left l-btn-icon-left"><span class="l-btn-text">重载</span><span class="l-btn-icon icon-reload">&nbsp;</span></span></a></td>
+            <td>
+                <div class="datagrid-btn-separator"></div>
+            </td>
+            <td><select  id="membersconsultant_id" name="consultant_id" style="width: 100px;" class="textbox-text validatebox-text">
+                <OPTION value="0">客户经理</OPTION>
+                <OPTION value="0" disabled="disabled"> -------- </OPTION>
+                <?php foreach($consultant as $k=>$v):?>
+                <option <?php if($v['id']==$dataset['consultant_id']) echo 'selected'; ?> value="<?php echo $v['id'];?>"><?php echo $v['name'];?></option>
+                <?php endforeach;?>
+            </select>
+                <span><a href="javascript:void(0)" class="easyui-linkbutton" plain="true" iconCls="icon-ok" onclick="setConsultant()">设置客户经理</a></span>
+            </td>
+            <td><span style="line-height:30px;">注册日期</span>
+                <input id="membersstart_on" style="width:110px" type="text" class="easyui-datebox"> </input>至
+                <input id="membersend_on" style="width:110px" type="text" class="easyui-datebox"> </input>
+            </td>
+            <td>&nbsp;&nbsp;<input id="memberskeywords" placeholder="手机号或名称" style="width:100px" type="text" class="easyui-input textbox"> </input></td>
+            <td><span><a href="javascript:void(0)" class="easyui-linkbutton" plain="true" iconCls="icon-search" onclick="memberssearch()">查询</a></span></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="con" onselectstart="return false;" style="-moz-user-select:none;">
+    <table id="members"></table>
+</div>
+
+<div id="membersdlg" class="easyui-dialog" title="信息框" style="width: 720px; height: 664px;" closed="true"></div>
+
+<script>
+    var membersedit = function () {
+        var row = $('#members').datagrid('getSelected');
+        if (row) {
+            $("#membersdlg").dialog({
+                title: '编辑信息',
+                closed: false,
+                width: 720,
+                height: 664,
+                cache: false,
+                href: '/admin/members/membersedit?id=' + row.id,
+                modal: true,
+                buttons: [{
+                    text: '保存',
+                    id: 'membersupdatesubmit',
+                    iconCls: 'icon-ok',
+                }, {
+                    text: '关闭',
+                    iconCls: 'icon-no',
+                    handler: function () {
+                        $("#membersdlg").dialog('close');
+                    }
+                }]
+            });
+        } else {
+            $.messager.alert('提示', '请先选择要编辑的行！', 'warning');
+        }
+    }
+    var membersdelete = function () {
+        var row = $('#members').datagrid('getSelections');
+        var item= [];
+        for(var i=0;i<row.length;i++){
+            item.push(row[i].id);
+        }
+        if (row) {
+            $.messager.confirm('提示', '确定批量删除选中行吗？', function (r) {
+                if (r == true) {
+                    $.messager.progress();
+                    $.post('/admin/members/membersdelete', {id: item}, function (data) {
+                        $.messager.progress('close');
+                        if (data.code == '200') {
+                            $.messager.show({
+                                title: '提示',
+                                msg: data.msg,
+                                timeout: 3000,
+                                showType: 'slide'
+                            });
+                            membersreload();
+                        } else {
+                            $.messager.alert('提示', data.msg, 'warning');
+                        }
+                    }, 'json');
+                }
+            });
+        } else {
+            $.messager.alert('提示', '请选择要删除的行！', 'warning');
+        }
+    }
+    var membersreload = function () {
+        $("#members").datagrid('reload');
+    }
+    var setConsultant = function(){
+        var row = $('#members').datagrid('getSelections');
+        var item= [];
+        for(var i=0;i<row.length;i++){
+            item.push(row[i].id);
+        }
+        if (row.length>0) {
+            $.messager.confirm('提示', '确定批量设置客户经理吗？', function (r) {
+                if (r == true) {
+                    $.messager.progress();
+                    $.post('/admin/members/setConsultant', {memberIds: item, consultantId:$('#consultant_id').val()}, function (data) {
+                        $.messager.progress('close');
+                        if (data.code == '200') {
+                            $.messager.show({
+                                title: '提示',
+                                msg: data.msg,
+                                timeout: 3000,
+                                showType: 'slide'
+                            });
+                            membersreload();
+                        } else {
+                            $.messager.alert('提示', data.msg, 'warning');
+                        }
+                    }, 'json');
+                }
+            });
+        } else {
+            $.messager.alert('提示', '请选择要操作的行！', 'warning');
+        }
+    }
+    var memberssearch = function () {
+        var height = $(window).height() - $(".top").height() - 125;
+        var width = $(window).width() - $("#leftMenu").width() - 13;
+        $("#members").datagrid({
+            title: '会员管理',
+            width: width,
+            height: height,
+            singleSelect: false,//如果为true，则只允许选择一行
+            striped: true,//是否显示斑马线效果。
+            rownumbers: true,//如果为true，则显示一个行号列。
+            pagination: true,//是否显示分页
+            pageSize: 10,
+            pageList: [10, 15, 20, 25],
+            method: 'post',
+            sortName: 'created_at',
+            sortOrder: 'desc',
+            url: '/admin/members/membersGet/',
+            queryParams: {keywords: $('#memberskeywords').val(),consultant_id:$('#membersconsultant_id').val(),start_on:$('#membersstart_on').val(),end_on:$('#membersend_on').val()},
+            fitColumns: true,//真正的自动展开/收缩列的大小，以适应网格的宽度，防止水平滚动。
+            nowrap: true,//如果为true，则在同一行中显示数据。设置为true可以提高加载性能。 是否换行
+            selectOnCheck: true,
+            checkOnSelect: true,
+            toolbar: '#tb<?php echo $uniqid;?>',
+            rowStyler: function (index, row) {
+                if (row.status != '1') {
+                    return 'color:#dc324d;';
+                }
+            },
+            columns: [[
+                {field:'id',title:'ID',checkbox:'true', width:'2%'},
+                {field: 'phone', title: '电话', width: '10%'},
+                {field: 'name', title: '名称', width: '5%'},
+                {
+                    field: 'avatar', title: '头像', width: '5%', formatter: function (value, rowData, rowIndex) {
+                        if (value != '') {
+                            return '<img src="' + value + '?imageView2/1/w/60/h/60" style="height:60px;width:60px;">';
+                        } else {
+                            return '';
+                        }
+                    }
+                },
+                {
+                    field: 'gender', title: '性别', width: '2%', align:'center', formatter: function (value, rowData, rowIndex) {
+                        return value==1 ? '男':'女';
+                    }
+                },
+                {
+                    field: 'consultant.name', title: '客户经理', width: '10%', align:'center',  formatter: function (val, row, index) {
+                        if (row.consultant) {
+                            return row.consultant.name
+                        }
+                    }
+                },
+                {
+                    field: 'status', title: '状态', width: '5%', formatter: function (val, row, index) {
+                        return val == 1 ? '激活' : '冻结';
+                    }
+                },
+                {field: 'money', title: '账户余额', width: '5%', sortable: true},
+                {field: 'commission', title: '佣金额度', width: '5%', sortable: true},
+                {field: 'company', title: '公司', width: '10%'},
+                {field: 'created_at', title: '注册时间', width: '10%', sortable: true},
+                {field: 'logined_at', title: '最后登陆', width: '10%', sortable: true},
+            ]]
+        });
+    }
+    memberssearch();
+</script>

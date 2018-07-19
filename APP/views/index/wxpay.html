@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title></title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link rel="stylesheet" href="http://y.fenglaila.com/web/css/mui.min.css">
+		<script src="http://y.fenglaila.com/web/js/jquery-3.2.1.js"></script>
+		<script src="http://y.fenglaila.com/web/js/mui.min.js"></script>
+		<script src="http://y.fenglaila.com/web/js/vue.min.js"></script>
+	</head>
+	<body>			
+		<div class="mui-content">
+			<ul class="mui-table-view" style="font-size: 12px;">
+				<li class="mui-table-view-cell">订单编号：<span><?php echo $order_no;?></span></li>
+				<li class="mui-table-view-cell">支付金额：<span>￥<?php echo $fee;?></span></li>
+				<li class="mui-table-view-cell">收款方：<span>葡神国际电子商务有限公司</span></li>
+			</ul>	
+			<div style="padding:10px"><button style="width: 100%;" type="button" id="pay" data-loading-icon-position="right" class="mui-btn mui-btn-success mui-btn-outlined">支付中...</button>
+			</div></div>
+		<!--footer-->
+		<div id="footer"></div>
+<script>
+	$(function(){
+		//$('#footer').load('footer.html');
+		//mui('#pay').button('loading');//切换为loading状态
+	})
+</script>
+<script type="text/javascript">
+	function jsApiCall()
+	{
+		WeixinJSBridge.invoke(
+			'getBrandWCPayRequest',
+			<?php echo $jsApiParameters;?>,
+			function(res){
+				//WeixinJSBridge.log(res.err_msg);
+				//alert(JSON.stringify(res));
+				if(res.err_msg!='get_brand_wcpay_request:ok'){
+					alert('支付已被取消.');
+					history.back(-1);
+					return false;
+				}
+				window.location.href="<?php echo $return_url;?>";
+			}
+		);
+	}
+	function callpay()
+	{
+		if (typeof WeixinJSBridge == "undefined"){
+		    if( document.addEventListener ){
+		        document.addEventListener('WeixinJSBridgeReady', jsApiCall, false);
+		    }else if (document.attachEvent){
+		        document.attachEvent('WeixinJSBridgeReady', jsApiCall); 
+		        document.attachEvent('onWeixinJSBridgeReady', jsApiCall);
+		    }
+		}else{
+		    jsApiCall();
+		}
+	}
+	callpay();
+</script>	
+	</body>
+</html>

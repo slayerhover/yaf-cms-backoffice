@@ -1,0 +1,60 @@
+<form id="goodscateditfm" method="post">
+<input type="hidden" name="id" value="<?php echo $dataset['id'];?>" />
+<table border="0" width="100%" cellspacing="1" cellpadding="5" bgcolor="#c4d3e1" style="text-align:left; line-height:18px;">
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">上级菜单：</td>
+			<td width="80%">
+			<SELECT name='up' style="width:153px; height:25px;" size='1'>
+				<OPTION value="0">根目录 </OPTION>
+				<OPTION value="0" disabled="disabled"> ----------------- </OPTION>
+				<?php foreach($upRow as $k=>$v):?>
+				<OPTION <?php if($v['id']==$upRow['id']) echo 'selected';?> value="<?php echo $v['id'];?>"><?php echo $v['title'];?></OPTION>
+				<?php endforeach;?>
+			</SELECT>
+			</td>
+		</tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">标题：</td>
+			<td width="80%"><input name="title" type="text" style="width:400px;" value="<?php echo $dataset['title'];?>" class="textbox-text validatebox-text textbox-prompt easyui-validatebox" placeholder="请输入标题.."  required="true"></td>
+		</tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">排序：</td>
+			<td width="80%"><input name="sortorder" type="text" class="textbox-text validatebox-text textbox-prompt easyui-validatebox" value="<?php echo $dataset['sortorder'];?>" placeholder="请输入排序.."></td>
+		</tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">属性：</td>
+			<td width="80%">
+			<?php foreach($attribute as $k=>$v):?>
+				<label style="margin-right:20px;"><input name="attributes[]" type="checkbox" class="textbox-prompt" <?php echo $v['flag'] ? 'checked':'';?> value="<?php echo $v['id'];?>" ><?php echo $v['name'];?></label>
+			<?php endforeach;?>
+			</td>
+		</tr>
+</table>
+</form>
+
+<script>
+$(function(){
+		$('#goodscateditsubmit').click(function(data){			
+				$('#goodscateditfm').form('submit', {    
+					url:'/admin/goodscat/update',    
+					success: function(data){    
+						var data = eval('(' + data + ')');
+						
+						if(data.ret==0){
+								$.messager.show({
+										title:'提示',
+										msg:data.msg,
+										timeout:3000,
+										showType:'slide'
+								});				
+								$('#goodscateditfm').form('clear');
+								$("#goodscatdlg").dialog('close');
+								$("#goodscat").treegrid('reload');
+						}else{
+								$.messager.alert('提示',data.msg,'warning');
+						}
+					}    
+				});
+		})	
+});
+</script>

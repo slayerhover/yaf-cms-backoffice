@@ -1,0 +1,152 @@
+<div id="tb<?php echo $uniqid;?>" style="padding:5px">
+		<table cellspacing="0" cellpadding="0"><tbody><tr>	
+		<td><a href="javascript:;" onclick="feedbackedit();"  class="l-btn l-btn-small l-btn-plain" group="" id=""><span class="l-btn-left l-btn-icon-left"><span class="l-btn-text">回复</span><span class="l-btn-icon icon-edit">&nbsp;</span></span></a></td>
+		<td><div class="datagrid-btn-separator"></div></td>	
+		<td><a href="javascript:;" onclick="feedbackstatus();"  class="l-btn l-btn-small l-btn-plain" group="" id=""><span class="l-btn-left l-btn-icon-left"><span class="l-btn-text">显示/隐藏</span><span class="l-btn-icon icon-lock">&nbsp;</span></span></a></td>			
+		<td><a href="javascript:;" onclick="feedbackdelete();"  class="l-btn l-btn-small l-btn-plain" group="" id=""><span class="l-btn-left l-btn-icon-left"><span class="l-btn-text">删除</span><span class="l-btn-icon icon-cancel">&nbsp;</span></span></a></td><td><div class="datagrid-btn-separator"></div></td>		
+		<td><a href="javascript:;" onclick="feedbackreload();"  class="l-btn l-btn-small l-btn-plain" group="" id=""><span class="l-btn-left l-btn-icon-left"><span class="l-btn-text">重载</span><span class="l-btn-icon icon-reload">&nbsp;</span></span></a></td>
+		<td>&nbsp;&nbsp;<input  id="feedbackkeywords"  style="width:100px" type="text" placeholder="名称,可选值" class= "easyui-input textbox" > </input></td>
+		<td><span><a href="javascript:void(0)" class="easyui-linkbutton" plain="true" iconCls="icon-search" onclick="feedbacksearch()">查询</a></span>	</td>
+		</tr></tbody></table>
+</div>
+
+<div class="con" onselectstart="return false;" style="-moz-user-select:none;">
+    <table id="feedback"></table>
+</div>
+
+<div id="feedbackdlg" class="easyui-dialog" style="width:720px; height:540px;" title="信息框" closed="true"></div>
+
+<script>
+var feedbackedit=function(){
+				var row = $('#feedback').datagrid('getSelected');
+				if (row){
+						$("#feedbackdlg").dialog({    
+							title: '回复评价',      
+							closed: false,
+							width: 720,
+							height:540,    
+							cache: false,    
+							href: '/admin/feedback/edit?id='+row.id,
+							modal: true,
+							buttons:[{
+								text:'保存',
+								id:'feedbackeditsubmit',
+								iconCls:'icon-ok',
+							},{
+								text:'关闭',
+								iconCls:'icon-no',
+								handler:function(){$("#feedbackdlg").dialog('close');}
+							}]  
+						});				
+				}else{
+						$.messager.alert('提示','请先选择要编辑的行！','warning');
+				}
+}
+var feedbackstatus=function(){
+				var row = $('#feedback').datagrid('getSelected');
+				if (row){
+					var tips = (row.status!='1') ? '确定显示吗？' : '确定隐藏吗？';
+					var status = (row.status!='1') ? 1 : 0;
+					$.messager.confirm('提示',tips,function(r){
+						if(r){
+							$.messager.progress();
+							$.post('/admin/feedback/update', {id:row.id, status:status}, function(data){
+								$.messager.progress('close');
+								if(data.ret==0){
+										$.messager.show({
+												title:'提示',
+												msg:data.msg,
+												timeout:3000,
+												showType:'slide'
+										});
+										feedbackreload();
+								}else{
+										$.messager.alert('提示',data.msg,'warning');
+								}								
+							},'json');
+						}
+					});					
+                }else{
+						$.messager.alert('提示','请先选择要操作的行！','warning');
+				}
+}
+var feedbackdelete=function(){
+				var row = $('#feedback').datagrid('getSelected');
+				if (row){
+                    $.messager.confirm('提示','确定删除吗？',function(r){
+                        if(r==true){
+                            $.messager.progress();
+                            $.post('/admin/feedback/delete', {id:row.id}, function(data){
+                                $.messager.progress('close');
+								if(data.ret==0){
+										$.messager.show({
+												title:'提示',
+												msg:data.msg,
+												timeout:3000,
+												showType:'slide'
+										});
+										feedbackreload();
+								}else{
+										$.messager.alert('提示',data.msg,'warning');
+								}								
+                            },'json');
+                        }
+                    });
+                }else{
+						$.messager.alert('提示','请先选择要删除的行！','warning');
+				}
+}
+var feedbackreload=function(){
+                $("#feedback").datagrid('reload');
+}
+var feedbacksearch=function(){
+		var height = $(window).height() - $(".top").height() - 125;
+        var width = $(window).width() - $("#leftMenu").width() - 13;
+        $("#feedback").datagrid({
+            title:'评价管理',
+            width: width,
+            height: height,
+            singleSelect:true,//如果为true，则只允许选择一行
+            striped:true,//是否显示斑马线效果。
+            rownumbers:true,//如果为true，则显示一个行号列。
+            pagination:true,//是否显示分页
+            pageSize:10,
+            pageList:[10,15,20,25],
+            method:'post',
+            sortName:'created_at',
+            sortOrder:'desc',
+            url:'/admin/feedback/Get/',
+			queryParams : {keywords:$('#feedbackkeywords').val(), fields:'name,values'},
+            fitColumns:true,//真正的自动展开/收缩列的大小，以适应网格的宽度，防止水平滚动。
+            nowrap:true,//如果为true，则在同一行中显示数据。设置为true可以提高加载性能。 是否换行
+            selectOnCheck:false,
+            checkOnSelect:true,
+			toolbar: '#tb<?php echo $uniqid;?>',
+			rowStyler: function(index,row){
+				if (row.status=='0'){
+					return 'color:#dc324d;';
+				}else{
+					return 'color:green;';
+				}
+			},
+            columns:[[
+				{field:'order_no',title:'订单编号',width:'10%'},				
+				{field:'goods',title:'商品',width:'15%',formatter:function (value,rowData,rowIndex){
+					return rowData ? rowData.goods.name : '';
+				}},			
+				{field:'rank',title:'评分',width:'5%',sortable:true},
+				{field:'content',title:'评论内容',width:'15%'},
+				{field:'reply',title:'回复内容',width:'15%'},
+				{field:'status',title:'状态',width:'5%',formatter:function (value,rowData,rowIndex){
+					return value==1 ? '显示' : '隐藏';
+				}},
+				{field:'created_at',title:'发表时间',width:'10%',sortable:true},
+				{field:'updated_at',title:'回响时间',width:'10%',sortable:true},
+            ]],
+			onDblClickRow : function(index,field){					
+				feedbackedit();
+			} 
+    	});
+}
+feedbacksearch();
+</script>

@@ -7,12 +7,12 @@ $(function(){
 
 //初始化左侧
 function InitLeftMenu() {
-	$('.easyui-accordion li a').click(function(){
+	$('.navMenu li a').click(function(){
 		var tabTitle = $(this).text();
 		var url = $(this).attr("href");
 		addTab(tabTitle,url);
-		$('.easyui-accordion li div').removeClass("selected");
-		$(this).parent().addClass("selected");
+		$('.navMenu li').removeClass("active");
+		$(this).parent().addClass("active");
 		return false;
 	}).hover(function(){
 		$(this).parent().addClass("hover");
@@ -31,7 +31,7 @@ function addTab(subtitle,url){
 			height:$('#rightTabs').height()-26
 		});
 	}else{
-		$('#rightTabs').tabs('select',subtitle);
+		$('#rightTabs').tabs('select',subtitle);		
 	}
 	tabClose();
 }

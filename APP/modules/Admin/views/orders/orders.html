@@ -1,0 +1,169 @@
+<div id="tb<?php echo $uniqid;?>" style="padding:5px">
+		<table cellspacing="0" cellpadding="0"><tbody><tr>
+		<td><SELECT id='orderstatus' onchange="orderssearch();" class="textbox-text validatebox-text">
+				<OPTION value="0">所有状态</OPTION>
+				<OPTION value="0" disabled="disabled"> -------- </OPTION>				
+				<OPTION value="100">待付款</OPTION>
+				<OPTION value="200">待发货</OPTION>
+				<OPTION value="300">已取消</OPTION>
+				<OPTION value="400">已发货</OPTION>
+				<OPTION value="500">待评价</OPTION>
+				<OPTION value="600">退款中</OPTION>
+				<OPTION value="700">已退款</OPTION>
+				<OPTION value="800">已完成</OPTION>
+			</SELECT>
+		</td>
+		<td><SELECT id='ordershipping_type' onchange="orderssearch();" class="textbox-text validatebox-text">
+				<OPTION value="-1">所有类别</OPTION>
+				<OPTION value="-1" disabled="disabled"> -------- </OPTION>				
+				<OPTION value="0">快递单</OPTION>
+				<OPTION value="1">自提单</OPTION>
+				<OPTION value="2">馈赠单</OPTION>
+				<OPTION value="3">充值单</OPTION>
+			</SELECT>
+		</td>
+		<td><SELECT id='orderclientmanager' onchange="orderssearch();" class="textbox-text validatebox-text">
+				<OPTION value="0">所有客户经理</OPTION>
+				<OPTION value="0" disabled="disabled"> -------- </OPTION>
+				<?php foreach($clientmanager as $k=>$v):?>
+				<OPTION value="<?php echo $v['id'];?>"><?php echo $v['name'];?></OPTION>					
+				<?php endforeach;?>
+			</SELECT>
+		</td>
+		<td><div class="datagrid-btn-separator"></div></td>
+		<td><a href="javascript:;" onclick="ordersview();"  class="l-btn l-btn-small l-btn-plain" group="" id=""><span class="l-btn-left l-btn-icon-left"><span class="l-btn-text">查看</span><span class="l-btn-icon icon-edit">&nbsp;</span></span></a></td>
+		<td><div class="datagrid-btn-separator"></div></td>
+		<td><a href="javascript:;" onclick="ordersdelete();"  class="l-btn l-btn-small l-btn-plain" group="" id=""><span class="l-btn-left l-btn-icon-left"><span class="l-btn-text">删除</span><span class="l-btn-icon icon-cancel">&nbsp;</span></span></a></td>
+		<td><div class="datagrid-btn-separator"></div></td>		
+		<td><a href="javascript:;" onclick="ordersreload();"  class="l-btn l-btn-small l-btn-plain" group="" id=""><span class="l-btn-left l-btn-icon-left"><span class="l-btn-text">重载</span><span class="l-btn-icon icon-reload">&nbsp;</span></span></a></td>
+		<td><div class="datagrid-btn-separator"></div></td>		
+		<td><span style="line-height:30px;">支付日期</span>
+                <input name="orderstart_on" style="width:110px" type="text" class="easyui-datebox"> </input>至
+                <input name="orderend_on" style="width:110px" type="text" class="easyui-datebox"> </input>
+        </td>
+		<td>&nbsp;&nbsp;<input  id="orderskeywords"  style="width:200px" placeholder="订单编号、手机、账号" type="text" class= "easyui-input textbox" > </input></td>
+		<td><span><a href="javascript:void(0)" class="easyui-linkbutton" plain="true" iconCls="icon-search" onclick="orderssearch()">查询</a></span>	</td>
+		</tr></tbody></table>
+</div>
+
+<div class="con" onselectstart="return false;" style="-moz-user-select:none;">
+    <table id="orders"></table>
+</div>
+
+<div id="ordersdlg" class="easyui-dialog" style="width:720px; height:460px;" title="信息框" closed="true"></div>
+
+<script>
+var ordersview = function(){
+	var row = $('#orders').datagrid('getSelected');
+	if (row){
+		addTab('查看订单', '/admin/orders/ordersview?id='+row.id);
+	}else{
+		$.messager.alert('提示','请先选择要查看的订单！','warning');
+	}
+}
+var ordersdelete=function(){
+				var row = $('#orders').datagrid('getSelected');
+				if (row){
+						$.messager.confirm('提示','确定删除吗？',function(r){
+							if(r){
+								$.messager.progress();
+								$.post('/admin/orders/ordersdelete', {id:row.id}, function(data){
+									$.messager.progress('close');
+									if(data.ret==0){
+											$.messager.show({
+													title:'提示',
+													msg:data.msg,
+													timeout:3000,
+													showType:'slide'
+											});
+											ordersreload();                                        	
+									}else{
+											$.messager.alert('提示',data.msg,'warning');
+									}
+								},'json');
+							}
+						});
+                }else{
+						$.messager.alert('提示','请先选择要操作的行！','warning');
+				}
+}
+var ordersreload=function(){
+                $("#orders").datagrid('reload');
+}
+var orderssearch=function(){
+		var height=	$(window).height()-$(".top").height()-125;//表格高度
+		var width = $(window).width()-$("#leftMenu").width()-13;//表格高度
+        $("#orders").datagrid({
+            title:'订单管理',
+            width:width,
+            height:height,//高度
+            singleSelect:true,//如果为true，则只允许选择一行
+            striped:true,//是否显示斑马线效果。
+            rownumbers:true,//如果为true，则显示一个行号列。
+            pagination:true,//是否显示分页
+            pageSize:10,
+            pageList:[10,15,20,25],
+            method:'post',
+            sortName:'sortorder',
+            sortOrder:'desc',
+            url:'/admin/orders/ordersGet',
+			queryParams : {keywords:$('#orderskeywords').val(),shipping_type:$('#ordershipping_type').val(),clientmanager:$('#orderclientmanager').val(),status:$('#orderstatus').val(),start_on:$("input[name='orderstart_on']").val(),end_on:$("input[name='orderend_on']").val()},
+            fitColumns:true,//真正的自动展开/收缩列的大小，以适应网格的宽度，防止水平滚动。
+            nowrap:true,//如果为true，则在同一行中显示数据。设置为true可以提高加载性能。 是否换行
+            selectOnCheck:false,
+            checkOnSelect:true,
+			toolbar: '#tb<?php echo $uniqid;?>',
+			rowStyler: function(index,row){
+					if (row.status=='200'&&row.shipping_type!=3){
+						return 'color:#dc324d;';
+					}else if (row.status=='300'){
+						return 'color:#bbb;font-style:italic;';
+					}else if (row.status=='400'){
+						return 'color:green;';
+					}else if (row.status=='600'||row.status=='700'){
+						return 'color:orange;';
+					}
+			},
+            columns:[[
+                {field:'order_no',title:'订单编号',width:'13%'},				
+				{field:'members.phone',title:'会员账号',width:'10%',formatter:function (value,rowData,rowIndex){
+					if(rowData.members){
+						  	return rowData.members.phone;
+					}
+				}},
+				{field:'members',title:'客户经理',width:'5%',formatter:function (value,rowData,rowIndex){
+					if(rowData.members){
+						  	return rowData.members.clientmanager;
+					}
+				}},
+				{field:'amount',title:'订单总价',width:'5%',sortable:true},                				
+				{field:'status_name',title:'状态',width:'5%'},
+				{field:'shipping_type_name',title:'订单类别',width:'5%'},
+				{field:'invoice',title:'发票',width:'5%',formatter:function (value,rowData,rowIndex){
+					  	return rowData.invoice ? '需要' : '不需要';
+				}},
+				{field:'comefrom',title:'来源',width:'5%',formatter:function (value,rowData,rowIndex){
+					  	return value ? value : 'APP';
+				}},
+				{field:'paid_type',title:'支付方式',width:'5%',formatter:function (value,rowData,rowIndex){
+					switch(value){
+						case 1:
+						  	return '支付宝支付';
+						case 2:
+							return '微信支付';
+						case 3:
+							return '余额支付';
+						case 4:
+							return '银联支付';
+					}
+				}},
+				{field:'paid_at',title:'支付时间',width:'8%',sortable:true},
+				{field:'created_at',title:'创建时间',width:'8%',sortable:true},				
+            ]],
+			onDblClickRow : function(index,field){					
+				ordersview();
+			} 
+    	});
+}
+orderssearch();
+</script>

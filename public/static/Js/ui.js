@@ -186,13 +186,13 @@ FileProgress.prototype.setProgress = function(percentage, speed, chunk_size) {
 
     this.appear();
 };
-var nameindex = 0;
-FileProgress.prototype.setComplete = function(up, info) {	
+FileProgress.prototype.setComplete = function(up, info) {
+	var nameindex = 0;
     var td = this.fileProgressWrapper.find('td:eq(2)'),
     tdProgress = td.find('.progress');
 	var name=up.files[nameindex].name;	
     var res = $.parseJSON(info);
-	nameindex++;
+	//nameindex++;
     var url;
     if (res.url) {
         url = res.url;

@@ -1,0 +1,43 @@
+<form id="goodsattraddfm" method="post">
+<table id="goodsattrwrap" border="0" width="100%" cellspacing="1" cellpadding="5" bgcolor="#c4d3e1" style="text-align:left; line-height:18px;">
+
+		<tr bgcolor="#FFFFFF" v-for="(vo, index) in attr"> 
+			<td style="line-height:30px;"  width="20%">{{vo.name}}：</td>
+			<td width="80%">
+			<template v-if="vo.input_type==1">
+			<input type="text" style="width:400px;" v-model="vo.attr_value" class="textbox-text validatebox-text textbox-prompt easyui-validatebox" placeholder="请输入..">
+			</template>
+			<template v-else-if="vo.input_type==2">
+			<SELECT v-model="vo.attr_value" style="width:153px; height:25px;" size='1'>
+				<OPTION v-for="vp in vo.valueList" :value="vp.name">{{vp.name}}</OPTION>
+			</SELECT>
+			</template>
+			<template v-else-if="vo.input_type==3">						
+			<label v-for="vp in vo.valueList"><input v-model="vo.attr_value"  type="radio" :name="vo.name" :value="vp.name" />{{vp.name}}</label>
+			</template>
+			<template v-else>			
+			<label v-for="vp in vo.valueList" ><input v-model="vo.attr_value"  type="checkbox" :name="vo.name" :value="vp.name" />{{vp.name}}</label>
+			</template>
+			</td>
+		</tr>						
+</table>
+</form>
+<style>
+label{margin-right:20px}
+</style>
+<script>
+var vm = new Vue({
+	el: '#goodsattrwrap',
+	data: {
+		attr: <?php echo json_encode($dataset, JSON_UNESCAPED_UNICODE);?>
+	},
+	methods: {
+	}
+});
+$(function(){
+		$('#goodsattrsubmit').click(function(data){			
+			$('#goodsAttr').val(JSON.stringify(vm.attr));
+			$("#goodsattrdlg").dialog('close');
+		})	
+});
+</script>

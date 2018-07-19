@@ -1,0 +1,41 @@
+<form id="qualityeditfm" method="post">
+<input type="hidden" name="id" value="<{$dataset.id}>" />
+<table border="0" width="100%" cellspacing="1" cellpadding="5" bgcolor="#c4d3e1" style="text-align:left; line-height:18px;">
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">标题：</td>
+			<td width="80%"><input name="quality" type="text" style="width:400px;" class="textbox-text validatebox-text textbox-prompt easyui-validatebox" placeholder="请输入标题.."  required="true"  value="<{$dataset.quality}>" ></td>
+		</tr>
+		<tr bgcolor="#FFFFFF"> 
+			<td style="line-height:30px;"  width="20%">排序：</td>
+			<td width="80%"><input name="sortorder" type="text" class="textbox-text validatebox-text textbox-prompt easyui-validatebox" placeholder="请输入排序.." value="<{$dataset.sortorder}>" ></td>
+		</tr>
+</table>
+</form>
+
+<script>
+$(function(){
+		$('#qualityupdatesubmit').click(function(data){			
+				$('#qualityeditfm').form('submit', {    
+					url:'/products/qualityupdate',    
+					success: function(data){    
+						var data = eval('(' + data + ')');
+						
+						
+						if(data.code=='200'){
+								$.messager.show({
+										title:'提示',
+										msg:data.msg,
+										timeout:3000,
+										showType:'slide'
+								});				
+								$('#qualityeditfm').form('clear');
+								$("#qualitydlg").dialog('close');
+								$("#quality").datagrid('reload');
+						}else{
+								$.messager.alert('提示',data.msg,'warning');
+						}
+					}    
+				});
+		})
+});
+</script>

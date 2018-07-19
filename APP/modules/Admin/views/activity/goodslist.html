@@ -1,0 +1,125 @@
+<div id="tb<?php echo $uniqid;?>" style="padding:0px">
+		<table cellspacing="0" cellpadding="0"><tbody><tr>	
+		<td><a href="javascript:;" onclick="activitygoodslistedit();"  class="l-btn l-btn-small l-btn-plain" group="" id=""><span class="l-btn-left l-btn-icon-left"><span class="l-btn-text">修改</span><span class="l-btn-icon icon-edit">&nbsp;</span></span></a></td>		
+		<td><a href="javascript:;" onclick="activitygoodslistdelete();"  class="l-btn l-btn-small l-btn-plain" group="" id=""><span class="l-btn-left l-btn-icon-left"><span class="l-btn-text">删除</span><span class="l-btn-icon icon-cancel">&nbsp;</span></span></a></td><td><div class="datagrid-btn-separator"></div></td>		
+		<td><a href="javascript:;" onclick="activitygoodslistreload();"  class="l-btn l-btn-small l-btn-plain" group="" id=""><span class="l-btn-left l-btn-icon-left"><span class="l-btn-text">重载</span><span class="l-btn-icon icon-reload">&nbsp;</span></span></a></td>
+		<td><SELECT id='activitygoodslistlabel_id' onchange="activitygoodslistsearch();" class="textbox-text validatebox-text">
+				<OPTION value="0">所有标签</OPTION>
+				<OPTION value="0" disabled="disabled"> -------- </OPTION>
+				<?php foreach($label as $k=>$v):?>
+				<OPTION value="<?php echo $v['id'];?>"><?php echo $v['name'];?></OPTION>					
+				<?php endforeach;?>
+			</SELECT>
+		</td>
+		<td><SELECT id='activitygoodsliststatus' onchange="activitygoodslistsearch();" class="textbox-text validatebox-text">
+				<OPTION value="0">发布状态</OPTION>
+				<OPTION value="0" disabled="disabled"> -------- </OPTION>
+				<OPTION value="1">置顶</OPTION>
+				<OPTION value="2">热卖</OPTION>
+				<OPTION value="3">上架</OPTION>
+				<OPTION value="4">下架</OPTION>
+				<OPTION value="5">精品</OPTION>
+			</SELECT>
+		</td>
+		<td>&nbsp;&nbsp;<input  id="activitygoodslistkeywords"  style="width:160px" type="text" placeholder="商品ID|商品编号|商品名称|标题" class= "easyui-input textbox" > </input></td>
+		<td><span><a href="javascript:void(0)" class="easyui-linkbutton" plain="true" iconCls="icon-search" onclick="activitygoodslistsearch()">查询</a></span>	</td>
+		</tr></tbody></table>
+</div>
+<div class="con" onselectstart="return false;" style="-moz-user-select:none;">
+    <table id="activitygoodslist"></table>
+</div>
+
+<script>
+var activitygoodslistedit=function(){
+		var row = $('#activitygoodslist').datagrid('getSelected');
+		if (row){		
+			$("#activitygoodsdlg").dialog({
+						title: '编辑活动价格',
+						closed: false,    
+						width: 700,
+						height:380,
+						cache: false,    
+						href: '/admin/activity/promotionPriceEdit?activity_id=<?php echo $id;?>&goods_id='+row.id+'&promotionprice='+row.promotionprice+'&promotion_id='+row.promotion_id,
+						modal: true,
+						buttons:[{
+							text:'保存',
+							id:'activitygoodseditsubmit',
+							iconCls:'icon-ok',
+						},{
+							text:'关闭',
+							iconCls:'icon-no',
+							handler:function(){$("#activitygoodsdlg").dialog('close');}
+						}]  
+			});
+		}else{
+				$.messager.alert('提示','请先选择要操作的行！','warning');
+		}
+}
+var activitygoodslistdelete=function(){
+		var row = $('#activitygoodslist').datagrid('getSelected');
+		if (row){
+			$.messager.confirm('提示','确定删除吗？',function(r){
+				if(r==true){
+					$.messager.progress();
+					$.post('/admin/activity/goodslistdelete', {promotion_id:row.promotion_id}, function(data){
+						$.messager.progress('close');
+						if(data.ret==0){
+								$.messager.show({
+										title:'提示',
+										msg:data.msg,
+										timeout:3000,
+										showType:'slide'
+								});
+								activitygoodslistreload();
+						}else{
+								$.messager.alert('提示',data.msg,'warning');
+						}								
+					},'json');
+				}
+			});
+		}else{
+				$.messager.alert('提示','请先选择要删除的行！','warning');
+		}				
+}
+var activitygoodslistreload=function(){
+        $("#activitygoodslist").datagrid('reload');
+}
+var activitygoodslistsearch=function(){
+		var height = $("#activitydlg").height() - $(".top").height()-8;
+        $("#activitygoodslist").datagrid({
+            height: height,
+			singleSelect:true,//如果为true，则只允许选择一行
+            striped:true,//是否显示斑马线效果。
+            rownumbers:true,//如果为true，则显示一个行号列。
+            pagination:true,//是否显示分页
+            pageSize:10,
+            pageList:[10,15,20,25],
+            method:'post',
+            sortName:'id',
+            sortOrder:'desc',
+            url:'/admin/activity/goodslistGet/?id='+<?php echo $id;?>,
+			queryParams : {keywords:$('#activitygoodslistkeywords').val(), fields:'name,title',status:$('#activitygoodsliststatus').val(),label_id:$('#activitygoodslistlabel_id').val()},
+            fitColumns:true,//真正的自动展开/收缩列的大小，以适应网格的宽度，防止水平滚动。
+            nowrap:true,//如果为true，则在同一行中显示数据。设置为true可以提高加载性能。 是否换行
+            selectOnCheck:false,
+            checkOnSelect:true,
+			toolbar: '#tb<?php echo $uniqid;?>',
+			rowStyler: function(index,row){
+			},
+            columns:[[			
+                {field:'name',title:'名称',width:'40%'},
+				{field:'promotionprice',title:'活动价',width:'10%',sortable:true},
+				{field:'currentprice',title:'葡团价',width:'10%',sortable:true},				
+                {field:'stock',title:'库存',width:'6%',sortable:true},
+				{field:'salenum',title:'销量',width:'6%',sortable:true},
+				{field:'rank_money',title:'佣金',width:'8%',sortable:true,formatter:function (value,rowData,rowIndex){
+					  	return value>0 ? value+'元' : rowData.rank+'%';
+				}}
+            ]],
+			onDblClickRow : function(index,field){					
+				activitygoodslistedit();
+			} 
+    	});
+}
+activitygoodslistsearch();
+</script>

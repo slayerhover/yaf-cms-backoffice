@@ -1,0 +1,1 @@
+<?phpclass GoodsMiddle extends middlewareModel {	public function handle($postData){		$token = $postData['token']??'';		#验证token		$this->checkBackToken($token);		#验证权限		//$this->checkAuth($token);	}}

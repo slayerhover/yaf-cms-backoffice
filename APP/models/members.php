@@ -1,47 +1,1 @@
-<?php
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Capsule\Manager as DB;
-
-class membersModel extends Model{
-	
-	protected $table 		= 'members';
-	protected $primaryKey	= 'id';
-
-	public function setUserLogin($phone, $password){
-		if( $user = $this->where('phone','=',$phone)->where('password','=',md5($password))->first() ){
-				$rows	= array(
-								'logintimes'	=>	intval($user['logintimes'])+1,
-								'logined_at'	=>	date('Y-m-d H:i:s'),
-				);
-				$this->where('id','=',$user['id'])->update($rows);
-				$data	= array(
-								'user_id'	=>	$user['id'],
-								'name'		=>	$user['phone'],
-								'role'		=>	$user['roles_id'],
-							);				
-				$token	= 'auth' . md5($user['id'].$user['phone'].$user['company_id'].$user['logintimes'].$user['logined_at']);
-				if( Cache::getInstance()->set($token, $user['id'], Yaf_Registry::get('config')['cache']['redis']['expire']) ){						
-						return $token;
-				}				
-		}
-		
-		return false;		
-	}
-	
-	public function checkphone($phone) {
-		return $this->where('phone','=',$phone)->count()>0;
-	}
-	public function checkPassword($phone, $password){		
-		return $this->where('phone','=',$phone)->where('password','=',md5($password))->count()>0;
-	}
-	
-	public function getUser($id){
-		$rows	=	DB::table('members')
-										->where('members.id', '=', $id)
-										->first();
-		if($rows['company_id']>0){
-			$rows['company']	=	DB::table('company')->find($rows['company_id']);
-		}
-		return $rows;
-	}
-}
+<?phpuse Illuminate\Database\Eloquent\Model;use Illuminate\Database\Capsule\Manager as DB;class membersModel extends Model{		protected $table 		= 'members';	protected $primaryKey	= 'id';	protected $appends 		= ['consultant'];	protected $config;	public function __construct(array $attributes = [])    {        $this->config = Yaf_Application::app()->getConfig();    }    public function getConsultantAttribute(){		return DB::table('admin')->select('id', 'username', 'phone', 'name', 'avatar', 'position', 'introduce')->find($this->attributes['consultant_id']);	}    public function setAutoLogin($openid){        $now  = time();        $ip   = getIp();        if( $user = $this->where('openid','=',$openid)->first() ){            $rows = array(                'id'			=>	$user['id'],                'phone'         =>  $user['phone'],                'name'			=>	$user['name'],                'logined_at'	=>	date('Y-m-d H:i:s', $now),                'logined_ip'	=>	$ip,                'lockuntil'     =>  0,            );            $token	= empty($user['token']) ? md5($user['phone'].$now.$ip) : $user['token'];            $rows['token']	=	$token;            $tokenuser	=	array(                'id'		=> $user['id'],                'phone'     => $user['phone'],                'name'		=> $user['name'],                'gender'	=> $user['gender'],                'avatar'	=> $user['avatar'],                'openid'    => $user['openid'],                'score'		=> $user['score'],                'is_consultant'=>$user['is_consultant'],                'consultant_id'=>$user['consultant_id'],                'logined_at'=> date('Y-m-d H:i:s', $now),            );            Cache::getInstance()->set('auth_'.$token, $tokenuser, $this->config['cache']['redis']['expire']);            if(Cache::getInstance()->exists('loginFailTimes_'.$user['phone'])){                Cache::getInstance()->delete('loginFailTimes_'.$user['phone']);            }            /***更新用户登陆信息BOF***/            if(DB::table('members')->where('id','=',$user['id'])->update($rows)!==FALSE){                return [                    'token'	=>	$token,                    'info'	=>	$tokenuser,                ];            }        }        return false;    }	public function setUserLogin($user){		$now  = time();		/***更新tokenBOF***/		$rows = array(				'id'			=>	$user['id'],				'phone'			=>	$user['phone'],				'logined_at'	=>	date('Y-m-d H:i:s', $now),				'logined_ip'	=>	$ip,                'lockuntil'     =>  0,		);		$token	= empty($user['token']) ? md5($user['phone'].$now.$ip) : $user['token'];		$rows['token']	=	$token;		$tokenuser	=	array(			'id'		=> $user['id'],			'phone'		=> $user['phone'],			'name'		=> $user['name'],			'gender'	=> $user['gender'],			'score'		=> $user['score'],			'is_consultant'=>$user['is_consultant'],			'consultant_id'=>$user['consultant_id'],			'logined_at'=> date('Y-m-d H:i:s', $now),		);		Cache::getInstance()->set('auth_'.$token, $tokenuser, $this->config['cache']['redis']['expire']);				if(Cache::getInstance()->exists('loginFailTimes_'.$user['phone'])){			Cache::getInstance()->delete('loginFailTimes_'.$user['phone']);		}		/***更新用户登陆信息BOF***/		if(DB::table('members')->where('id','=',$user['id'])->update($rows)!==FALSE){											return [				'token'	=>	$token,				'info'	=>	$tokenuser,			];		}						return FALSE;			}	#$type  0:密码登陆   1:短信验证码登陆	public function checkUserValid($type=0, $phone, $pwd){		/***检测手机号BOF***/		$user= DB::table('members')->where('phone','=',$phone)->first();		$now= time();		$ip	= getIp();		if($now<$user['lockuntil']){			ret(2, '该用户当前处于锁定状态,请于20分钟后重试.', ['lockuntil'=>date('Y-m-d H:i:s', $user['lockuntil'])]);		}		if($type==0){				/***检测用户密码BOF***/				if( $user['password']!=md5($pwd) ){					$failedTimes = Cache::getInstance()->incr('loginFailTimes_'.$phone);					if($failedTimes>=5){						$this->where('phone','=',$phone)->update(['lockuntil'=>time()+20*60]);					}					ret(3, '密码有误登陆失败,还可以试'.(5-$failedTimes).'次.', ['failedTimes'=>$failedTimes]);				}		}else{				/***检测短信验证码BOF***/				if($this->checksmscode($phone, $pwd)==FALSE){						$failedTimes = Cache::getInstance()->incr('loginFailTimes_'.$phone);					if($failedTimes>=5){						DB::table('members')->where('phone','=',$phone)->update(['lockuntil'=>time()+20*60]);					}					ret(1, '短信验证码不正确.', ['failedTimes'=>$failedTimes]);				}else{				    if(empty($user)){                        $now  = time();                        $ip	  = getIp();                        $token= md5($phone.$now.$ip);                        $password = $pwd;                        $inviter_id = 0;                        $uid = DB::transaction(function () use ($phone,$password,$token,$ip,$now,$inviter_id){                            $rows = [                                'phone'			=> $phone,                                'password'		=> md5($password),                                'token'			=> $token,                                'logined_ip'	=> $ip,                                'consultant_id' => DB::table('admin')->where('roles_id','=',6)->where('status','=',1)->orderbyRaw('rand()')->first()['id'],                                'parent_proxy'  => $inviter_id,                                'created_at'	=> date('Y-m-d H:i:s', $now),                            ];                            $uid = DB::table('members')->insertGetId($rows);                            return $uid;                        });                        $user =DB::table('members')->find($uid);                    }                }		}		return $user;	}		public function checksmscode($phone, $smscode){		if($this->config->application->debug&&$smscode=='1111')	return TRUE;				return (Cache::getInstance()->get('sms' . $phone)==$smscode);	}		public function checkphone($phone) {		return $this->where('phone','=',$phone)->count()>0;	}	public function checkPassword($phone, $password){				return $this->where('phone','=',$phone)->where('password','=',md5($password))->count()>0;	}		public function getUser($id){		$rows	=	$this->find($id);		$rows['avatar']=empty($rows['avatar']) ? 'http://putuan.zy52.cn/images/mman.png' : $rows['avatar'];		$rows['consultant']	=$rows['consultant_id']>0?(DB::table('admin')->select('id','username','name','phone','position')->find($rows['consultant_id'])):[];		$rows['inviter']	=$rows['parent_proxy']>0?(DB::table('members')->select('id','phone','avatar','name','position')->find($rows['parent_proxy'])):[];        $rows['couponNum']	=DB::table('couponlist')->where('members_id','=',$id)->count();        $rows['favoriteNum']=DB::table('favorite')->where('members_id','=',$id)->count();        $rows['recordsNum']	=DB::table('records')->where('members_id','=',$id)->count();		unset($rows['password']);		#unset($rows['token']);		return $rows;	}}

@@ -1,0 +1,101 @@
+[common]
+;application
+application.baseUri		= "/h"
+application.directory	= APP_PATH "/APP"
+application.library		= APP_PATH "/library"
+application.dbpath		= APP_PATH "/database"
+
+;namespace
+application.use_namespace=TRUE
+application.use_spl_autoload=FALSE
+application.modules=Home,Index
+
+;COOKIE,SESSION,REDIS
+application.auth  	  	= COOKIE
+application.authexpire  = 86400
+
+application.debug = FALSE
+application.benchmark = TRUE
+application.ext = "php"
+application.scheme = "http"
+application.suffix = "do"
+application.autoRender =FALSE
+application.view.ext = "html"
+application.dispatcher.throwException = TRUE
+application.dispatcher.catchException = TRUE
+application.dispatcher.defaultModule = "index"
+application.dispatcher.defaultController = "index"
+application.dispatcher.defaultAction = "index"
+;uploadtype:CDN/LOCAL
+application.uploadtype = CDN
+application.uploadpath = APP_PATH "/public/uploads"
+application.uploadwebpath = "http://cp.uu235.com/uploads"
+application.upfileExts = "bmp,gif,png,jpg,jpeg"
+application.upfileSize = 4000000
+
+application.cdn.accessKey = "kc8sqBgYlO3B9QzuwVrePo5idpz7CKA3bJ60yh8z"
+application.cdn.secretKey = "_sTIspi21IA3Ha1PrnCB7RcHQakGLSDjAWhtJxDE"
+application.cdn.bucket 	  = "slayerhover"
+application.cdn.url		  = "http://oseihxzg8.bkt.clouddn.com/"
+
+;database
+database.driver = mysql
+database.read.0.host = localhost
+database.write.0.host = localhost
+database.port = 3306
+database.charset = utf8
+database.collation = utf8_unicode_ci
+database.username="root"
+database.password="asdfasdf"
+database.database="scsj20171122"
+database.prefix=""
+database.mysql_log_error=TRUE
+
+;cachesystem
+cache.object_cache_enable=FALSE
+cache.caching_system="CacheRedis"
+cache.cache_exclude_table=""
+cache.prefix=""
+
+;redis
+cache.redis.hosts="127.0.0.1"
+cache.redis.ports="6379"
+cache.redis.expire="-1"
+cache.redis.auth ="slayer.hover"
+cache.redis.select="2"
+
+;smarty
+smarty.template_dir = APP_PATH "/APP/views"
+smarty.compile_dir = APP_PATH "/cache/smarty/compile"
+smarty.cache_dir = APP_PATH "/cache/smarty/cache"
+smarty.left_delimiter = "<{"
+smarty.right_delimiter = "}>"
+smarty.caching = FALSE
+smarty.force_compile = TRUE
+smarty.compile_check = FALSE
+
+;routes sample
+routes.regex.type = "regex"
+routes.regex.match = "#^/([a-zA-Z0-9]+)/([a-zA-Z0-9]+)/?#"
+routes.regex.route.module = Index
+routes.regex.route.controller = Index
+routes.regex.route.action = index
+
+;routes Rewrite
+routes.index0.type  = "rewrite"
+routes.index0.match = '/:c/:a'
+routes.index0.route.module = Index
+routes.index0.route.controller = :c
+routes.index0.route.action = :a
+
+;routes Rewrite
+routes.index1.type  = "rewrite"
+routes.index1.match = '/:c/:a/*'
+routes.index1.route.module = Index
+routes.index1.route.controller = :c
+routes.index1.route.action = :a
+
+[product : common]
+;smarty.caching = TRUE
+;smarty.force_compile = FALSE
+;smarty.compile_check = FALSE
