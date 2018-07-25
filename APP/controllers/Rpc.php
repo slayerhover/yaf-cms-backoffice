@@ -31,8 +31,8 @@ class RpcController extends CoreController {
 		if( $this->auth(__FUNCTION__, $arr, $authcode)==FALSE ){
 			return '签名验证失败';
 		}		
-		if( $this->config->cache->object_cache_enable==TRUE && Cache::getInstance()->exists('Images'.$arr['type']) ){			
-			return Cache::getInstance()->get('Images'.$arr['type']);
+		if( $this->config->cache->object_cache_enable==TRUE && Cache::exists('Images'.$arr['type']) ){			
+			return Cache::get('Images'.$arr['type']);
 		}
 		$rows	= DB::table('images')->where('type','=', $arr['type'])
 									 ->where('status','=', 1)
@@ -41,7 +41,7 @@ class RpcController extends CoreController {
 									 ->select('file','title','links')
 									 ->get();
 		if( $this->config->cache->object_cache_enable==TRUE ){			
-			Cache::getInstance()->set('Images'.$arr['type'], $rows, $this->config->cache->redis->expire);
+			Cache::set('Images'.$arr['type'], $rows, $this->config->cache->redis->expire);
 		}							 
 		return $rows;
 	}
@@ -59,15 +59,15 @@ class RpcController extends CoreController {
 		if( $this->auth(__FUNCTION__, $arr, $authcode)==FALSE ){
 			return '签名验证失败';
 		}		
-		if( $this->config->cache->object_cache_enable==TRUE && Cache::getInstance()->exists('city'.$arr['up']) ){			
-			return Cache::getInstance()->get('city'.$arr['up']);
+		if( $this->config->cache->object_cache_enable==TRUE && Cache::exists('city'.$arr['up']) ){			
+			return Cache::get('city'.$arr['up']);
 		}
 		$rows	= DB::table('city')->where('up','=', $arr['up'])
 									 ->orderBy('id', 'asc')
 									 ->select('id','name','level','sortorder')
 									 ->get();
 		if( $this->config->cache->object_cache_enable==TRUE ){			
-			Cache::getInstance()->set('city'.$arr['up'], $rows, $this->config->cache->redis->expire);
+			Cache::set('city'.$arr['up'], $rows, $this->config->cache->redis->expire);
 		}							 
 		return $rows;
 	}
@@ -83,14 +83,14 @@ class RpcController extends CoreController {
 		if( $this->auth(__FUNCTION__, $arr, $authcode)==FALSE ){
 			return '签名验证失败';
 		}		
-		if( $this->config->cache->object_cache_enable==TRUE && Cache::getInstance()->exists('Pages'.$arr['id']) ){			
-			return Cache::getInstance()->get('Pages'.$arr['id']);
+		if( $this->config->cache->object_cache_enable==TRUE && Cache::exists('Pages'.$arr['id']) ){			
+			return Cache::get('Pages'.$arr['id']);
 		}
 		$rows	= DB::table('pages')->where('id','=', $arr['id'])
 									->where('status','=', 1)
 									->first();
 		if( $this->config->cache->object_cache_enable==TRUE ){			
-			Cache::getInstance()->set('Pages'.$arr['id'], $rows, $this->config->cache->redis->expire);
+			Cache::set('Pages'.$arr['id'], $rows, $this->config->cache->redis->expire);
 		}							 
 		return $rows;
 	}
@@ -108,23 +108,23 @@ class RpcController extends CoreController {
 			return '签名验证失败';
 		}				
 		if(isset($arr['recommend']) && $arr['recommend']==1){
-				if( $this->config->cache->object_cache_enable==TRUE && Cache::getInstance()->exists('carBrandrecommend') ){			
-					return Cache::getInstance()->get('carBrandrecommend');
+				if( $this->config->cache->object_cache_enable==TRUE && Cache::exists('carBrandrecommend') ){			
+					return Cache::get('carBrandrecommend');
 				}else{
 					$rows	= DB::table('carbrand')->where('recommend', '=', 1)
 									 ->orderBy('letter', 'asc')
 									 ->get();
-					Cache::getInstance()->set('carBrandrecommend', $rows, $this->config->cache->redis->expire);				 
+					Cache::set('carBrandrecommend', $rows, $this->config->cache->redis->expire);				 
 					return $rows;
 				}
 		}else{
-				if( $this->config->cache->object_cache_enable==TRUE && Cache::getInstance()->exists('carBrand') ){			
-					return Cache::getInstance()->get('carBrand');
+				if( $this->config->cache->object_cache_enable==TRUE && Cache::exists('carBrand') ){			
+					return Cache::get('carBrand');
 				}else{
 					$rows	= DB::table('carbrand')
 									 ->orderBy('letter', 'asc')
 									 ->get();			
-					Cache::getInstance()->set('carBrand', $rows, $this->config->cache->redis->expire);
+					Cache::set('carBrand', $rows, $this->config->cache->redis->expire);
 					return $rows;
 				}
 		}
@@ -141,8 +141,8 @@ class RpcController extends CoreController {
 		if( $this->auth(__FUNCTION__, $arr, $authcode)==FALSE ){
 			return '签名验证失败';
 		}		
-		if( $this->config->cache->object_cache_enable==TRUE && Cache::getInstance()->exists('carfactory'.$arr['brand_id']) ){			
-			return Cache::getInstance()->get('carfactory'.$arr['brand_id']);
+		if( $this->config->cache->object_cache_enable==TRUE && Cache::exists('carfactory'.$arr['brand_id']) ){			
+			return Cache::get('carfactory'.$arr['brand_id']);
 		}
 		$rows	= DB::table('carfactory')->where('brand_id','=', $arr['brand_id'])
 										 ->orderBy('id', 'asc')
@@ -154,7 +154,7 @@ class RpcController extends CoreController {
 										 ->get();
 		}}
 		if( $this->config->cache->object_cache_enable==TRUE ){			
-			Cache::getInstance()->set('carfactory'.$arr['brand_id'], $rows, $this->config->cache->redis->expire);
+			Cache::set('carfactory'.$arr['brand_id'], $rows, $this->config->cache->redis->expire);
 		}							 
 		return $rows;
 	}
@@ -170,14 +170,14 @@ class RpcController extends CoreController {
 		if( $this->auth(__FUNCTION__, $arr, $authcode)==FALSE ){
 			return '签名验证失败';
 		}		
-		if( $this->config->cache->object_cache_enable==TRUE && Cache::getInstance()->exists('carseries'.$arr['factory_id']) ){			
-			return Cache::getInstance()->get('carseries'.$arr['factory_id']);
+		if( $this->config->cache->object_cache_enable==TRUE && Cache::exists('carseries'.$arr['factory_id']) ){			
+			return Cache::get('carseries'.$arr['factory_id']);
 		}
 		$rows	= DB::table('carseries')->where('factory_id','=', $arr['factory_id'])
 										 ->orderBy('id', 'asc')
 										 ->get();
 		if( $this->config->cache->object_cache_enable==TRUE ){			
-			Cache::getInstance()->set('carseries'.$arr['factory_id'], $rows, $this->config->cache->redis->expire);
+			Cache::set('carseries'.$arr['factory_id'], $rows, $this->config->cache->redis->expire);
 		}							 
 		return $rows;
 	}
@@ -193,14 +193,14 @@ class RpcController extends CoreController {
 		if( $this->auth(__FUNCTION__, $arr, $authcode)==FALSE ){
 			return '签名验证失败';
 		}		
-		if( $this->config->cache->object_cache_enable==TRUE && Cache::getInstance()->exists('carmodel'.$arr['series_id']) ){			
-			return Cache::getInstance()->get('carmodel'.$arr['series_id']);
+		if( $this->config->cache->object_cache_enable==TRUE && Cache::exists('carmodel'.$arr['series_id']) ){			
+			return Cache::get('carmodel'.$arr['series_id']);
 		}
 		$rows	= DB::table('carmodel')->where('series_id','=', $arr['series_id'])
 										 ->orderBy('id', 'asc')
 										 ->get();
 		if( $this->config->cache->object_cache_enable==TRUE ){			
-			Cache::getInstance()->set('carmodel'.$arr['series_id'], $rows, $this->config->cache->redis->expire);
+			Cache::set('carmodel'.$arr['series_id'], $rows, $this->config->cache->redis->expire);
 		}							 
 		return $rows;
 	}
@@ -216,8 +216,8 @@ class RpcController extends CoreController {
 		if( $this->auth(__FUNCTION__, $arr, $authcode)==FALSE ){
 			return '签名验证失败';
 		}		
-		if( $this->config->cache->object_cache_enable==TRUE && Cache::getInstance()->exists('carparts'.$arr['parts_id'].'sub'.$arr['is_showsub']) ){			
-			return Cache::getInstance()->get('carparts'.$arr['parts_id'].'sub'.$arr['is_showsub']);
+		if( $this->config->cache->object_cache_enable==TRUE && Cache::exists('carparts'.$arr['parts_id'].'sub'.$arr['is_showsub']) ){			
+			return Cache::get('carparts'.$arr['parts_id'].'sub'.$arr['is_showsub']);
 		}
 		$query	= DB::table('autoparts');
 		if($arr['parts_id']==0){
@@ -236,7 +236,7 @@ class RpcController extends CoreController {
 																 ->get();
 		}}
 		if( $this->config->cache->object_cache_enable==TRUE ){			
-			Cache::getInstance()->set('carparts'.$arr['parts_id'].'sub'.$arr['is_showsub'], $rows, $this->config->cache->redis->expire);
+			Cache::set('carparts'.$arr['parts_id'].'sub'.$arr['is_showsub'], $rows, $this->config->cache->redis->expire);
 		}							 
 		return $rows;
 	}

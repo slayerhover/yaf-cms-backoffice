@@ -10,7 +10,7 @@ class UserController extends CoreController {
         Yaf_Dispatcher::getInstance()->disableView();
 		parent::init();
 		$token = $this->get('token', '');
-		$this->user = Cache::getInstance()->get('auth_'.$token);
+		$this->user = Cache::get('auth_'.$token);
 		if(empty($this->user)){
 			ret(1, '请先登陆');
 		}

@@ -504,7 +504,7 @@ class IndexController extends CoreController {
 		#已登陆，添加是否已收藏字段
 		$token = $this->get('token', '');
 		if(!empty($token)){
-		    $user  = Cache::getInstance()->get('auth_'.$token);
+		    $user  = Cache::get('auth_'.$token);
             $rows['is_favorited'] = DB::table('favorite')->where('members_id','=',$user['id'])->where('goods_id','=',$id)->count()>0?1:0;
             if(!empty($user['id'])){
                 DB::table('records')->where('members_id','=',$user['id'])->where('goods_id','=',$id)->delete();
@@ -571,7 +571,7 @@ class IndexController extends CoreController {
 			$rand	= rand(1000, 9999);
             $resp = $this->sendSmsPacket($rand, $type, $phone);
             if($resp->result->success) {
-                Cache::getInstance()->set('sms' . $phone, $rand);
+                Cache::set('sms' . $phone, $rand);
                 $result = array(
                     'ret' => '0',
                     'msg' => '短信发送成功',
@@ -661,7 +661,7 @@ class IndexController extends CoreController {
 	private function checksmscode($phone, $smscode){
 		if($this->config->application->debug==TRUE&&$smscode=='1111')	return TRUE;			
 		
-		return (Cache::getInstance()->get('sms' . $phone)==$smscode);
+		return (Cache::get('sms' . $phone)==$smscode);
 	}
 	
 	/**
@@ -1671,9 +1671,9 @@ class IndexController extends CoreController {
 					);
 					break;
 			}
-			if( Cache::getInstance()->exists('auth_'.$token) ){
+			if( Cache::exists('auth_'.$token) ){
 					#DB::table('t_user')->where('token','=',$token)->update(['token'=>'']);
-					#Cache::getInstance()->delete('auth_'.$token);
+					#Cache::delete('auth_'.$token);
 					$result	= array(
 							'ret'	=>	'0',
 							'msg'	=>	'退出成功.',

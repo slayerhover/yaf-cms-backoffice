@@ -48,7 +48,7 @@ abstract class middlewareModel{
 	
 	#验证权限
 	protected function checkAuth($token){		
-		$tokenuser = Cache::getInstance()->get('auth_'.$token);
+		$tokenuser = Cache::get('auth_'.$token);
 		#判断控制器&方法权限
 		$ownAuth = explode(',', DB::table('roles')->find($tokenuser['roles_id'])['auth_ids']);				
 		#DB::enableQueryLog();		

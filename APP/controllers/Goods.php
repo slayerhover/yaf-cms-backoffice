@@ -10,7 +10,7 @@ class GoodsController extends CoreController {
         Yaf_Dispatcher::getInstance()->disableView();
 		parent::init();        
 		$token = $this->get('token', '');
-		$this->user = Cache::getInstance()->get('auth_'.$token);
+		$this->user = Cache::get('auth_'.$token);
 	}
 	
 	#产品品牌列表

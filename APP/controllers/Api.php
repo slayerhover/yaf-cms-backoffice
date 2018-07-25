@@ -18,7 +18,7 @@ class IndexController extends CoreController {
 	public function syncTokenAction(){
 		$now	=	time();
 		foreach(DB::table('t_user')->where('token','<>','')->select('id','phone','type','code','inviter_id','saleuser_state','token')->get() as $v){
-			if(Cache::getInstance()->exists('auth_'.$v['token'])==FALSE){
+			if(Cache::exists('auth_'.$v['token'])==FALSE){
 				$rows	=	array(
 					'uid'		=> $v['id'],
 					'phone'		=> $v['phone'],
@@ -28,7 +28,7 @@ class IndexController extends CoreController {
 					'saleuser_state'=>$v['saleuser_state'],
 					'created'	=> $now,
 				);
-				Cache::getInstance()->set('auth_'.$v['token'], $rows, $this->config['cache']['redis']['expire']);
+				Cache::set('auth_'.$v['token'], $rows, $this->config['cache']['redis']['expire']);
 			}
 		}
 		ret(0, 'Token同步完成', 'ok');
@@ -157,7 +157,7 @@ class IndexController extends CoreController {
 					'saleuser_state'=>0,
 					'created'	=> $now,
 				);
-				if( Cache::getInstance()->set('auth_'.$token, $rows, $this->config['cache']['redis']['expire']) ){
+				if( Cache::set('auth_'.$token, $rows, $this->config['cache']['redis']['expire']) ){
 					$result	= array(
 							'ret'	=>	'0',
 							'msg'	=>	'注册成功，感谢您的使用.',
@@ -247,7 +247,7 @@ class IndexController extends CoreController {
 									   ->select('id','token','type','code','phone','salt','inviter_id','lockuntil','user_login_time','user_login_ip','saleuser_state')
 									   ->first();	
 			if(empty($user)){
-				$failedTimes = Cache::getInstance()->incr('loginFailTimes_'.$phone);
+				$failedTimes = Cache::incr('loginFailTimes_'.$phone);
 				if($failedTimes>=5){
 					DB::table('t_user')->where('phone','=',$phone)->update(['lockuntil'=>time()+20*60]);
 				}
@@ -271,7 +271,7 @@ class IndexController extends CoreController {
 			);
 			$token	= empty($user['token']) ? md5($user['phone'].$now.$ip.$user['salt']) : $user['token'];
 			$rows['token']	=	$token;			
-			if(Cache::getInstance()->exists('auth_'.$token)==FALSE){
+			if(Cache::exists('auth_'.$token)==FALSE){
 				$tokenuser	=	array(
 					'uid'		=> $user['id'],
 					'phone'		=> $user['phone'],					
@@ -281,10 +281,10 @@ class IndexController extends CoreController {
 					'saleuser_state'=>$user['saleuser_state'],
 					'created'	=> $now,
 				);
-				Cache::getInstance()->set('auth_'.$token, $tokenuser, $this->config['cache']['redis']['expire']);
+				Cache::set('auth_'.$token, $tokenuser, $this->config['cache']['redis']['expire']);
 			}
-			if(Cache::getInstance()->exists('loginFailTimes_'.$phone)){
-				Cache::getInstance()->delete('loginFailTimes_'.$phone);
+			if(Cache::exists('loginFailTimes_'.$phone)){
+				Cache::delete('loginFailTimes_'.$phone);
 			}
 			/***更新tokenEOF***/			
 			/***更新用户登陆信息BOF***/
@@ -372,7 +372,7 @@ class IndexController extends CoreController {
 			/***检测用户状态EOF***/
 			/***检测短信验证码BOF***/
 			if(DB::table('scsj_smslog')->where('phone','=',$phone)->orderby('created','DESC')->first()['sn']!=$smscode){
-				$failedTimes = Cache::getInstance()->incr('loginFailTimes_'.$phone);
+				$failedTimes = Cache::incr('loginFailTimes_'.$phone);
 				if($failedTimes>=5){
 					DB::table('t_user')->where('phone','=',$phone)->update(['lockuntil'=>time()+20*60]);
 				}
@@ -399,7 +399,7 @@ class IndexController extends CoreController {
 			);
 			$token	= empty($user['token']) ? md5($user['phone'].$now.$ip.$user['salt']) : $user['token'];
 			$rows['token']	=	$token;			
-			if(Cache::getInstance()->exists('auth_'.$token)==FALSE){
+			if(Cache::exists('auth_'.$token)==FALSE){
 				$tokenuser	=	array(
 					'uid'		=> $user['id'],
 					'phone'		=> $user['phone'],
@@ -409,10 +409,10 @@ class IndexController extends CoreController {
 					'saleuser_state'=>$user['saleuser_state'],
 					'created'	=> $now,
 				);
-				Cache::getInstance()->set('auth_'.$token, $tokenuser, $this->config['cache']['redis']['expire']);
+				Cache::set('auth_'.$token, $tokenuser, $this->config['cache']['redis']['expire']);
 			}
-			if(Cache::getInstance()->exists('loginFailTimes_'.$phone)){
-				Cache::getInstance()->delete('loginFailTimes_'.$phone);
+			if(Cache::exists('loginFailTimes_'.$phone)){
+				Cache::delete('loginFailTimes_'.$phone);
 			}
 			/***更新tokenEOF***/			
 			/***更新用户登陆信息BOF***/
@@ -623,11 +623,11 @@ class IndexController extends CoreController {
      */
 	private function checkTokenValid($token){		
 		if(	!empty($checkResult) ){return FALSE;}
-		if(Cache::getInstance()->exists('auth_'.$token)==FALSE){ return FALSE; }
+		if(Cache::exists('auth_'.$token)==FALSE){ return FALSE; }
 		//$myuser	= DB::table('t_user')->where('token','=',$token)->first();
 		//if(empty($myuser)){return FALSE;}
 		
-		return Cache::getInstance()->get('auth_'.$token);
+		return Cache::get('auth_'.$token);
 	}
 		
 	/**
@@ -1462,9 +1462,9 @@ class IndexController extends CoreController {
 					);
 					break;
 			}
-			if( Cache::getInstance()->exists('auth_'.$token) ){
+			if( Cache::exists('auth_'.$token) ){
 					#DB::table('t_user')->where('token','=',$token)->update(['token'=>'']);
-					#Cache::getInstance()->delete('auth_'.$token);
+					#Cache::delete('auth_'.$token);
 					$result	= array(
 							'ret'	=>	'0',
 							'msg'	=>	'退出成功.',

@@ -103,12 +103,12 @@ function updateNull(& $onearr){
 /***保存SQL记录到redis***/
 function remember($key, $ttl, callable $func){
 		$cache_enable =	Yaf_Registry::get('config')->cache->redis->enable;
-		if( $cache_enable && Cache::getInstance()->exists($key) ){		
-				return Cache::getInstance()->get($key);
+		if( $cache_enable && Cache::exists($key) ){		
+				return Cache::get($key);
 		}
 		$rows	= call_user_func($func);			
 		if( $cache_enable ){
-				Cache::getInstance()->set($key, $rows, $ttl);
+				Cache::set($key, $rows, $ttl);
 		}
 		return $rows;	
 }
