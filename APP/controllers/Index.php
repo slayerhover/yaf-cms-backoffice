@@ -1089,7 +1089,7 @@ class IndexController extends CoreController {
 		
 		json($result);
 	}
-	
+
     /**
      *接口名称	ueditor编辑器上传图片
      *参数 @param
@@ -1200,19 +1200,6 @@ class IndexController extends CoreController {
 		}				
 		ret(0, '保证金订单创建成功.', $orders);
 	}
-	/***签名BOF***
-	public function signAction(){
-		$rows	= array(
-			'out_trade_no'	=>	'123456784515',
-			'total_amount'	=>	0.01,
-			'transaction_id'=>	'98494984894984189189148948489',
-		);
-		$result = array(
-			'data'	=> (new Encrypt)->encode($rows),
-		);
-		ret(0, $result, '编码签名.');
-	}
-	***签名EOF***/
 
     /**
      * APP调用支付宝接口。
