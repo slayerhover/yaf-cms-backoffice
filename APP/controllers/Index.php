@@ -1348,19 +1348,6 @@ class IndexController extends CoreController {
         }
     }
 
-	#前端页面提示
-	public function pageTipsAction(){
-		$allTips = DB::table('scsj_language')->select('code','string')->get();
-		$data	 = [];
-		if(!empty($allTips)&&is_array($allTips)){
-		foreach($allTips as $k=>$v){
-				$data[$v['code']] = $v['string'];
-		}}
-		echo "<script>var tips=JSON.parse('";
-		echo json_encode($data, JSON_UNESCAPED_UNICODE);
-		echo "');</script>";		
-	}
-
 	/**
 	 *接口名称	退出登陆
 	 *接口地址	http://api.com/public/logout/
