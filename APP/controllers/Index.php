@@ -1607,25 +1607,6 @@ class IndexController extends CoreController {
             exit('fail');	//验证失败
         }
     }
-			
-	#判断用户能否解绑
-	public function enableUnbindAction(){
-		$token		= $this->get('token', 		'');
-		/***参数验证BOF***/
-		$inputs	= array(			
-				['name'=>'token',  'value'=>$token,	 'role'=>'required', 'msg'=>'登陆标识'],
-		);
-		$result		= Validate::check($inputs);			
-		if(!empty($result)){
-			ret(1, $result);
-		}
-		$myuser	= $this->checkTokenValid($token);
-		if($myuser==FALSE){
-			ret(1, '请重新登陆.');				
-		}
-		/***参数验证EOF***/
-		json($this->unbindcheck($myuser));
-	}
 
 	#前端页面提示
 	public function pageTipsAction(){
