@@ -8,7 +8,8 @@ class Cache {
     }
 
     public static function connection() {
-        if(!self::$instance) {
+  
+        if (!self::$_instance instanceof self){
             if (CACHE_ENABLE && extension_loaded('redis') && class_exists('Redis')) {
                 self::$instance = new Redis();
             } else {
