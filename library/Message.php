@@ -72,7 +72,7 @@ class Message{
 		
 		self::sms($members['phone'], $type);
 		self::zMail($members_id, $template['title'], $template['content']);
-		pushMsg($cid, $template['content']);
+		self::pushMsg($cid, $template['content']);
 	}
 	
 	#发短信	Message::sms($phone, $type);
@@ -117,8 +117,27 @@ class Message{
 	public static function jPush(members_id, $title){
 		$cid = DB::table('members')->find($members_id)['cid'];
 		if(!empty($cid)){
-			pushMsg($cid, $title);
+			self::pushMsg($cid, $title);
 		}
+	}
+	
+	#极光推送消息
+	public static function pushMsg($cid, $msg){
+		$client = new \JPush\Client('9683eb941850327c5dead41d', '45353428c3a56fd50cf46142');
+		$client->push()
+				->setPlatform('all')
+				->addRegistrationId($cid)
+				->setNotificationAlert($msg)
+				->iosNotification($msg, array(
+					'sound' => 'widget://res/002.ogg',
+				))
+				->androidNotification($msg, array(
+					'title' => $msg,
+					'extras' => array(
+						'sound' => 'widget://res/002.ogg',
+					),
+				))
+				->send();
 	}
 			
 }
