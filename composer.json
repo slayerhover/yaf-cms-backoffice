@@ -2,6 +2,7 @@
     "require": {
 		"qiniu/php-sdk": "^7.1",
 		"illuminate/database":"~4.2",
-		"phpunit/phpunit": "^6.5"    
+		"phpunit/phpunit": "^6.5",
+	    	"jpush/jpush": "^3.5"
     }
 }
